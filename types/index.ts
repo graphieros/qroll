@@ -3,7 +3,7 @@ export interface Config {
     options: Options
 }
 
-export type ScrollDirection = 'up' | 'down'
+export type ScrollDirection = 'up' | 'down' | 'right' | 'left'
 
 export interface Options {
     [key: string]: any
