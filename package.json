@@ -1,0 +1,32 @@
+{
+  "name": "alpra-scroll",
+  "version": "0.0.0",
+  "type": "module",
+  "main": "./dist/alpra-scroll.umd.cjs",
+  "module": "./dist/alpra-scroll.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/alpra-scroll.js",
+      "export": "./dist/alpra-scroll.umd.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "coverage": "vitest run --coverage"
+  },
+  "devDependencies": {
+    "@types/node": "^14.18.36",
+    "@vitest/coverage-c8": "^0.28.4",
+    "typescript": "^4.9.3",
+    "vite": "^4.1.0",
+    "vite-plugin-dts": "^1.7.2",
+    "vitest": "^0.28.4"
+  }
+}

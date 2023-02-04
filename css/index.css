@@ -1,0 +1,66 @@
+html,
+html body {
+    box-sizing: border-box;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    padding: 0;
+    width: 100%;
+}
+
+html body {
+    position: relative;
+}
+
+.alpra-parent {
+    background: rgba(0,0,0,0.2);
+    height: 100vh !important;
+    left: 0 !important;
+    position: absolute !important;
+    top: 0 !important;
+    width: 100vw !important;
+}
+
+.alpra-child {
+    outline: 2px dashed rgba(0,0,0,0.2);
+    position: absolute;
+    transition: all 1s ease-in-out;
+}
+
+.alpra-child.alpra-child-visible {
+    transform: translate(0, 0);
+}
+
+.alpra-child.alpra-top:not(.alpra-child-visible) {
+    transform: translateY(-105vh);
+}
+
+.alpra-child.alpra-bottom:not(.alpra-child-visible) {
+    transform: translateY(105vh);
+}
+
+.alpra-children-wrapper {
+    align-items: center;
+    display: flex;
+    height: 100vh !important;
+    justify-content: center;
+    left: 0 !important;
+    position: relative !important;
+    top: 0 !important;
+    width: 100vw !important;
+}
+
+.alpra-hidden {
+    display: none !important;
+}
+
+.alpra-child-visible {
+    height: auto;
+    margin: auto;
+    width: auto;
+}
+.alpra-bottom-invisible {
+    height: 120vh;
+    width:100vw;
+    max-width: 100%;
+}
