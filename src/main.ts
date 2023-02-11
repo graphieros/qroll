@@ -1,148 +1,123 @@
-import { Options, ScrollDirection } from "../types";
-import { CssClass, Direction } from "./constants";
-import functions from "./functions";
-
+import { Options } from "../types";
+import { CssClass } from "./constants";
+// 
+// TODO: add option for looping
 // TODO: add option for looping
 // TODO: find a way to include css
 
-let childClass = CssClass.CHILD;
-let childPosition = 0;
+// 3 slides
+// 1
+// 2
+// 3
+
+
+// start translate0
+
+// scroll : snaps to the next slide by using translate
+// before that you need a copy of the first slide to be appended to the page array
+// once it's spapped : remove the first page form the array and set translate to 0
+
+
+// let childClass = CssClass.CHILD;
+// let childPosition = 0;
+// let isScrollLocked = false;
 
 const parentClass = CssClass.PARENT;
+let isChanging = false;
 
-// LISTENERS
-let evtTouchStart: Touch;
-let evtTouchEnd: Touch;
-// const threshold = 50;
+const getUid = () => {
+    let d = new Date().getTime();//Timestamp
+    let d2 = ((typeof performance !== 'undefined') && performance.now && (performance.now() * 1000)) || 0;//Time in microseconds since page-load or 0 if unsupported
+    return 'xxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        let r = Math.random() * 16;//random number between 0 and 16
+        if (d > 0) {//Use timestamp until depleted
+            r = (d + r) % 16 | 0;
+            d = Math.floor(d / 16);
+        } else {//Use microseconds since page-load if supported
+            r = (d2 + r) % 16 | 0;
+            d2 = Math.floor(d2 / 16);
+        }
+        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    });
+}
 
 const logError = (err: string) => {
     console.error('Alpra-scroll exception:', { err })
 }
 
-const Main = (parentName: string, options: Options = {}) => {
-    const parent = document.getElementById(parentName) as HTMLElement;
+const Main = (parentName: string, _options: Options = {}) => {
 
-    if (!parent) return logError(`parent name not found: ${parentName}`);
+    const parent = document.getElementById(parentName) as HTMLElement;
+    if (!parent) return logError('parent name not found: ' + parentName);
 
     parent.classList.add(parentClass);
 
-    const children = new Array(parent.children) as unknown as HTMLElement[];
-
-    const childrenWrapper = document.createElement("DIV");
-    childrenWrapper.classList.add(CssClass.CHILDREN_WRAPPER);
-    childrenWrapper.id = CssClass.CHILDREN_WRAPPER;
-
-    const { sectionClass } = options;
-    if (sectionClass) {
-        childClass = sectionClass;
+    const children = parent.children as unknown as HTMLElement[];
+    for (let i = 0; i < children.length; i += 1) {
+        const uid = getUid();
+        const element = children[i];
+        element.classList.add(CssClass.CHILD);
+        element.setAttribute("id", element.id || `child_${uid}`);
+        element.dataset.index = `page-${i}`;
     }
 
-    if (children.length) {
-        for (let i = 0; i < parent.children.length; i += 1) {
-            const child = parent.children[i].cloneNode(true) as HTMLElement;
-            if (!child.id) {
-                child.id = `section_${i + 1}`;
-            }
-            child.classList.add(childClass);
-            child.classList.add(CssClass.TOP);
-            childrenWrapper.appendChild(child);
+    // function deleteOriginalSlide(pageId: string) {
+    //     console.log('deleteOriginalSlide',pageId);
+    //     // remove the slide that was duplicated
+    // }
 
-            parent.children[i].classList.add(CssClass.HIDDEN);
-        }
 
-        if (childrenWrapper.firstChild) {
-            (childrenWrapper.firstChild as HTMLElement).classList.add(CssClass.CHILD_VISIBLE);
-        }
+    function duplicateSlide(pageId: string) {
+        console.log('duplicateSlide', pageId);
+        const element = document.getElementById(pageId)?.cloneNode() as HTMLElement;
+        element.setAttribute("id", getUid());
+        element.innerHTML = (document.getElementById(pageId) as HTMLElement).innerHTML;
+        parent.appendChild(element as HTMLElement);
+        //copy first page and append it
     }
-    parent.appendChild(childrenWrapper);
 
-    const bottomInvisibleDiv = document.createElement("DIV");
-    bottomInvisibleDiv.classList.add(CssClass.BOTTOM_INVISIBLE);
-    document.body.appendChild(bottomInvisibleDiv);
 
-    document.addEventListener("touchstart", (event) => {
-        evtTouchStart = event.changedTouches?.[0] || evtTouchStart;
-    });
+    function removeSlide(slideId: string) {
+        setTimeout(() => {
+            parent.removeChild(document.getElementById(slideId) as HTMLElement);
+            isChanging = false;
+        }, 1000);
+    }
 
-    document.addEventListener("touchend", (event) => {
-        evtTouchEnd = event.changedTouches?.[0] || evtTouchEnd;
-    });
+    function scroll() {
+        if (isChanging) return;
 
-    document.addEventListener("touchmove", (_e) => {
-        const diff = (evtTouchStart?.clientY - evtTouchEnd?.clientY) ?? 0;
-        if (diff > 0) {
-            scrollSlides(Direction.UP);
-        } else if (diff < 0) {
-            scrollSlides(Direction.DOWN);
-        }
-    });
+        isChanging = true;
+        // get the next page ID
+        const firstPageId = children[0].id;
+        const nextPageId = children[1].id;
 
-    document.addEventListener("wheel", (event: any) => {
-        console.log({ event }, event.deltaY);
+        duplicateSlide(firstPageId);
+        snapSlide(nextPageId);
+        removeSlide(firstPageId);
+    }
 
-        if (event.deltaY > 0) {
-            scrollSlides(Direction.DOWN);
+
+    function snapSlide(pageId: string) {
+        const element = document.getElementById(pageId) as HTMLElement;
+        if (element) {
+            scrollIntoView(element);
         } else {
-            scrollSlides(Direction.UP);
-        }
-    })
-}
-
-function scrollSlides(direction: ScrollDirection) {
-    if (direction === Direction.UP) {
-        scrollUp(childPosition + 1)
-    } else {
-        scrollDown(childPosition - 1);
-    }
-}
-
-function scrollUp(nextChild: number) {
-    const childrenWrapper = document.getElementById(CssClass.CHILDREN_WRAPPER);
-
-    if (nextChild < 0 || !childrenWrapper) return;
-
-    const children = new Array(childrenWrapper.children) as unknown as HTMLElement[];
-
-    if (children.length) {
-        for (let i = 0; i < children.length; i += 1) {
-            if (childPosition === i) {
-                (childrenWrapper.children[i] as HTMLElement).classList.remove(CssClass.CHILD_VISIBLE);
-            } else if (nextChild === i) {
-                functions.updateCssClasses({
-                    element: childrenWrapper.children[i] as HTMLElement,
-                    addedClasses: [CssClass.BOTTOM, CssClass.CHILD_VISIBLE],
-                    removedClasses: [CssClass.TOP]
-                });
-            }
+            console.error(`Element '${pageId}' not found`)
         }
     }
 
-    console.log({ childPosition, nextChild });
-    childPosition = nextChild;
-}
-
-function scrollDown(nextChild: number) {
-    const childrenWrapper = document.getElementById(CssClass.CHILDREN_WRAPPER);
-    if (!childrenWrapper || nextChild > childrenWrapper?.children?.length) return;
-
-    const children = new Array(childrenWrapper.children) as unknown as HTMLElement[];
-
-    if (children.length) {
-        for (let i = 0; i < children.length; i += 1) {
-            if (childPosition === i) {
-                (childrenWrapper.children[i] as HTMLElement).classList.remove(CssClass.CHILD_VISIBLE);
-            } else if (childPosition === i) {
-                functions.updateCssClasses({
-                    element: childrenWrapper.children[i] as HTMLElement,
-                    addedClasses: [CssClass.TOP, CssClass.CHILD_VISIBLE],
-                    removedClasses: [CssClass.BOTTOM]
-                });
-            }
-        }
+    function scrollIntoView(element: HTMLElement) {
+        element.scrollIntoView({
+            behavior: "smooth",
+        })
     }
 
-    console.log({ childPosition, nextChild });
-    childPosition = nextChild;
+    document.addEventListener("wheel", scroll);
+    // function toggleScroll(isLocked: boolean) {
+    //     isScrollLocked = isLocked;
+    // }
+
 }
 
 export default Main;
