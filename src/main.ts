@@ -7,40 +7,22 @@ import { createUid, grabId, logError } from "./functions";
 // TODO: clearTimeout all setTimeout usage
 
 
-// let childClass = CssClass.CHILD;
-// let childPosition = 0;
-// let isScrollLocked = false;
-
-// function debounce(this: any, func: { apply: (arg0: any, arg1: IArguments) => void; }, wait: number | undefined, immediate = false) {
-//     var self = this;
-//     self.timeout = null;
-//     return () => {
-//         var context = this, args = arguments;
-//         clearTimeout(self.timeout);
-//         self.timeout = setTimeout(function () {
-//             self.timeout = null;
-//             if (!immediate) {
-//                 func.apply(context, args);
-//             }
-//         }, wait);
-
-//         if (immediate && !self.timeout) {
-//             func.apply(context, args);
-//         }
-//     };
-// }
-
-const parentClass = CssClass.PARENT;
-let isChanging = false;
-let pageHeight = (window as any).innerHeight;
-
-
 const Main = (parentName: string, _options: Options = {}) => {
 
     const transitionDuration = 500; // should be set in options, also the .alpra-transitionY css class needs to be adapted (maybe including defined durations, like .alpra-transition-500, .alpra-transition-300 etc)
+    const parentClass = CssClass.PARENT;
+    let isChanging = false;
+    let pageHeight = (window as any).innerHeight;
+    let eventTouchStart: Touch;
+    let eventTouchEnd: Touch;
+    let timeoutDestroySlide: any;
+    let timeoutClassTransition: any;
+    let timeoutTransitionY: any;
 
-    window.addEventListener("resize", (event: any) => {
-        pageHeight = event.target.innerHeight;
+    ///////////////////////////// EVENT LISTENERS //////////////////////////////
+
+    window.addEventListener("resize", (event: Event) => {
+        pageHeight = (event.target as Window).innerHeight;
     });
 
     document.addEventListener("wheel", function (event: { deltaY: number; }) {
@@ -50,6 +32,25 @@ const Main = (parentName: string, _options: Options = {}) => {
             scroll(Direction.UP);
         }
     });
+
+    document.addEventListener("touchstart", (event) => {
+        eventTouchStart = event.changedTouches?.[0] || eventTouchStart;
+    });
+
+    document.addEventListener("touchend", (event) => {
+        eventTouchEnd = event.changedTouches?.[0] || eventTouchEnd;
+    });
+
+    document.addEventListener("touchmove", (_e) => {
+        const diff = (eventTouchStart?.clientY - eventTouchEnd?.clientY) ?? 0;
+        if (diff > 0) {
+            scroll(Direction.DOWN);
+        } else if (diff < 0) {
+            scroll(Direction.UP);
+        }
+    });
+
+    ////////////////////////////////////////////////////////////////////////////
 
     const parent = grabId(parentName);
     if (!parent) return logError('parent name not found: ' + parentName);
@@ -65,19 +66,44 @@ const Main = (parentName: string, _options: Options = {}) => {
         element.dataset.index = `page-${i}`;
     }
 
-    function duplicateSlide(pageId: string) {
-        console.log('duplicateSlide', pageId);
-        const element = grabId(pageId)?.cloneNode(true) as HTMLElement; // true also clones innerHTML
+    function duplicateSlide(slideId: string, direction: ScrollDirection) {
+        const element = grabId(slideId)?.cloneNode(true) as HTMLElement; // true also clones innerHTML
         element.setAttribute("id", createUid());
-        parent.appendChild(element as HTMLElement);
+        if (direction === Direction.DOWN) {
+            parent.appendChild(element as HTMLElement);
+        } else if (direction === Direction.UP) {
+            parent.prepend(element);
+        }
     }
 
-    function removeSlide(slideId: string) {
+    function destroySlide(slideId: string) {
         if (isChanging) {
-            setTimeout(() => {
+            clearTimeout(timeoutDestroySlide);
+            timeoutDestroySlide = setTimeout(() => {
                 parent.removeChild(grabId(slideId));
                 isChanging = false;
             }, transitionDuration)
+        }
+    }
+
+    function snapSlide(slideId: string, direction: ScrollDirection) {
+        if (direction === Direction.DOWN) {
+            parent.classList.add(CssClass.TRANSITION_Y);
+            translateY(-pageHeight);
+            destroySlide(slideId);
+            clearTimeout(timeoutClassTransition);
+            timeoutClassTransition = setTimeout(() => parent.classList.remove(CssClass.TRANSITION_Y), transitionDuration);
+            clearTimeout(timeoutTransitionY);
+            timeoutTransitionY = setTimeout(() => translateY(0), transitionDuration);
+        } else if (direction === Direction.UP) {
+            parent.classList.remove(CssClass.TRANSITION_Y);
+            translateY(-pageHeight);
+            clearTimeout(timeoutClassTransition);
+            // TODO: this random small timeout of 50 makes it work with the same apparent speed as the DOWN direction. We need to try other speeds, the make sure 50 / 500 (transitionDuration) is the right proportion, or if can even work this way
+            timeoutClassTransition = setTimeout(() => parent.classList.add(CssClass.TRANSITION_Y), 50);
+            clearTimeout(timeoutTransitionY);
+            timeoutTransitionY = setTimeout(() => translateY(0), 50);
+            destroySlide(slideId);
         }
     }
 
@@ -87,33 +113,17 @@ const Main = (parentName: string, _options: Options = {}) => {
 
     function scroll(direction: ScrollDirection) {
         if (isChanging) return;
-        console.log(`Scrolling ${direction}`);
 
         isChanging = true;
-        let firstPageId = children[0].id;
-        // let nextPageId = children[1].id;
-        let previousPageId = children[children.length - 1].id;
+        let firstSlideId = children[0].id;
+        let previousSlideId = children[children.length - 1].id;
 
         if (direction === Direction.DOWN) {
-            duplicateSlide(firstPageId);
-            // setTimeout(() => snapSlide(nextPageId), 250);
-            parent.classList.add(CssClass.TRANSITION_Y);
-            translateY(-pageHeight);
-            removeSlide(firstPageId);
-            setTimeout(() => parent.classList.remove(CssClass.TRANSITION_Y), transitionDuration);
-            setTimeout(() => translateY(0), transitionDuration);
+            duplicateSlide(firstSlideId, direction);
+            snapSlide(firstSlideId, direction);
         } else if (direction === Direction.UP) {
-            const element = grabId(previousPageId).cloneNode(true) as HTMLElement;
-            const uid = createUid();
-            element.setAttribute("id", uid);
-            parent.prepend(element);
-            parent.classList.remove(CssClass.TRANSITION_Y);
-            translateY(-pageHeight);
-
-            setTimeout(() => parent.classList.add(CssClass.TRANSITION_Y), 50);
-            setTimeout(() => translateY(0), 50);
-
-            removeSlide(previousPageId);
+            duplicateSlide(previousSlideId, direction);
+            snapSlide(previousSlideId, direction);
         }
     }
 }
