@@ -16,4 +16,5 @@ export namespace CssClass {
     export const HIDDEN = "alpra-hidden";
     export const PARENT = "alpra-parent";
     export const TOP = "alpra-top";
+    export const TRANSITION_Y = "alpra-transitionY";
 }

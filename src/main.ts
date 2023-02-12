@@ -1,148 +1,131 @@
 import { Options, ScrollDirection } from "../types";
 import { CssClass, Direction } from "./constants";
-import functions from "./functions";
+import { createUid, grabId, logError } from "./functions";
 
-// TODO: add option for looping
 // TODO: find a way to include css
+// TODO: add option to display clickable navigation
+// TODO: clearTimeout all setTimeout usage
 
-let childClass = CssClass.CHILD;
-let childPosition = 0;
 
-const parentClass = CssClass.PARENT;
+const Main = (parentName: string, _options: Options = {}) => {
 
-// LISTENERS
-let evtTouchStart: Touch;
-let evtTouchEnd: Touch;
-// const threshold = 50;
+    const transitionDuration = 500; // should be set in options, also the .alpra-transitionY css class needs to be adapted (maybe including defined durations, like .alpra-transition-500, .alpra-transition-300 etc)
+    const parentClass = CssClass.PARENT;
+    let isChanging = false;
+    let pageHeight = (window as any).innerHeight;
+    let eventTouchStart: Touch;
+    let eventTouchEnd: Touch;
+    let timeoutDestroySlide: any;
+    let timeoutClassTransition: any;
+    let timeoutTransitionY: any;
 
-const logError = (err: string) => {
-    console.error('Alpra-scroll exception:', { err })
-}
+    ///////////////////////////// EVENT LISTENERS //////////////////////////////
 
-const Main = (parentName: string, options: Options = {}) => {
-    const parent = document.getElementById(parentName) as HTMLElement;
+    window.addEventListener("resize", (event: Event) => {
+        pageHeight = (event.target as Window).innerHeight;
+    });
 
-    if (!parent) return logError(`parent name not found: ${parentName}`);
-
-    parent.classList.add(parentClass);
-
-    const children = new Array(parent.children) as unknown as HTMLElement[];
-
-    const childrenWrapper = document.createElement("DIV");
-    childrenWrapper.classList.add(CssClass.CHILDREN_WRAPPER);
-    childrenWrapper.id = CssClass.CHILDREN_WRAPPER;
-
-    const { sectionClass } = options;
-    if (sectionClass) {
-        childClass = sectionClass;
-    }
-
-    if (children.length) {
-        for (let i = 0; i < parent.children.length; i += 1) {
-            const child = parent.children[i].cloneNode(true) as HTMLElement;
-            if (!child.id) {
-                child.id = `section_${i + 1}`;
-            }
-            child.classList.add(childClass);
-            child.classList.add(CssClass.TOP);
-            childrenWrapper.appendChild(child);
-
-            parent.children[i].classList.add(CssClass.HIDDEN);
+    document.addEventListener("wheel", function (event: { deltaY: number; }) {
+        if (event.deltaY > 0) {
+            scroll(Direction.DOWN);
+        } else {
+            scroll(Direction.UP);
         }
-
-        if (childrenWrapper.firstChild) {
-            (childrenWrapper.firstChild as HTMLElement).classList.add(CssClass.CHILD_VISIBLE);
-        }
-    }
-    parent.appendChild(childrenWrapper);
-
-    const bottomInvisibleDiv = document.createElement("DIV");
-    bottomInvisibleDiv.classList.add(CssClass.BOTTOM_INVISIBLE);
-    document.body.appendChild(bottomInvisibleDiv);
+    });
 
     document.addEventListener("touchstart", (event) => {
-        evtTouchStart = event.changedTouches?.[0] || evtTouchStart;
+        eventTouchStart = event.changedTouches?.[0] || eventTouchStart;
     });
 
     document.addEventListener("touchend", (event) => {
-        evtTouchEnd = event.changedTouches?.[0] || evtTouchEnd;
+        eventTouchEnd = event.changedTouches?.[0] || eventTouchEnd;
     });
 
     document.addEventListener("touchmove", (_e) => {
-        const diff = (evtTouchStart?.clientY - evtTouchEnd?.clientY) ?? 0;
+        const diff = (eventTouchStart?.clientY - eventTouchEnd?.clientY) ?? 0;
         if (diff > 0) {
-            scrollSlides(Direction.UP);
+            scroll(Direction.DOWN);
         } else if (diff < 0) {
-            scrollSlides(Direction.DOWN);
+            scroll(Direction.UP);
         }
     });
 
-    document.addEventListener("wheel", (event: any) => {
-        console.log({ event }, event.deltaY);
+    ////////////////////////////////////////////////////////////////////////////
 
-        if (event.deltaY > 0) {
-            scrollSlides(Direction.DOWN);
-        } else {
-            scrollSlides(Direction.UP);
-        }
-    })
-}
+    const parent = grabId(parentName);
+    if (!parent) return logError('parent name not found: ' + parentName);
 
-function scrollSlides(direction: ScrollDirection) {
-    if (direction === Direction.UP) {
-        scrollUp(childPosition + 1)
-    } else {
-        scrollDown(childPosition - 1);
+    parent.classList.add(parentClass);
+
+    const children = parent.children as unknown as HTMLElement[];
+    for (let i = 0; i < children.length; i += 1) {
+        const uid = createUid();
+        const element = children[i];
+        element.classList.add(CssClass.CHILD);
+        element.setAttribute("id", element.id || `child_${uid}`);
+        element.dataset.index = `page-${i}`;
     }
-}
 
-function scrollUp(nextChild: number) {
-    const childrenWrapper = document.getElementById(CssClass.CHILDREN_WRAPPER);
-
-    if (nextChild < 0 || !childrenWrapper) return;
-
-    const children = new Array(childrenWrapper.children) as unknown as HTMLElement[];
-
-    if (children.length) {
-        for (let i = 0; i < children.length; i += 1) {
-            if (childPosition === i) {
-                (childrenWrapper.children[i] as HTMLElement).classList.remove(CssClass.CHILD_VISIBLE);
-            } else if (nextChild === i) {
-                functions.updateCssClasses({
-                    element: childrenWrapper.children[i] as HTMLElement,
-                    addedClasses: [CssClass.BOTTOM, CssClass.CHILD_VISIBLE],
-                    removedClasses: [CssClass.TOP]
-                });
-            }
+    function duplicateSlide(slideId: string, direction: ScrollDirection) {
+        const element = grabId(slideId)?.cloneNode(true) as HTMLElement; // true also clones innerHTML
+        element.setAttribute("id", createUid());
+        if (direction === Direction.DOWN) {
+            parent.appendChild(element as HTMLElement);
+        } else if (direction === Direction.UP) {
+            parent.prepend(element);
         }
     }
 
-    console.log({ childPosition, nextChild });
-    childPosition = nextChild;
-}
-
-function scrollDown(nextChild: number) {
-    const childrenWrapper = document.getElementById(CssClass.CHILDREN_WRAPPER);
-    if (!childrenWrapper || nextChild > childrenWrapper?.children?.length) return;
-
-    const children = new Array(childrenWrapper.children) as unknown as HTMLElement[];
-
-    if (children.length) {
-        for (let i = 0; i < children.length; i += 1) {
-            if (childPosition === i) {
-                (childrenWrapper.children[i] as HTMLElement).classList.remove(CssClass.CHILD_VISIBLE);
-            } else if (childPosition === i) {
-                functions.updateCssClasses({
-                    element: childrenWrapper.children[i] as HTMLElement,
-                    addedClasses: [CssClass.TOP, CssClass.CHILD_VISIBLE],
-                    removedClasses: [CssClass.BOTTOM]
-                });
-            }
+    function destroySlide(slideId: string) {
+        if (isChanging) {
+            clearTimeout(timeoutDestroySlide);
+            timeoutDestroySlide = setTimeout(() => {
+                parent.removeChild(grabId(slideId));
+                isChanging = false;
+            }, transitionDuration)
         }
     }
 
-    console.log({ childPosition, nextChild });
-    childPosition = nextChild;
+    function snapSlide(slideId: string, direction: ScrollDirection) {
+        if (direction === Direction.DOWN) {
+            parent.classList.add(CssClass.TRANSITION_Y);
+            translateY(-pageHeight);
+            destroySlide(slideId);
+            clearTimeout(timeoutClassTransition);
+            timeoutClassTransition = setTimeout(() => parent.classList.remove(CssClass.TRANSITION_Y), transitionDuration);
+            clearTimeout(timeoutTransitionY);
+            timeoutTransitionY = setTimeout(() => translateY(0), transitionDuration);
+        } else if (direction === Direction.UP) {
+            parent.classList.remove(CssClass.TRANSITION_Y);
+            translateY(-pageHeight);
+            clearTimeout(timeoutClassTransition);
+            // TODO: this random small timeout of 50 makes it work with the same apparent speed as the DOWN direction. We need to try other speeds, the make sure 50 / 500 (transitionDuration) is the right proportion, or if can even work this way
+            timeoutClassTransition = setTimeout(() => parent.classList.add(CssClass.TRANSITION_Y), 50);
+            clearTimeout(timeoutTransitionY);
+            timeoutTransitionY = setTimeout(() => translateY(0), 50);
+            destroySlide(slideId);
+        }
+    }
+
+    function translateY(pixels: number) {
+        parent.style.transform = `translateY(${pixels}px)`;
+    }
+
+    function scroll(direction: ScrollDirection) {
+        if (isChanging) return;
+
+        isChanging = true;
+        let firstSlideId = children[0].id;
+        let previousSlideId = children[children.length - 1].id;
+
+        if (direction === Direction.DOWN) {
+            duplicateSlide(firstSlideId, direction);
+            snapSlide(firstSlideId, direction);
+        } else if (direction === Direction.UP) {
+            duplicateSlide(previousSlideId, direction);
+            snapSlide(previousSlideId, direction);
+        }
+    }
 }
 
 export default Main;

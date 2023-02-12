@@ -13,7 +13,6 @@ html body {
 }
 
 .alpra-parent {
-    background: rgba(0,0,0,0.2);
     height: 100vh !important;
     left: 0 !important;
     position: absolute !important;
@@ -21,10 +20,15 @@ html body {
     width: 100vw !important;
 }
 
+.alpra-transitionY {
+    transition: transform 500ms ease-in-out !important;
+}
+
 .alpra-child {
     outline: 2px dashed rgba(0,0,0,0.2);
-    position: absolute;
-    transition: all 1s ease-in-out;
+    height: 100vh;
+    width: 100vw;
+    max-width: 100%;
 }
 
 .alpra-child.alpra-child-visible {
@@ -64,3 +68,42 @@ html body {
     width:100vw;
     max-width: 100%;
 }
+
+/* TEMP TEST CLASSES TO BE REMOVED AFTER DEV */
+.test-child {
+    align-items:center;
+    display: flex;
+    font-family:Arial, Helvetica, sans-serif;
+    font-size: 5rem;
+    font-weight:bold;
+    justify-content:center;
+    flex-direction: column;
+    color: rgb(41, 41, 41);
+}
+.test-child > p {
+    font-size: 1rem;
+    padding: 0 24px;
+    width: 100%;
+    max-width: 80ch;
+}
+
+.test-blue {
+    background: rgb(174, 201, 236);
+}
+
+.test-green {
+    background: rgb(210, 245, 210);
+}
+
+.test-orange {
+    background: rgb(236, 222, 195);
+}
+
+.test-red {
+    background: rgb(238, 198, 198);
+}
+
+.test-purple {
+    background: rgb(247, 208, 247);
+}
+
