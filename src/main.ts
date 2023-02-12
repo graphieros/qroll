@@ -21,34 +21,49 @@ const Main = (parentName: string, _options: Options = {}) => {
 
     ///////////////////////////// EVENT LISTENERS //////////////////////////////
 
-    window.addEventListener("resize", (event: Event) => {
+    function resizeEvent(event: Event) {
         pageHeight = (event.target as Window).innerHeight;
-    });
+    }
 
-    document.addEventListener("wheel", function (event: { deltaY: number; }) {
+    function wheelEvent(event: { deltaY: number; }) {
         if (event.deltaY > 0) {
             scroll(Direction.DOWN);
         } else {
             scroll(Direction.UP);
         }
-    });
+    }
 
-    document.addEventListener("touchstart", (event) => {
+    function touchstartEvent(event: TouchEvent) {
         eventTouchStart = event.changedTouches?.[0] || eventTouchStart;
-    });
+    }
 
-    document.addEventListener("touchend", (event) => {
+    function touchendEvent(event: TouchEvent) {
         eventTouchEnd = event.changedTouches?.[0] || eventTouchEnd;
-    });
+    }
 
-    document.addEventListener("touchmove", (_e) => {
+    function touchMoveEvent(_e: TouchEvent) {
         const diff = (eventTouchStart?.clientY - eventTouchEnd?.clientY) ?? 0;
         if (diff > 0) {
             scroll(Direction.DOWN);
         } else if (diff < 0) {
             scroll(Direction.UP);
         }
-    });
+    }
+
+    window.addEventListener("resize", resizeEvent);
+    document.addEventListener("wheel", wheelEvent);
+    document.addEventListener("touchstart", touchstartEvent);
+    document.addEventListener("touchend", touchendEvent);
+    document.addEventListener("touchmove", touchMoveEvent);
+
+    window.onunload = function () {
+        document.removeEventListener("touchmove", touchMoveEvent);
+        document.removeEventListener("touchend", touchendEvent);
+        document.removeEventListener("touchstart", touchstartEvent);
+        document.removeEventListener("wheel", wheelEvent);
+        window.removeEventListener("resize", resizeEvent);
+
+    }
 
     ////////////////////////////////////////////////////////////////////////////
 
