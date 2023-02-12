@@ -1,123 +1,121 @@
-import { Options } from "../types";
-import { CssClass } from "./constants";
-// 
-// TODO: add option for looping
-// TODO: add option for looping
+import { Options, ScrollDirection } from "../types";
+import { CssClass, Direction } from "./constants";
+import { createUid, grabId, logError } from "./functions";
+
 // TODO: find a way to include css
-
-// 3 slides
-// 1
-// 2
-// 3
-
-
-// start translate0
-
-// scroll : snaps to the next slide by using translate
-// before that you need a copy of the first slide to be appended to the page array
-// once it's spapped : remove the first page form the array and set translate to 0
+// TODO: add option to display clickable navigation
+// TODO: clearTimeout all setTimeout usage
 
 
 // let childClass = CssClass.CHILD;
 // let childPosition = 0;
 // let isScrollLocked = false;
 
+// function debounce(this: any, func: { apply: (arg0: any, arg1: IArguments) => void; }, wait: number | undefined, immediate = false) {
+//     var self = this;
+//     self.timeout = null;
+//     return () => {
+//         var context = this, args = arguments;
+//         clearTimeout(self.timeout);
+//         self.timeout = setTimeout(function () {
+//             self.timeout = null;
+//             if (!immediate) {
+//                 func.apply(context, args);
+//             }
+//         }, wait);
+
+//         if (immediate && !self.timeout) {
+//             func.apply(context, args);
+//         }
+//     };
+// }
+
 const parentClass = CssClass.PARENT;
 let isChanging = false;
+let pageHeight = (window as any).innerHeight;
 
-const getUid = () => {
-    let d = new Date().getTime();//Timestamp
-    let d2 = ((typeof performance !== 'undefined') && performance.now && (performance.now() * 1000)) || 0;//Time in microseconds since page-load or 0 if unsupported
-    return 'xxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-        let r = Math.random() * 16;//random number between 0 and 16
-        if (d > 0) {//Use timestamp until depleted
-            r = (d + r) % 16 | 0;
-            d = Math.floor(d / 16);
-        } else {//Use microseconds since page-load if supported
-            r = (d2 + r) % 16 | 0;
-            d2 = Math.floor(d2 / 16);
-        }
-        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-    });
-}
-
-const logError = (err: string) => {
-    console.error('Alpra-scroll exception:', { err })
-}
 
 const Main = (parentName: string, _options: Options = {}) => {
 
-    const parent = document.getElementById(parentName) as HTMLElement;
+    const transitionDuration = 500; // should be set in options, also the .alpra-transitionY css class needs to be adapted (maybe including defined durations, like .alpra-transition-500, .alpra-transition-300 etc)
+
+    window.addEventListener("resize", (event: any) => {
+        pageHeight = event.target.innerHeight;
+    });
+
+    document.addEventListener("wheel", function (event: { deltaY: number; }) {
+        if (event.deltaY > 0) {
+            scroll(Direction.DOWN);
+        } else {
+            scroll(Direction.UP);
+        }
+    });
+
+    const parent = grabId(parentName);
     if (!parent) return logError('parent name not found: ' + parentName);
 
     parent.classList.add(parentClass);
 
     const children = parent.children as unknown as HTMLElement[];
     for (let i = 0; i < children.length; i += 1) {
-        const uid = getUid();
+        const uid = createUid();
         const element = children[i];
         element.classList.add(CssClass.CHILD);
         element.setAttribute("id", element.id || `child_${uid}`);
         element.dataset.index = `page-${i}`;
     }
 
-    // function deleteOriginalSlide(pageId: string) {
-    //     console.log('deleteOriginalSlide',pageId);
-    //     // remove the slide that was duplicated
-    // }
-
-
     function duplicateSlide(pageId: string) {
         console.log('duplicateSlide', pageId);
-        const element = document.getElementById(pageId)?.cloneNode() as HTMLElement;
-        element.setAttribute("id", getUid());
-        element.innerHTML = (document.getElementById(pageId) as HTMLElement).innerHTML;
+        const element = grabId(pageId)?.cloneNode(true) as HTMLElement; // true also clones innerHTML
+        element.setAttribute("id", createUid());
         parent.appendChild(element as HTMLElement);
-        //copy first page and append it
     }
-
 
     function removeSlide(slideId: string) {
-        setTimeout(() => {
-            parent.removeChild(document.getElementById(slideId) as HTMLElement);
-            isChanging = false;
-        }, 1000);
-    }
-
-    function scroll() {
-        if (isChanging) return;
-
-        isChanging = true;
-        // get the next page ID
-        const firstPageId = children[0].id;
-        const nextPageId = children[1].id;
-
-        duplicateSlide(firstPageId);
-        snapSlide(nextPageId);
-        removeSlide(firstPageId);
-    }
-
-
-    function snapSlide(pageId: string) {
-        const element = document.getElementById(pageId) as HTMLElement;
-        if (element) {
-            scrollIntoView(element);
-        } else {
-            console.error(`Element '${pageId}' not found`)
+        if (isChanging) {
+            setTimeout(() => {
+                parent.removeChild(grabId(slideId));
+                isChanging = false;
+            }, transitionDuration)
         }
     }
 
-    function scrollIntoView(element: HTMLElement) {
-        element.scrollIntoView({
-            behavior: "smooth",
-        })
+    function translateY(pixels: number) {
+        parent.style.transform = `translateY(${pixels}px)`;
     }
 
-    document.addEventListener("wheel", scroll);
-    // function toggleScroll(isLocked: boolean) {
-    //     isScrollLocked = isLocked;
-    // }
+    function scroll(direction: ScrollDirection) {
+        if (isChanging) return;
+        console.log(`Scrolling ${direction}`);
 
+        isChanging = true;
+        let firstPageId = children[0].id;
+        // let nextPageId = children[1].id;
+        let previousPageId = children[children.length - 1].id;
+
+        if (direction === Direction.DOWN) {
+            duplicateSlide(firstPageId);
+            // setTimeout(() => snapSlide(nextPageId), 250);
+            parent.classList.add(CssClass.TRANSITION_Y);
+            translateY(-pageHeight);
+            removeSlide(firstPageId);
+            setTimeout(() => parent.classList.remove(CssClass.TRANSITION_Y), transitionDuration);
+            setTimeout(() => translateY(0), transitionDuration);
+        } else if (direction === Direction.UP) {
+            const element = grabId(previousPageId).cloneNode(true) as HTMLElement;
+            const uid = createUid();
+            element.setAttribute("id", uid);
+            parent.prepend(element);
+            parent.classList.remove(CssClass.TRANSITION_Y);
+            translateY(-pageHeight);
+
+            setTimeout(() => parent.classList.add(CssClass.TRANSITION_Y), 50);
+            setTimeout(() => translateY(0), 50);
+
+            removeSlide(previousPageId);
+        }
+    }
 }
 
 export default Main;
