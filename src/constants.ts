@@ -18,3 +18,26 @@ export namespace CssClass {
     export const TOP = "alpra-top";
     export const TRANSITION_Y = "alpra-transitionY";
 }
+
+export namespace KeyboardCode {
+    export const ARROW_DOWN = "ArrowDown";
+    export const ARROW_LEFT = "ArrowLeft";
+    export const ARROW_RIGHT = "ArrowRight";
+    export const ARROW_UP = "ArrowUp";
+    export const SPACE = "Space";
+}
+
+export namespace NodeName {
+    export const BODY = "BODY";
+    export const INPUT = "INPUT";
+    export const TEXTAREA = "TEXTAREA";
+}
+
+export namespace EventTrigger {
+    export const KEYUP = "keyup";
+    export const RESIZE = "resize";
+    export const TOUCHEND = "touchend";
+    export const TOUCHMOVE = "touchmove";
+    export const TOUCHSTART = "touchstart";
+    export const WHEEL = "wheel";
+}

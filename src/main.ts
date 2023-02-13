@@ -1,10 +1,14 @@
-import { Options, ScrollDirection } from "../types";
-import { CssClass, Direction } from "./constants";
+import { EventTriggerListener, MoveEvent, Options, ScrollDirection } from "../types";
+import { CssClass, Direction, KeyboardCode, NodeName, EventTrigger } from "./constants";
 import { createUid, grabId, logError } from "./functions";
 
 // TODO: find a way to include css
+// TODO: documentation:
+// > add tabindex="0" to any scrollable div added to a slide
 // TODO: add option to display clickable navigation
-// TODO: clearTimeout all setTimeout usage
+// TODO: options:
+// > infinite vertical loop
+// > infinite horizontal loop
 
 
 const Main = (parentName: string, _options: Options = {}) => {
@@ -25,8 +29,14 @@ const Main = (parentName: string, _options: Options = {}) => {
         pageHeight = (event.target as Window).innerHeight;
     }
 
-    function wheelEvent(event: { deltaY: number; }) {
-        if (event.deltaY > 0) {
+    function wheelEvent(event: MoveEvent) {
+        // scroll events inside a scrollable element inside a slide must not trigger sliding
+        const hasVerticalScrollBar = event.target.scrollHeight > event.target.clientHeight;
+        // FOR LATER: const hasHorizontalScrollBar = event.target.scrollWidth > event.target.clientWidth;
+        if (!Array.from(event.target.classList).includes(CssClass.CHILD) && hasVerticalScrollBar) {
+            return;
+        }
+        if (event.deltaY && event.deltaY > 0) {
             scroll(Direction.DOWN);
         } else {
             scroll(Direction.UP);
@@ -41,28 +51,65 @@ const Main = (parentName: string, _options: Options = {}) => {
         eventTouchEnd = event.changedTouches?.[0] || eventTouchEnd;
     }
 
-    function touchMoveEvent(_e: TouchEvent) {
-        const diff = (eventTouchStart?.clientY - eventTouchEnd?.clientY) ?? 0;
-        if (diff > 0) {
+    function touchMoveEvent(event: MoveEvent) {
+        // scroll events inside a scrollable element inside a slide must not trigger sliding
+        const hasVerticalScrollBar = event.target.scrollHeight > event.target.clientHeight;
+        // FOR LATER: const hasHorizontalScrollBar = event.target.scrollWidth > event.target.clientWidth;
+
+        // exclusion cases
+        const isScrollableIsland = !Array.from(event.target.classList).includes(CssClass.CHILD) && hasVerticalScrollBar;
+        if ([isScrollableIsland].includes(true)) return;
+
+        const deltaTouch = (eventTouchStart?.clientY - eventTouchEnd?.clientY) ?? 0;
+        if (deltaTouch > 0) {
             scroll(Direction.DOWN);
-        } else if (diff < 0) {
+        } else if (deltaTouch < 0) {
             scroll(Direction.UP);
         }
     }
 
-    window.addEventListener("resize", resizeEvent);
-    document.addEventListener("wheel", wheelEvent);
-    document.addEventListener("touchstart", touchstartEvent);
-    document.addEventListener("touchend", touchendEvent);
-    document.addEventListener("touchmove", touchMoveEvent);
+    function keyboardEvent(event: KeyboardEvent) {
+        const keyCode = event.code;
+        const target: any = event.target;
+        const hasVerticalScrollBar = target.scrollHeight > target.clientHeight;
+        // FOR LATER: const hasHorizontalScrollBar = event.target.scrollWidth > event.target.clientWidth;
+
+        // exclusion cases
+        const isInputField = [NodeName.TEXTAREA, NodeName.INPUT].includes(target.nodeName);
+        const isScrollableIsland = hasVerticalScrollBar && target.nodeName !== NodeName.BODY;
+        if ([isInputField, isScrollableIsland].includes(true)) return;
+
+        switch (true) {
+            case [KeyboardCode.ARROW_DOWN, KeyboardCode.SPACE].includes(keyCode):
+                scroll(Direction.DOWN);
+                break;
+
+            case [KeyboardCode.ARROW_UP].includes(keyCode):
+                scroll(Direction.UP);
+                break;
+
+            default:
+                return;
+        }
+    }
+
+    const documentEvents: EventTriggerListener[] = [
+        { target: window, trigger: EventTrigger.RESIZE, method: resizeEvent },
+        { target: document, trigger: EventTrigger.WHEEL, method: wheelEvent },
+        { target: document, trigger: EventTrigger.TOUCHSTART, method: touchstartEvent },
+        { target: document, trigger: EventTrigger.TOUCHEND, method: touchendEvent },
+        { target: document, trigger: EventTrigger.TOUCHMOVE, method: touchMoveEvent },
+        { target: document, trigger: EventTrigger.KEYUP, method: keyboardEvent },
+    ];
+
+    documentEvents.forEach(docEvent => {
+        docEvent.target.addEventListener(docEvent.trigger, docEvent.method);
+    });
 
     window.onunload = function () {
-        document.removeEventListener("touchmove", touchMoveEvent);
-        document.removeEventListener("touchend", touchendEvent);
-        document.removeEventListener("touchstart", touchstartEvent);
-        document.removeEventListener("wheel", wheelEvent);
-        window.removeEventListener("resize", resizeEvent);
-
+        documentEvents.forEach(docEvent => {
+            docEvent.target.removeEventListener(docEvent.trigger, docEvent.method);
+        });
     }
 
     ////////////////////////////////////////////////////////////////////////////

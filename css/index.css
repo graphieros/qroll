@@ -87,6 +87,47 @@ html body {
     max-width: 80ch;
 }
 
+.test-child form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 0 auto;
+    max-width: 400px;
+}
+
+.test-child form input,
+.test-child form textarea {
+    border-radius: 6px;
+    border: none;
+    padding: 0 6px;
+    font-family: Helvetica;
+}
+
+.test-child form textarea {
+    padding: 6px;
+}
+
+.test-child form input {
+    height: 32px;
+}
+
+.test-child form label {
+    font-size: 0.17em;
+    font-weight: 400;
+}
+
+.test-scrollable-div {
+    background: white;
+    border-radius: 6px;
+    border: 1px solid grey;
+    font-size: 0.16em;
+    font-weight: 400;
+    max-height: 200px;
+    max-width: 400px;
+    overflow: auto;
+    padding: 6px 12px;
+}
+
 .test-blue {
     background: rgb(174, 201, 236);
 }
