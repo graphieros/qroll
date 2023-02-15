@@ -7,21 +7,22 @@ import { createUid, grabId, logError } from "./functions";
 // > add tabindex="0" to any scrollable div added to a slide
 // TODO: add option to display clickable navigation
 // TODO: options:
-// > infinite vertical loop
-// > infinite horizontal loop
+// > add css class to enable infinite vertical loop
+// > add css class to enable infinite horizontal loop
 
 
 const Main = (parentName: string, _options: Options = {}) => {
 
-    const transitionDuration = 500; // should be set in options, also the .alpra-transitionY css class needs to be adapted (maybe including defined durations, like .alpra-transition-500, .alpra-transition-300 etc)
+    let transitionDuration = 500;
     const parentClass = CssClass.PARENT;
-    let isChanging = false;
+    let isSliding = false;
     let pageHeight = (window as any).innerHeight;
     let eventTouchStart: Touch;
     let eventTouchEnd: Touch;
     let timeoutDestroySlide: any;
     let timeoutClassTransition: any;
     let timeoutTransitionY: any;
+    let cssClassTransition: any;
 
     ///////////////////////////// EVENT LISTENERS //////////////////////////////
 
@@ -117,6 +118,45 @@ const Main = (parentName: string, _options: Options = {}) => {
     const parent = grabId(parentName);
     if (!parent) return logError('parent name not found: ' + parentName);
 
+    // find css class transition from provided classes to the parent
+    switch (true) {
+        case Array.from(parent.classList).includes(CssClass.TRANSITION_300):
+            cssClassTransition = CssClass.TRANSITION_300;
+            transitionDuration = 300;
+            break;
+        case Array.from(parent.classList).includes(CssClass.TRANSITION_400):
+            cssClassTransition = CssClass.TRANSITION_400;
+            transitionDuration = 400;
+            break;
+        case Array.from(parent.classList).includes(CssClass.TRANSITION_500):
+            cssClassTransition = CssClass.TRANSITION_500;
+            transitionDuration = 500;
+            break;
+        case Array.from(parent.classList).includes(CssClass.TRANSITION_600):
+            cssClassTransition = CssClass.TRANSITION_600;
+            transitionDuration = 600;
+            break;
+        case Array.from(parent.classList).includes(CssClass.TRANSITION_700):
+            cssClassTransition = CssClass.TRANSITION_700;
+            transitionDuration = 700;
+            break;
+        case Array.from(parent.classList).includes(CssClass.TRANSITION_800):
+            cssClassTransition = CssClass.TRANSITION_800;
+            transitionDuration = 800;
+            break;
+        case Array.from(parent.classList).includes(CssClass.TRANSITION_900):
+            cssClassTransition = CssClass.TRANSITION_900;
+            transitionDuration = 900;
+            break;
+        case Array.from(parent.classList).includes(CssClass.TRANSITION_1000):
+            cssClassTransition = CssClass.TRANSITION_1000;
+            transitionDuration = 1000;
+            break;
+        default:
+            cssClassTransition = CssClass.TRANSITION_500;
+            break;
+    }
+
     parent.classList.add(parentClass);
 
     const children = parent.children as unknown as HTMLElement[];
@@ -139,30 +179,30 @@ const Main = (parentName: string, _options: Options = {}) => {
     }
 
     function destroySlide(slideId: string) {
-        if (isChanging) {
+        if (isSliding) {
             clearTimeout(timeoutDestroySlide);
             timeoutDestroySlide = setTimeout(() => {
                 parent.removeChild(grabId(slideId));
-                isChanging = false;
+                isSliding = false;
             }, transitionDuration)
         }
     }
 
     function snapSlide(slideId: string, direction: ScrollDirection) {
         if (direction === Direction.DOWN) {
-            parent.classList.add(CssClass.TRANSITION_Y);
+            parent.classList.add(cssClassTransition);
             translateY(-pageHeight);
-            destroySlide(slideId);
             clearTimeout(timeoutClassTransition);
-            timeoutClassTransition = setTimeout(() => parent.classList.remove(CssClass.TRANSITION_Y), transitionDuration);
+            timeoutClassTransition = setTimeout(() => parent.classList.remove(cssClassTransition), transitionDuration - transitionDuration * 0.1);
             clearTimeout(timeoutTransitionY);
             timeoutTransitionY = setTimeout(() => translateY(0), transitionDuration);
+            destroySlide(slideId);
         } else if (direction === Direction.UP) {
-            parent.classList.remove(CssClass.TRANSITION_Y);
+            parent.classList.remove(cssClassTransition);
             translateY(-pageHeight);
             clearTimeout(timeoutClassTransition);
             // TODO: this random small timeout of 50 makes it work with the same apparent speed as the DOWN direction. We need to try other speeds, the make sure 50 / 500 (transitionDuration) is the right proportion, or if can even work this way
-            timeoutClassTransition = setTimeout(() => parent.classList.add(CssClass.TRANSITION_Y), 50);
+            timeoutClassTransition = setTimeout(() => parent.classList.add(cssClassTransition), 50);
             clearTimeout(timeoutTransitionY);
             timeoutTransitionY = setTimeout(() => translateY(0), 50);
             destroySlide(slideId);
@@ -174,9 +214,9 @@ const Main = (parentName: string, _options: Options = {}) => {
     }
 
     function scroll(direction: ScrollDirection) {
-        if (isChanging) return;
+        if (isSliding) return;
 
-        isChanging = true;
+        isSliding = true;
         let firstSlideId = children[0].id;
         let previousSlideId = children[children.length - 1].id;
 

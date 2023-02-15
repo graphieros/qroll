@@ -17,6 +17,14 @@ export namespace CssClass {
     export const PARENT = "alpra-parent";
     export const TOP = "alpra-top";
     export const TRANSITION_Y = "alpra-transitionY";
+    export const TRANSITION_300 = "alpra-transition-300";
+    export const TRANSITION_400 = "alpra-transition-400";
+    export const TRANSITION_500 = "alpra-transition-500";
+    export const TRANSITION_600 = "alpra-transition-600";
+    export const TRANSITION_700 = "alpra-transition-700";
+    export const TRANSITION_800 = "alpra-transition-800";
+    export const TRANSITION_900 = "alpra-transition-900";
+    export const TRANSITION_1000 = "alpra-transition-1000";
 }
 
 export namespace KeyboardCode {

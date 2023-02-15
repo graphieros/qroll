@@ -24,6 +24,32 @@ html body {
     transition: transform 500ms ease-in-out !important;
 }
 
+/* PARENT TRANSITION CLASSES */
+.alpra-transition-300 {
+    transition: transform 300ms ease !important;
+}
+.alpra-transition-400 {
+    transition: transform 400ms ease !important;
+}
+.alpra-transition-500 {
+    transition: transform 500ms ease !important;
+}
+.alpra-transition-600 {
+    transition: transform 600ms ease !important;
+}
+.alpra-transition-700 {
+    transition: transform 700ms ease !important;
+}
+.alpra-transition-800 {
+    transition: transform 800ms ease !important;
+}
+.alpra-transition-900 {
+    transition: transform 900ms ease !important;
+}
+.alpra-transition-1000 {
+    transition: transform 1000ms ease !important;
+}
+
 .alpra-child {
     outline: 2px dashed rgba(0,0,0,0.2);
     height: 100vh;
