@@ -23,6 +23,7 @@ const Main = (parentName: string, _options: Options = {}) => {
     let timeoutClassTransition: any;
     let timeoutTransitionY: any;
     let cssClassTransition: any;
+    let isTrackpad = false;
 
     ///////////////////////////// EVENT LISTENERS //////////////////////////////
 
@@ -31,17 +32,37 @@ const Main = (parentName: string, _options: Options = {}) => {
     }
 
     function wheelEvent(event: MoveEvent) {
+        isTrackpad = detectTrackPad(event);
         // scroll events inside a scrollable element inside a slide must not trigger sliding
         const hasVerticalScrollBar = event.target.scrollHeight > event.target.clientHeight;
         // FOR LATER: const hasHorizontalScrollBar = event.target.scrollWidth > event.target.clientWidth;
         if (!Array.from(event.target.classList).includes(CssClass.CHILD) && hasVerticalScrollBar) {
             return;
         }
+        if (isTrackpad) return;
         if (event.deltaY && event.deltaY > 0) {
             scroll(Direction.DOWN);
         } else {
             scroll(Direction.UP);
         }
+    }
+
+    /** This check fixes a bug that snaps previous/next page when the finger quits the trackpad.
+     * 
+     * @param e - wheelevent
+     * @returns true if the trackpad is detected
+     */
+    function detectTrackPad(event: any) {
+        let isTrack = false;
+        if (event.wheelDeltaY) {
+            if (event.wheelDeltaY === (event.deltaY * -3)) {
+                isTrack = true;
+            }
+        }
+        else if (event.deltaMode === 0 /* firefox */) {
+            isTrack = true;
+        }
+        return isTrack;
     }
 
     function touchstartEvent(event: TouchEvent) {
