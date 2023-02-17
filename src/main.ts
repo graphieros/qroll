@@ -40,7 +40,9 @@ const Main = (parentName: string, _options: Options = {}) => {
             return;
         }
         if (isTrackpad) return;
+        if (event.deltaY === -0) return; // fixes a bug that caused a snap to previous slide on trackpad when finger is lift up
         if (event.deltaY && event.deltaY > 0) {
+            if (event.deltaY < 7) return; // prevents touchpad excessive scrolling
             scroll(Direction.DOWN);
         } else {
             scroll(Direction.UP);
