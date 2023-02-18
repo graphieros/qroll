@@ -14,6 +14,7 @@ export function createUid() {
     });
 }
 
+
 /** This check fixes a bug that snaps previous/next page when the finger quits the trackpad.
 * 
 * @param e - wheelevent

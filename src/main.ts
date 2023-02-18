@@ -24,7 +24,6 @@ const Main = (parentName: string, _options: Options = {}) => {
     let timeoutTransitionY: any;
     let cssClassTransition: any;
     let isTrackpad = false;
-    let initialSlidesOrder = [];
 
     ///////////////////////////// EVENT LISTENERS //////////////////////////////
 
@@ -182,9 +181,6 @@ const Main = (parentName: string, _options: Options = {}) => {
         Array.from(element.children).forEach(child => walkTheDOM(child, setTabIndex))
     }
 
-    initialSlidesOrder = [...children];
-    console.log(initialSlidesOrder);
-
     function createVerticalNav() {
         const alreadyHasNav = document.querySelectorAll("#alpraNav");
         if (alreadyHasNav.length) {
@@ -199,11 +195,10 @@ const Main = (parentName: string, _options: Options = {}) => {
 
             // TODO: find a way to order consistently when scroll occurs
             // TODO: highlight current page link
-            Array.from(children).forEach((child, i) => {
+            Array.from(children).forEach((child) => {
                 const slideLink = document.createElement("a");
                 slideLink.href = `#${child.id}`;
                 slideLink.innerHTML = "●";
-                slideLink.innerHTML = `${i}`;
                 nav.appendChild(slideLink);
             });
 
@@ -228,13 +223,36 @@ const Main = (parentName: string, _options: Options = {}) => {
             clearTimeout(timeoutDestroySlide);
             timeoutDestroySlide = setTimeout(() => {
                 parent.removeChild(grabByData(slideId) as any);
-                createVerticalNav();
                 isSliding = false;
             }, transitionDuration)
         }
     }
+    // place bad code here
+    function updateNav() {
+        const nav = document.getElementById("alpraNav");
 
-    function snapSlide(slideId: string, direction: ScrollDirection) {
+        location.hash = children[0].id;
+
+        if (nav) {
+            Array.from(nav.children).map((child: any) => {
+                console.log('updateNav', { child }, getCurrentPageId());
+                if (child.hash === getCurrentPageId()) {
+                    child.style.border = "2px solid red";
+                } else {
+                    child.style.border = ""
+                }
+            })
+        }
+    }
+
+    function updateLocation(slideId: string) {
+        const url = location.href;
+        location.href = `#${slideId}`;
+        history.replaceState(null, '', url);
+    }
+
+    function snapSlide(slideId: string, nextSlideId: string, direction: ScrollDirection) {
+        console.log({ nextSlideId });
         if (direction === Direction.DOWN) {
             parent.classList.add(cssClassTransition);
             translateY(-pageHeight);
@@ -243,7 +261,7 @@ const Main = (parentName: string, _options: Options = {}) => {
             clearTimeout(timeoutTransitionY);
             timeoutTransitionY = setTimeout(() => translateY(0), transitionDuration);
             destroySlide(slideId);
-            // jumpToSlide(getCurrentPageId());
+            updateLocation(nextSlideId);
         } else if (direction === Direction.UP) {
             parent.classList.remove(cssClassTransition);
             translateY(-pageHeight);
@@ -253,7 +271,11 @@ const Main = (parentName: string, _options: Options = {}) => {
             clearTimeout(timeoutTransitionY);
             timeoutTransitionY = setTimeout(() => translateY(0), 50);
             destroySlide(slideId);
-            // jumpToSlide(getCurrentPageId());
+            updateLocation(nextSlideId);
+        }
+
+        if ([Direction.DOWN, Direction.UP].includes(direction)) {
+            setTimeout(updateNav, 600);
         }
     }
 
@@ -265,21 +287,39 @@ const Main = (parentName: string, _options: Options = {}) => {
         if (isSliding) return;
 
         isSliding = true;
+        // scroll down
         let firstSlideId = children[0].dataset.slide as any;
+        let firstSlideNextId = children[1].dataset.slide as any;
+
+        // scroll up
         let previousSlideId = children[children.length - 1].dataset.slide as any;
+        let previousSlideNextId = children[children.length - 2].dataset.slide as any;
+
+        console.log({ children }, {
+            firstSlideId,
+            firstSlideNextId,
+            previousSlideId,
+            previousSlideNextId
+        })
 
         if (direction === Direction.DOWN) {
             duplicateSlide(firstSlideId, direction);
-            snapSlide(firstSlideId, direction);
+            snapSlide(firstSlideId, firstSlideNextId, direction);
         } else if (direction === Direction.UP) {
             duplicateSlide(previousSlideId, direction);
-            snapSlide(previousSlideId, direction);
+            snapSlide(previousSlideId, previousSlideId, direction);
         }
     }
 
-    // function getCurrentPageId() {
-    //     return children[0].id;
-    // }
+    // this need more love
+    function getCurrentPageId() {
+        const location = window?.location
+        if (location?.hash) {
+            return location?.hash
+        }
+
+        return children?.[1]?.id || children?.[0]?.id;
+    }
 }
 
 export default Main;
