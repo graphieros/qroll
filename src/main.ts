@@ -237,12 +237,7 @@ const Main = (parentName: string, _options: Options = {}) => {
 
         if (nav) {
             Array.from(nav.children).map((child: any) => {
-                console.log('updateNav', { child }, getCurrentPageId());
-                if (child.hash === getCurrentPageId()) {
-                    child.style.border = "2px solid red";
-                } else {
-                    child.style.border = ""
-                }
+                child.dataset.currentSlide = child.hash === getCurrentPageId();
             })
         }
     }

@@ -118,6 +118,10 @@ html body {
     height: 100%;
   }
 
+a[data-current-slide="true"] {
+    transform: scale(1.5,1.5);
+} 
+
 /* TEMP TEST CLASSES TO BE REMOVED AFTER DEV */
 .test-child {
     align-items:center;
