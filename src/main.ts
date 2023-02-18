@@ -1,6 +1,6 @@
 import { EventTriggerListener, MoveEvent, Options, ScrollDirection } from "../types";
 import { CssClass, Direction, KeyboardCode, NodeName, EventTrigger } from "./constants";
-import { createUid, detectTrackPad, grabId, logError, setTabIndex, walkTheDOM } from "./functions";
+import { createUid, detectTrackPad, grabByData, grabId, logError, setTabIndex, walkTheDOM } from "./functions";
 
 // TODO: find a way to include css
 // TODO: documentation:
@@ -24,6 +24,7 @@ const Main = (parentName: string, _options: Options = {}) => {
     let timeoutTransitionY: any;
     let cssClassTransition: any;
     let isTrackpad = false;
+    let initialSlidesOrder = [];
 
     ///////////////////////////// EVENT LISTENERS //////////////////////////////
 
@@ -175,10 +176,14 @@ const Main = (parentName: string, _options: Options = {}) => {
         const uid = createUid();
         const element = children[i];
         element.classList.add(CssClass.CHILD);
-        element.setAttribute("id", element.id || `child_${uid}`);
-        element.dataset.index = `page-${i}`;
+        element.dataset.slide = uid;
+        element.setAttribute("id", element.id || `slide-v-${i}`);
+        element.dataset.index = `${i}`;
         Array.from(element.children).forEach(child => walkTheDOM(child, setTabIndex))
     }
+
+    initialSlidesOrder = [...children];
+    console.log(initialSlidesOrder);
 
     function createVerticalNav() {
         const alreadyHasNav = document.querySelectorAll("#alpraNav");
@@ -209,8 +214,8 @@ const Main = (parentName: string, _options: Options = {}) => {
     createVerticalNav();
 
     function duplicateSlide(slideId: string, direction: ScrollDirection) {
-        const element = grabId(slideId)?.cloneNode(true) as HTMLElement; // true also clones innerHTML
-        element.setAttribute("id", createUid());
+        const element = grabByData(slideId)?.cloneNode(true) as HTMLElement; // true also clones innerHTML
+        element.dataset.slide = createUid();
         if (direction === Direction.DOWN) {
             parent.appendChild(element as HTMLElement);
         } else if (direction === Direction.UP) {
@@ -222,7 +227,7 @@ const Main = (parentName: string, _options: Options = {}) => {
         if (isSliding) {
             clearTimeout(timeoutDestroySlide);
             timeoutDestroySlide = setTimeout(() => {
-                parent.removeChild(grabId(slideId));
+                parent.removeChild(grabByData(slideId) as any);
                 createVerticalNav();
                 isSliding = false;
             }, transitionDuration)
@@ -260,8 +265,8 @@ const Main = (parentName: string, _options: Options = {}) => {
         if (isSliding) return;
 
         isSliding = true;
-        let firstSlideId = children[0].id;
-        let previousSlideId = children[children.length - 1].id;
+        let firstSlideId = children[0].dataset.slide as any;
+        let previousSlideId = children[children.length - 1].dataset.slide as any;
 
         if (direction === Direction.DOWN) {
             duplicateSlide(firstSlideId, direction);

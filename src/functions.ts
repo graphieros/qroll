@@ -36,6 +36,10 @@ export function grabId(elementId: string) {
     return document.getElementById(elementId) as HTMLElement;
 }
 
+export function grabByData(elementId: string) {
+    return document.querySelector(`[data-slide="${elementId}"]`)
+}
+
 export function jumpToSlide(slideId: string) {
     const url = location.href;
     location.href = `#${slideId}`;
@@ -99,6 +103,7 @@ const alpra = {
     createUid,
     detectTrackPad,
     grabId,
+    grabByData,
     jumpToSlide,
     logError,
     scrollIntoView,
