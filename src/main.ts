@@ -10,6 +10,8 @@ import { createUid, detectTrackPad, grabByData, grabId, logError, setTabIndex, w
 // > add css class to enable infinite vertical loop
 // > add css class to enable infinite horizontal loop
 
+// TODO: snap to slide  === hash upon load
+
 
 const Main = (parentName: string, _options: Options = {}) => {
 
@@ -288,6 +290,7 @@ const Main = (parentName: string, _options: Options = {}) => {
 
         isSliding = true;
         // scroll down
+        // TODO: declare these slideIds globally to mutate them correctly when using the nav
         let firstSlideId = children[0].dataset.slide as any;
         let firstSlideNextId = children[1].dataset.slide as any;
 
