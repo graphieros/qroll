@@ -18,6 +18,12 @@ export function grabId(elementId: string) {
     return document.getElementById(elementId) as HTMLElement;
 }
 
+export function jumpToSlide(slideId: string) {
+    const url = location.href;
+    location.href = `#${slideId}`;
+    history.replaceState(null, '', url);
+}
+
 export function logError(error: string) {
     console.error('Alpra-scroll exception:', { error })
 }
@@ -41,6 +47,12 @@ export function scrollToTop() {
     });
 }
 
+export function setTabIndex(element: { scrollHeight: number; clientHeight: number; setAttribute: (arg0: string, arg1: string) => void; }) {
+    if (element.scrollHeight > element.clientHeight) {
+        element.setAttribute("tabindex", "0");
+    }
+}
+
 export function updateCssClasses({ element, addedClasses = [], removedClasses = [] }: { element: HTMLElement, addedClasses: string[], removedClasses: string[] }) {
     if (addedClasses.length) {
         addedClasses.forEach(addedClass => {
@@ -54,14 +66,27 @@ export function updateCssClasses({ element, addedClasses = [], removedClasses = 
     }
 }
 
+export function walkTheDOM(node: any, func: any) {
+    func(node);
+    node = node.firstChild;
+
+    while (node) {
+        walkTheDOM(node, func);
+        node = node.NextSibling;
+    }
+}
+
 
 const alpra = {
     createUid,
     grabId,
+    jumpToSlide,
     logError,
     scrollIntoView,
     scrollToTop,
-    updateCssClasses
+    setTabIndex,
+    updateCssClasses,
+    walkTheDOM
 };
 
 export default alpra;

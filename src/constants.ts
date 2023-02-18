@@ -25,6 +25,7 @@ export namespace CssClass {
     export const TRANSITION_800 = "alpra-transition-800";
     export const TRANSITION_900 = "alpra-transition-900";
     export const TRANSITION_1000 = "alpra-transition-1000";
+    export const NAV = "alpra-nav";
 }
 
 export namespace KeyboardCode {

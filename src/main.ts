@@ -1,6 +1,6 @@
 import { EventTriggerListener, MoveEvent, Options, ScrollDirection } from "../types";
 import { CssClass, Direction, KeyboardCode, NodeName, EventTrigger } from "./constants";
-import { createUid, grabId, logError } from "./functions";
+import { createUid, grabId, logError, setTabIndex, walkTheDOM } from "./functions";
 
 // TODO: find a way to include css
 // TODO: documentation:
@@ -98,6 +98,12 @@ const Main = (parentName: string, _options: Options = {}) => {
         const hasVerticalScrollBar = target.scrollHeight > target.clientHeight;
         // FOR LATER: const hasHorizontalScrollBar = event.target.scrollWidth > event.target.clientWidth;
 
+        // ISSUE: tabing to an input located on another slide causes Y offset
+        // if (keyCode === "Tab") {
+        //     window.scrollTo(0, 0);
+        //     document.body.scrollTop = 0;
+        // }
+
         // exclusion cases
         const isInputField = [NodeName.TEXTAREA, NodeName.INPUT].includes(target.nodeName);
         const isScrollableIsland = hasVerticalScrollBar && target.nodeName !== NodeName.BODY;
@@ -189,7 +195,36 @@ const Main = (parentName: string, _options: Options = {}) => {
         element.classList.add(CssClass.CHILD);
         element.setAttribute("id", element.id || `child_${uid}`);
         element.dataset.index = `page-${i}`;
+        Array.from(element.children).forEach(child => walkTheDOM(child, setTabIndex))
     }
+
+    function createVerticalNav() {
+        const alreadyHasNav = document.querySelectorAll("#alpraNav");
+        if (alreadyHasNav.length) {
+            const oldNav = document.getElementById("alpraNav") as HTMLElement;
+            document.body.removeChild(oldNav);
+        }
+        if (Array.from(parent.classList).includes(CssClass.NAV)) {
+            const nav = document.createElement("nav");
+            nav.setAttribute("id", "alpraNav");
+            nav.classList.add("alpra-nav-vertical");
+            nav.setAttribute("style", `right:0; top:0; height: ${pageHeight}px; display:flex; align-items:center; justify-content:center; flex-direction: column;`);
+
+            // TODO: find a way to order consistently when scroll occurs
+            // TODO: highlight current page link
+            Array.from(children).forEach((child, i) => {
+                const slideLink = document.createElement("a");
+                slideLink.href = `#${child.id}`;
+                slideLink.innerHTML = "●";
+                slideLink.innerHTML = `${i}`;
+                nav.appendChild(slideLink);
+            });
+
+            document.body.appendChild(nav);
+        }
+    }
+
+    createVerticalNav();
 
     function duplicateSlide(slideId: string, direction: ScrollDirection) {
         const element = grabId(slideId)?.cloneNode(true) as HTMLElement; // true also clones innerHTML
@@ -206,6 +241,7 @@ const Main = (parentName: string, _options: Options = {}) => {
             clearTimeout(timeoutDestroySlide);
             timeoutDestroySlide = setTimeout(() => {
                 parent.removeChild(grabId(slideId));
+                createVerticalNav();
                 isSliding = false;
             }, transitionDuration)
         }
@@ -220,6 +256,7 @@ const Main = (parentName: string, _options: Options = {}) => {
             clearTimeout(timeoutTransitionY);
             timeoutTransitionY = setTimeout(() => translateY(0), transitionDuration);
             destroySlide(slideId);
+            // jumpToSlide(getCurrentPageId());
         } else if (direction === Direction.UP) {
             parent.classList.remove(cssClassTransition);
             translateY(-pageHeight);
@@ -229,6 +266,7 @@ const Main = (parentName: string, _options: Options = {}) => {
             clearTimeout(timeoutTransitionY);
             timeoutTransitionY = setTimeout(() => translateY(0), 50);
             destroySlide(slideId);
+            // jumpToSlide(getCurrentPageId());
         }
     }
 
@@ -251,6 +289,10 @@ const Main = (parentName: string, _options: Options = {}) => {
             snapSlide(previousSlideId, direction);
         }
     }
+
+    // function getCurrentPageId() {
+    //     return children[0].id;
+    // }
 }
 
 export default Main;
