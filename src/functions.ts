@@ -14,6 +14,24 @@ export function createUid() {
     });
 }
 
+/** This check fixes a bug that snaps previous/next page when the finger quits the trackpad.
+* 
+* @param e - wheelevent
+* @returns true if the trackpad is detected
+*/
+export function detectTrackPad(event: any) {
+    let isTrack = false;
+    if (event.wheelDeltaY) {
+        if (event.wheelDeltaY === (event.deltaY * -3)) {
+            isTrack = true;
+        }
+    }
+    else if (event.deltaMode === 0 /* firefox */) {
+        isTrack = true;
+    }
+    return isTrack;
+}
+
 export function grabId(elementId: string) {
     return document.getElementById(elementId) as HTMLElement;
 }
@@ -79,6 +97,7 @@ export function walkTheDOM(node: any, func: any) {
 
 const alpra = {
     createUid,
+    detectTrackPad,
     grabId,
     jumpToSlide,
     logError,

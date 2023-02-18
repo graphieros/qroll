@@ -1,6 +1,6 @@
 import { EventTriggerListener, MoveEvent, Options, ScrollDirection } from "../types";
 import { CssClass, Direction, KeyboardCode, NodeName, EventTrigger } from "./constants";
-import { createUid, grabId, logError, setTabIndex, walkTheDOM } from "./functions";
+import { createUid, detectTrackPad, grabId, logError, setTabIndex, walkTheDOM } from "./functions";
 
 // TODO: find a way to include css
 // TODO: documentation:
@@ -47,24 +47,6 @@ const Main = (parentName: string, _options: Options = {}) => {
         } else {
             scroll(Direction.UP);
         }
-    }
-
-    /** This check fixes a bug that snaps previous/next page when the finger quits the trackpad.
-     * 
-     * @param e - wheelevent
-     * @returns true if the trackpad is detected
-     */
-    function detectTrackPad(event: any) {
-        let isTrack = false;
-        if (event.wheelDeltaY) {
-            if (event.wheelDeltaY === (event.deltaY * -3)) {
-                isTrack = true;
-            }
-        }
-        else if (event.deltaMode === 0 /* firefox */) {
-            isTrack = true;
-        }
-        return isTrack;
     }
 
     function touchstartEvent(event: TouchEvent) {
