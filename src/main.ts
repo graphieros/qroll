@@ -358,12 +358,28 @@ const Main = (parentName: string, _options: Options = {}) => {
     //--------------------------|    NAV LOGIC    |---------------------------//
     //------------------------------------------------------------------------//
 
+
+    function restoreInitialSlideOrder() {
+        children = reorderArrayByIndex(Array.from(children), 0);
+    }
+
     /** Scrolls the target slide into view; updates nav & nukeChildren after a timeout
      * 
      * @param slideId - slide-v-{slideId}
      */
     function clickVerticalNavLink(slideId: number) {
         const targetSlide = Array.from(children).find(child => Number(child.dataset.index) === slideId) as any;
+        const currentSlideIndex = Number(getCurrentSlideId().replace("#slide-v-", ""));
+
+        if (slideId === currentSlideIndex + 1) {
+            scroll(Direction.DOWN);
+            return;
+        }
+        if (slideId === currentSlideIndex - 1) {
+            scroll(Direction.UP);
+            return;
+        }
+        restoreInitialSlideOrder();
         targetSlide?.scrollIntoView({ behavior: "smooth" });
         setTimeout(() => {
             location.hash = targetSlide.id;
@@ -384,7 +400,7 @@ const Main = (parentName: string, _options: Options = {}) => {
 
     /** Updates the hash from the slideId passed as a parameter; update the data-current-slide attribute to highlight the current selected slide
      * 
-     * @param slideId - v-slide-{slideId}
+     * @param slideId - slide-v-{slideId}
      */
     function updateNav(slideId: string) {
         const nav = document.getElementById(ElementId.NAV);
