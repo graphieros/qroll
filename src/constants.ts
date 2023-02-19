@@ -48,6 +48,7 @@ export namespace KeyboardCode {
     export const ARROW_RIGHT = "ArrowRight";
     export const ARROW_UP = "ArrowUp";
     export const SPACE = "Space";
+    export const ENTER = "Enter";
 }
 
 export namespace NodeName {

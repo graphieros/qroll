@@ -234,9 +234,15 @@ const Main = (parentName: string, _options: Options = {}) => {
             // TODO: highlight current page link
             Array.from(children).forEach((child, i) => {
                 const slideLink = document.createElement("a");
+                slideLink.setAttribute("tabindex", "1");
                 // slideLink.href = `#${child.id}`;
                 slideLink.dataset.index = child.dataset.index;
                 slideLink.addEventListener("click", () => clickVerticalNavLink(i));
+                slideLink.addEventListener("keyup", (e) => {
+                    if ([KeyboardCode.SPACE, KeyboardCode.ENTER].includes(e.key)) {
+                        clickVerticalNavLink(i);
+                    }
+                })
                 slideLink.innerHTML = "●";
                 nav.appendChild(slideLink);
             });
@@ -410,7 +416,7 @@ const Main = (parentName: string, _options: Options = {}) => {
         if (nav) {
             Array.from(nav.children).map((child: any) => {
                 child.dataset.currentSlide = child.dataset.index === thatSlide?.dataset.index;
-            })
+            });
         }
     }
 
