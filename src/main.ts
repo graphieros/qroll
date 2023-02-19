@@ -1,17 +1,16 @@
 import { EventTriggerListener, MoveEvent, Options, ScrollDirection } from "../types";
-import { CssClass, Direction, KeyboardCode, NodeName, EventTrigger } from "./constants";
+import { CssClass, Direction, ElementId, KeyboardCode, NodeName, EventTrigger } from "./constants";
 import { createUid, detectTrackPad, grabByData, grabId, logError, reorderArrayByIndex, setTabIndex, walkTheDOM } from "./functions";
 
 // TODO: find a way to include css
-// TODO: documentation:
-// > add tabindex="0" to any scrollable div added to a slide
-// TODO: add option to display clickable navigation
+
 // TODO: options:
 // > add css class to enable infinite vertical loop
 // > add css class to enable infinite horizontal loop
 
-// TODO: snap to slide  === hash upon load
+// ISSUE: using nav to slide up should respect the expected slide order and scroll direction
 
+// ISSUE: using the browser's history previous|next buttons does not update routing to slide
 
 const Main = (parentName: string, _options: Options = {}) => {
 
@@ -27,60 +26,24 @@ const Main = (parentName: string, _options: Options = {}) => {
     let cssClassTransition: any;
     let isTrackpad = false;
 
-    ///////////////////////////// EVENT LISTENERS //////////////////////////////
+    //------------------------------------------------------------------------//
+    //------------------------|    EVENT LISTENERS    |-----------------------//
+    //------------------------------------------------------------------------//
 
     window.onload = () => {
         // createVerticalNav();
         updateOnHashChange();
     }
 
-    function resizeEvent(event: Event) {
-        pageHeight = (event.target as Window).innerHeight;
+    function hashChangeEvent() {
+        updateNavFromCurrentSlideId();
     }
 
-    function wheelEvent(event: MoveEvent) {
-        isTrackpad = detectTrackPad(event);
-        // scroll events inside a scrollable element inside a slide must not trigger sliding
-        const hasVerticalScrollBar = event.target.scrollHeight > event.target.clientHeight;
-        // FOR LATER: const hasHorizontalScrollBar = event.target.scrollWidth > event.target.clientWidth;
-        if (!Array.from(event.target.classList).includes(CssClass.CHILD) && hasVerticalScrollBar) {
-            return;
-        }
-        if (isTrackpad) return;
-        if (event.deltaY === -0) return; // fixes a bug that caused a snap to previous slide on trackpad when finger is lift up
-        if (event.deltaY && event.deltaY > 0) {
-            if (event.deltaY < 7) return; // prevents touchpad excessive scrolling
-            scroll(Direction.DOWN);
-        } else {
-            scroll(Direction.UP);
-        }
-    }
-
-    function touchstartEvent(event: TouchEvent) {
-        eventTouchStart = event.changedTouches?.[0] || eventTouchStart;
-    }
-
-    function touchendEvent(event: TouchEvent) {
-        eventTouchEnd = event.changedTouches?.[0] || eventTouchEnd;
-    }
-
-    function touchMoveEvent(event: MoveEvent) {
-        // scroll events inside a scrollable element inside a slide must not trigger sliding
-        const hasVerticalScrollBar = event.target.scrollHeight > event.target.clientHeight;
-        // FOR LATER: const hasHorizontalScrollBar = event.target.scrollWidth > event.target.clientWidth;
-
-        // exclusion cases
-        const isScrollableIsland = !Array.from(event.target.classList).includes(CssClass.CHILD) && hasVerticalScrollBar;
-        if ([isScrollableIsland].includes(true)) return;
-
-        const deltaTouch = (eventTouchStart?.clientY - eventTouchEnd?.clientY) ?? 0;
-        if (deltaTouch > 0) {
-            scroll(Direction.DOWN);
-        } else if (deltaTouch < 0) {
-            scroll(Direction.UP);
-        }
-    }
-
+    /** Scrolls to the next slide depending on the computed scroll direction
+     * 
+     * @param event - KeyboardEvent
+     * @returns without executing if the target element is a form field; or if the target is a scrollable island element
+     */
     function keyboardEvent(event: KeyboardEvent) {
         const keyCode = event.code;
         const target: any = event.target;
@@ -112,18 +75,75 @@ const Main = (parentName: string, _options: Options = {}) => {
         }
     }
 
-    function hashChangeEvent() {
-        updateNavFromCurrentSlideId();
+    /** Sets the page height whenever the page is resized
+     * 
+     * @param event - resize event
+     */
+    function resizeEvent(event: Event) {
+        pageHeight = (event.target as Window).innerHeight;
+    }
+
+    function touchendEvent(event: TouchEvent) {
+        eventTouchEnd = event.changedTouches?.[0] || eventTouchEnd;
+    }
+
+    /** Executes the scroll depending on a computed touch direction
+     * 
+     * @param event - MoveEvent
+     * @returns without executing if the touch occurs inside a scrollable island element
+     */
+    function touchMoveEvent(event: MoveEvent) {
+        // scroll events inside a scrollable element inside a slide must not trigger sliding
+        const hasVerticalScrollBar = event.target.scrollHeight > event.target.clientHeight;
+        // FOR LATER: const hasHorizontalScrollBar = event.target.scrollWidth > event.target.clientWidth;
+
+        // exclusion cases
+        const isScrollableIsland = !Array.from(event.target.classList).includes(CssClass.CHILD) && hasVerticalScrollBar;
+        if ([isScrollableIsland].includes(true)) return;
+
+        const deltaTouch = (eventTouchStart?.clientY - eventTouchEnd?.clientY) ?? 0;
+        if (deltaTouch > 0) {
+            scroll(Direction.DOWN);
+        } else if (deltaTouch < 0) {
+            scroll(Direction.UP);
+        }
+    }
+
+    function touchstartEvent(event: TouchEvent) {
+        eventTouchStart = event.changedTouches?.[0] || eventTouchStart;
+    }
+
+    /** Detects a wheel or a trackpad event, and tames down trackpad excessive scroll behavior.
+     * 
+     * @param event - MoveEvent
+     * @returns without executing if the event occurs inside a scrollable island element
+     */
+    function wheelEvent(event: MoveEvent) {
+        isTrackpad = detectTrackPad(event);
+        // scroll events inside a scrollable element inside a slide must not trigger sliding
+        const hasVerticalScrollBar = event.target.scrollHeight > event.target.clientHeight;
+        // FOR LATER: const hasHorizontalScrollBar = event.target.scrollWidth > event.target.clientWidth;
+        if (!Array.from(event.target.classList).includes(CssClass.CHILD) && hasVerticalScrollBar) {
+            return;
+        }
+        if (isTrackpad) return;
+        if (event.deltaY === -0) return; // fixes a bug that caused a snap to previous slide on trackpad when finger is lift up
+        if (event.deltaY && event.deltaY > 0) {
+            if (event.deltaY < 7) return; // prevents touchpad excessive scrolling
+            scroll(Direction.DOWN);
+        } else {
+            scroll(Direction.UP);
+        }
     }
 
     const documentEvents: EventTriggerListener[] = [
-        { target: window, trigger: EventTrigger.HASHCHANGE, method: hashChangeEvent },
-        { target: window, trigger: EventTrigger.RESIZE, method: resizeEvent },
-        { target: document, trigger: EventTrigger.WHEEL, method: wheelEvent },
-        { target: document, trigger: EventTrigger.TOUCHSTART, method: touchstartEvent },
+        { target: document, trigger: EventTrigger.KEYUP, method: keyboardEvent },
         { target: document, trigger: EventTrigger.TOUCHEND, method: touchendEvent },
         { target: document, trigger: EventTrigger.TOUCHMOVE, method: touchMoveEvent },
-        { target: document, trigger: EventTrigger.KEYUP, method: keyboardEvent },
+        { target: document, trigger: EventTrigger.TOUCHSTART, method: touchstartEvent },
+        { target: document, trigger: EventTrigger.WHEEL, method: wheelEvent },
+        { target: window, trigger: EventTrigger.HASHCHANGE, method: hashChangeEvent },
+        { target: window, trigger: EventTrigger.RESIZE, method: resizeEvent },
     ];
 
     documentEvents.forEach(docEvent => {
@@ -136,12 +156,14 @@ const Main = (parentName: string, _options: Options = {}) => {
         });
     }
 
-    ////////////////////////////////////////////////////////////////////////////
+    //------------------------------------------------------------------------//
+    //-------------------------|    DOM CREATION    |-------------------------//
+    //------------------------------------------------------------------------//
 
     const parent = grabId(parentName);
     if (!parent) return logError('parent name not found: ' + parentName);
 
-    // find css class transition from provided classes to the parent
+    // Apply css class transition from provided classes to the parent
     switch (true) {
         case Array.from(parent.classList).includes(CssClass.TRANSITION_300):
             cssClassTransition = CssClass.TRANSITION_300;
@@ -193,15 +215,18 @@ const Main = (parentName: string, _options: Options = {}) => {
         Array.from(element.children).forEach(child => walkTheDOM(child, setTabIndex))
     }
 
+    /** Generate the nav node, injects slide links and applies an event listener to them
+     * 
+     */
     function createVerticalNav() {
-        const alreadyHasNav = document.querySelectorAll("#alpraNav");
+        const alreadyHasNav = document.querySelectorAll(`#${ElementId.NAV}`);
         if (alreadyHasNav.length) {
-            const oldNav = document.getElementById("alpraNav") as HTMLElement;
+            const oldNav = document.getElementById(ElementId.NAV) as HTMLElement;
             document.body.removeChild(oldNav);
         }
         if (Array.from(parent.classList).includes(CssClass.NAV)) {
             const nav = document.createElement("nav");
-            nav.setAttribute("id", "alpraNav");
+            nav.setAttribute("id", ElementId.NAV);
             nav.classList.add("alpra-nav-vertical");
             nav.setAttribute("style", `right:0; top:0; height: ${pageHeight}px; display:flex; align-items:center; justify-content:center; flex-direction: column;`);
 
@@ -220,8 +245,25 @@ const Main = (parentName: string, _options: Options = {}) => {
         }
     }
 
+    //------------------------------------------------------------------------//
+    //-------------------------|    SLIDE LOGIC    |--------------------------//
+    //------------------------------------------------------------------------//
 
+    function getCurrentSlideId() {
+        // this need more love
+        const location = window?.location
+        if (location?.hash) {
+            return location?.hash
+        }
 
+        return children?.[0]?.id || children?.[1]?.id;
+    }
+
+    /** Clone the next slide and append | prepend to parent depending on the vertical scroll direction
+     * 
+     * @param slideId - slide-v-{slideId}
+     * @param direction - direction of the scroll
+     */
     function duplicateSlide(slideId: string, direction: ScrollDirection) {
         const element = grabByData(slideId)?.cloneNode(true) as HTMLElement; // true also clones innerHTML
         element.dataset.slide = createUid();
@@ -232,6 +274,10 @@ const Main = (parentName: string, _options: Options = {}) => {
         }
     }
 
+    /** Destroys a slide after a timeout
+     * 
+     * @param slideId - slide-v-{slideId}
+     */
     function destroySlide(slideId: string) {
         if (isSliding) {
             clearTimeout(timeoutDestroySlide);
@@ -241,48 +287,14 @@ const Main = (parentName: string, _options: Options = {}) => {
             }, transitionDuration)
         }
     }
-    // place bad code here
-    function clickVerticalNavLink(slideId: number) {
-        const targetSlide = Array.from(children).find(child => Number(child.dataset.index) === slideId) as any;
-        targetSlide?.scrollIntoView({ behavior: "smooth" });
-        setTimeout(() => {
-            location.hash = targetSlide.id;
-            updateNav(targetSlide.id);
 
-            // reorder children
-            nukeChildren(slideId);
-
-        }, transitionDuration);
-    }
-
-    function updateNav(slideId: string) {
-        const nav = document.getElementById("alpraNav");
-        location.hash = slideId;
-        const thatSlide = Array.from(children).find(child => child.id === slideId);
-
-        if (nav) {
-            Array.from(nav.children).map((child: any) => {
-                child.dataset.currentSlide = child.dataset.index === thatSlide?.dataset.index;
-            })
-        }
-    }
-
-    function updateNavFromCurrentSlideId() {
-        let currentSlideId = getCurrentSlideId();
-        if (currentSlideId.includes("#")) {
-            currentSlideId = currentSlideId.replace("#", "");
-        }
-        updateNav(currentSlideId)
-    }
-
-    function updateLocation(slideId: string) {
-        const url = location.href;
-        location.href = `#${slideId}`;
-        history.replaceState(null, '', url);
-    }
-
+    /** Offsets the parent on Y axis; destroys the old slide; updates location with the current slide
+     * 
+     * @param slideId - slide-v-{slideId}
+     * @param nextSlideId - slide-v-{slideId}
+     * @param direction - scroll direction
+     */
     function snapSlide(slideId: string, nextSlideId: string, direction: ScrollDirection) {
-
         if (direction === Direction.DOWN) {
             parent.classList.add(cssClassTransition);
             translateY(-pageHeight);
@@ -309,34 +321,29 @@ const Main = (parentName: string, _options: Options = {}) => {
         }
     }
 
+    /** Updates the translateY css property of the Parent 
+     * 
+     * @param pixels - value in pixels
+     */
     function translateY(pixels: number) {
         parent.style.transform = `translateY(${pixels}px)`;
     }
 
+    /** Finds and snapes to the next slide depending on the scroll direction
+     * 
+     * @param direction - scroll direction
+     * @returns without executing if a sliding is already in progress
+     */
     function scroll(direction: ScrollDirection) {
         if (isSliding) return;
         const currentSlideId = getCurrentSlideId().replace("#slide-v-", "");
 
-        let nextSlide = 0;
-        if (direction === Direction.DOWN) {
-            nextSlide = parseInt(currentSlideId) + 1 > children.length ? 0 : parseInt(currentSlideId) + 1;
-        } else if (direction === Direction.UP) {
-            nextSlide = parseInt(currentSlideId) - 1 < 0 ? children.length : parseInt(currentSlideId) - 1;
-        }
-
         nukeChildren(+currentSlideId);
 
         isSliding = true;
-        // scroll down
-        // TODO: declare these slideIds globally to mutate them correctly when using the nav
-        let firstSlideId = children[0].dataset.slide as any;
+        let firstSlideId = children[0].dataset.slide as any; // scroll down
         let firstSlideNextId = children[1].dataset.slide as any;
-
-        // scroll up
-        let previousSlideId = children[children.length - 1].dataset.slide as any;
-        // let previousSlideNextId = children[children.length - 2].dataset.slide as any;
-
-
+        let previousSlideId = children[children.length - 1].dataset.slide as any; // scroll up
 
         if (direction === Direction.DOWN) {
             duplicateSlide(firstSlideId, direction);
@@ -345,25 +352,76 @@ const Main = (parentName: string, _options: Options = {}) => {
             duplicateSlide(previousSlideId, direction);
             snapSlide(previousSlideId, previousSlideId, direction);
         }
-
     }
 
+    //------------------------------------------------------------------------//
+    //--------------------------|    NAV LOGIC    |---------------------------//
+    //------------------------------------------------------------------------//
+
+    /** Scrolls the target slide into view; updates nav & nukeChildren after a timeout
+     * 
+     * @param slideId - slide-v-{slideId}
+     */
+    function clickVerticalNavLink(slideId: number) {
+        const targetSlide = Array.from(children).find(child => Number(child.dataset.index) === slideId) as any;
+        targetSlide?.scrollIntoView({ behavior: "smooth" });
+        setTimeout(() => {
+            location.hash = targetSlide.id;
+            updateNav(targetSlide.id);
+            nukeChildren(slideId);
+        }, transitionDuration);
+    }
+
+    /** Reorders the Children starting from the given index and repaint the Parent with the new DOM order
+     * 
+     * @param slideIndex - integer
+     */
     function nukeChildren(slideIndex: number) {
         children = reorderArrayByIndex(Array.from(children), slideIndex);
         parent.innerHTML = "";
         children.forEach(child => parent.appendChild(child));
     }
 
-    // this need more love
-    function getCurrentSlideId() {
-        const location = window?.location
-        if (location?.hash) {
-            return location?.hash
-        }
+    /** Updates the hash from the slideId passed as a parameter; update the data-current-slide attribute to highlight the current selected slide
+     * 
+     * @param slideId - v-slide-{slideId}
+     */
+    function updateNav(slideId: string) {
+        const nav = document.getElementById(ElementId.NAV);
+        location.hash = slideId;
+        const thatSlide = Array.from(children).find(child => child.id === slideId);
 
-        return children?.[0]?.id || children?.[1]?.id;
+        if (nav) {
+            Array.from(nav.children).map((child: any) => {
+                child.dataset.currentSlide = child.dataset.index === thatSlide?.dataset.index;
+            })
+        }
     }
 
+    /** Finds the current slide id and updates the nav
+     * 
+     */
+    function updateNavFromCurrentSlideId() {
+        let currentSlideId = getCurrentSlideId();
+        if (currentSlideId.includes("#")) {
+            currentSlideId = currentSlideId.replace("#", "");
+        }
+        updateNav(currentSlideId)
+    }
+
+    /** Update location and history
+     * 
+     * @param slideId - slide-v-{slideId}
+     */
+    function updateLocation(slideId: string) {
+        const url = location.href;
+        location.href = `#${slideId}`;
+        history.replaceState(null, '', url);
+    }
+
+    /** Find current slide from hash; update the Children order and the nav
+     * 
+     */
     function updateOnHashChange() {
         createVerticalNav();
         let currentSlideId = getCurrentSlideId();
