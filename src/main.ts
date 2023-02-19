@@ -233,18 +233,40 @@ const Main = (parentName: string, _options: Options = {}) => {
             // TODO: find a way to order consistently when scroll occurs
             // TODO: highlight current page link
             Array.from(children).forEach((child, i) => {
+                const slideLinkWrapper = document.createElement("DIV");
+                slideLinkWrapper.classList.add(CssClass.NAV_ELEMENT_WRAPPER);
                 const slideLink = document.createElement("a");
                 slideLink.setAttribute("tabindex", "1");
-                // slideLink.href = `#${child.id}`;
                 slideLink.dataset.index = child.dataset.index;
                 slideLink.addEventListener("click", () => clickVerticalNavLink(i));
                 slideLink.addEventListener("keyup", (e) => {
                     if ([KeyboardCode.SPACE, KeyboardCode.ENTER].includes(e.key)) {
                         clickVerticalNavLink(i);
                     }
-                })
+                });
                 slideLink.innerHTML = "●";
-                nav.appendChild(slideLink);
+                // tooltip
+                const tooltip = document.createElement("DIV") as any;
+
+                tooltip.classList.add(CssClass.TOOLTIP_LEFT);
+                tooltip.dataset.index = `${i}`;
+                // find a way to get the content of the first h1 or h2 element of the corresponding slide
+                // get computed style.fontfamily to apply it to the tooltip
+                const slideTitle = Array.from(children).find(slide => Number(slide.dataset.index) === i)?.querySelectorAll("h1,h2,h3")[0] as any;
+
+                tooltip.setAttribute("style", `font-family:${getComputedStyle(slideTitle).fontFamily.split(",")[0]}`);
+
+                if (slideTitle) {
+                    tooltip.innerHTML = slideTitle.textContent;
+                } else {
+                    tooltip.innerHTML = `${i}`;
+                }
+
+                tooltip.addEventListener("click", () => clickVerticalNavLink(i));
+
+                slideLinkWrapper.appendChild(tooltip);
+                slideLinkWrapper.appendChild(slideLink);
+                nav.appendChild(slideLinkWrapper);
             });
 
             document.body.appendChild(nav);
@@ -414,7 +436,7 @@ const Main = (parentName: string, _options: Options = {}) => {
         const thatSlide = Array.from(children).find(child => child.id === slideId);
 
         if (nav) {
-            Array.from(nav.children).map((child: any) => {
+            Array.from(nav.getElementsByTagName("a")).map((child: any) => {
                 child.dataset.currentSlide = child.dataset.index === thatSlide?.dataset.index;
             });
         }
