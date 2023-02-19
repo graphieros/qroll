@@ -51,6 +51,19 @@ export function logError(error: string) {
     console.error('Alpra-scroll exception:', { error })
 }
 
+export function reorderArrayByIndex(arr: any, index: number) {
+    const thatIndex = arr.findIndex((element: any) => Number(element.dataset.index) === index);
+
+    if (index === -1) {
+        return arr;
+    }
+
+    const firstHalf = arr.slice(thatIndex);
+    const secondHalf = arr.slice(0, thatIndex);
+
+    return [...firstHalf, ...secondHalf];
+}
+
 /**
  * 
  * @param element - HTML Element
@@ -107,6 +120,7 @@ const alpra = {
     grabByData,
     jumpToSlide,
     logError,
+    reorderArrayByIndex,
     scrollIntoView,
     scrollToTop,
     setTabIndex,

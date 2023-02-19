@@ -1,6 +1,6 @@
 import { EventTriggerListener, MoveEvent, Options, ScrollDirection } from "../types";
 import { CssClass, Direction, KeyboardCode, NodeName, EventTrigger } from "./constants";
-import { createUid, detectTrackPad, grabByData, grabId, logError, setTabIndex, walkTheDOM } from "./functions";
+import { createUid, detectTrackPad, grabByData, grabId, logError, reorderArrayByIndex, setTabIndex, walkTheDOM } from "./functions";
 
 // TODO: find a way to include css
 // TODO: documentation:
@@ -172,7 +172,7 @@ const Main = (parentName: string, _options: Options = {}) => {
 
     parent.classList.add(parentClass);
 
-    const children = parent.children as unknown as HTMLElement[];
+    let children = parent.children as unknown as HTMLElement[];
     for (let i = 0; i < children.length; i += 1) {
         const uid = createUid();
         const element = children[i];
@@ -197,9 +197,11 @@ const Main = (parentName: string, _options: Options = {}) => {
 
             // TODO: find a way to order consistently when scroll occurs
             // TODO: highlight current page link
-            Array.from(children).forEach((child) => {
+            Array.from(children).forEach((child, i) => {
                 const slideLink = document.createElement("a");
-                slideLink.href = `#${child.id}`;
+                // slideLink.href = `#${child.id}`;
+                slideLink.dataset.index = child.dataset.index;
+                slideLink.addEventListener("click", () => clickVerticalNavLink(i));
                 slideLink.innerHTML = "●";
                 nav.appendChild(slideLink);
             });
@@ -230,14 +232,28 @@ const Main = (parentName: string, _options: Options = {}) => {
         }
     }
     // place bad code here
-    function updateNav() {
-        const nav = document.getElementById("alpraNav");
+    function clickVerticalNavLink(slideId: number) {
+        // children = reorderArrayByIndex(Array.from(children), 0);
+        const thatSlide = Array.from(children).find(child => Number(child.dataset.index) === slideId) as any;
+        thatSlide?.scrollIntoView({ behavior: "smooth" });
+        setTimeout(() => {
+            location.hash = thatSlide.id;
+            updateNav(thatSlide.id);
 
-        location.hash = children[0].id;
+            // reorder children
+            nukeChildren(slideId);
+
+        }, transitionDuration);
+    }
+
+    function updateNav(slideId: string) {
+        const nav = document.getElementById("alpraNav");
+        location.hash = slideId;
+        const thatSlide = Array.from(children).find(child => child.id === slideId);
 
         if (nav) {
             Array.from(nav.children).map((child: any) => {
-                child.dataset.currentSlide = child.hash === getCurrentPageId();
+                child.dataset.currentSlide = child.dataset.index === thatSlide?.dataset.index;
             })
         }
     }
@@ -270,9 +286,9 @@ const Main = (parentName: string, _options: Options = {}) => {
             destroySlide(slideId);
             updateLocation(nextSlideId);
         }
-
+        const nextSlide = Array.from(children).find(child => child.dataset.slide === nextSlideId) as any;
         if ([Direction.DOWN, Direction.UP].includes(direction)) {
-            setTimeout(updateNav, 600);
+            setTimeout(() => updateNav(nextSlide.id), 600);
         }
     }
 
@@ -282,6 +298,18 @@ const Main = (parentName: string, _options: Options = {}) => {
 
     function scroll(direction: ScrollDirection) {
         if (isSliding) return;
+        const currentSlideId = getCurrentSlideId().replace("#slide-v-", "");
+
+        let nextSlide = 0;
+        if (direction === Direction.DOWN) {
+            nextSlide = parseInt(currentSlideId) + 1 > children.length ? 0 : parseInt(currentSlideId) + 1;
+        } else if (direction === Direction.UP) {
+            nextSlide = parseInt(currentSlideId) - 1 < 0 ? children.length : parseInt(currentSlideId) - 1;
+        }
+
+        nukeChildren(+currentSlideId);
+
+        console.log(nextSlide);
 
         isSliding = true;
         // scroll down
@@ -291,14 +319,9 @@ const Main = (parentName: string, _options: Options = {}) => {
 
         // scroll up
         let previousSlideId = children[children.length - 1].dataset.slide as any;
-        let previousSlideNextId = children[children.length - 2].dataset.slide as any;
+        // let previousSlideNextId = children[children.length - 2].dataset.slide as any;
 
-        console.log({ children }, {
-            firstSlideId,
-            firstSlideNextId,
-            previousSlideId,
-            previousSlideNextId
-        })
+
 
         if (direction === Direction.DOWN) {
             duplicateSlide(firstSlideId, direction);
@@ -307,16 +330,23 @@ const Main = (parentName: string, _options: Options = {}) => {
             duplicateSlide(previousSlideId, direction);
             snapSlide(previousSlideId, previousSlideId, direction);
         }
+
+    }
+
+    function nukeChildren(slideIndex: number) {
+        children = reorderArrayByIndex(Array.from(children), slideIndex);
+        parent.innerHTML = "";
+        children.forEach(child => parent.appendChild(child));
     }
 
     // this need more love
-    function getCurrentPageId() {
+    function getCurrentSlideId() {
         const location = window?.location
         if (location?.hash) {
             return location?.hash
         }
 
-        return children?.[1]?.id || children?.[0]?.id;
+        return children?.[0]?.id || children?.[1]?.id;
     }
 }
 
