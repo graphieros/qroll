@@ -49,4 +49,5 @@ export namespace EventTrigger {
     export const TOUCHMOVE = "touchmove";
     export const TOUCHSTART = "touchstart";
     export const WHEEL = "wheel";
+    export const HASHCHANGE = "hashchange";
 }

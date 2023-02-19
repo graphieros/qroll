@@ -29,6 +29,11 @@ const Main = (parentName: string, _options: Options = {}) => {
 
     ///////////////////////////// EVENT LISTENERS //////////////////////////////
 
+    window.onload = () => {
+        // createVerticalNav();
+        updateOnHashChange();
+    }
+
     function resizeEvent(event: Event) {
         pageHeight = (event.target as Window).innerHeight;
     }
@@ -107,7 +112,12 @@ const Main = (parentName: string, _options: Options = {}) => {
         }
     }
 
+    function hashChangeEvent() {
+        updateNavFromCurrentSlideId();
+    }
+
     const documentEvents: EventTriggerListener[] = [
+        { target: window, trigger: EventTrigger.HASHCHANGE, method: hashChangeEvent },
         { target: window, trigger: EventTrigger.RESIZE, method: resizeEvent },
         { target: document, trigger: EventTrigger.WHEEL, method: wheelEvent },
         { target: document, trigger: EventTrigger.TOUCHSTART, method: touchstartEvent },
@@ -210,7 +220,7 @@ const Main = (parentName: string, _options: Options = {}) => {
         }
     }
 
-    createVerticalNav();
+
 
     function duplicateSlide(slideId: string, direction: ScrollDirection) {
         const element = grabByData(slideId)?.cloneNode(true) as HTMLElement; // true also clones innerHTML
@@ -233,12 +243,11 @@ const Main = (parentName: string, _options: Options = {}) => {
     }
     // place bad code here
     function clickVerticalNavLink(slideId: number) {
-        // children = reorderArrayByIndex(Array.from(children), 0);
-        const thatSlide = Array.from(children).find(child => Number(child.dataset.index) === slideId) as any;
-        thatSlide?.scrollIntoView({ behavior: "smooth" });
+        const targetSlide = Array.from(children).find(child => Number(child.dataset.index) === slideId) as any;
+        targetSlide?.scrollIntoView({ behavior: "smooth" });
         setTimeout(() => {
-            location.hash = thatSlide.id;
-            updateNav(thatSlide.id);
+            location.hash = targetSlide.id;
+            updateNav(targetSlide.id);
 
             // reorder children
             nukeChildren(slideId);
@@ -258,6 +267,14 @@ const Main = (parentName: string, _options: Options = {}) => {
         }
     }
 
+    function updateNavFromCurrentSlideId() {
+        let currentSlideId = getCurrentSlideId();
+        if (currentSlideId.includes("#")) {
+            currentSlideId = currentSlideId.replace("#", "");
+        }
+        updateNav(currentSlideId)
+    }
+
     function updateLocation(slideId: string) {
         const url = location.href;
         location.href = `#${slideId}`;
@@ -265,7 +282,7 @@ const Main = (parentName: string, _options: Options = {}) => {
     }
 
     function snapSlide(slideId: string, nextSlideId: string, direction: ScrollDirection) {
-        console.log({ nextSlideId });
+
         if (direction === Direction.DOWN) {
             parent.classList.add(cssClassTransition);
             translateY(-pageHeight);
@@ -309,8 +326,6 @@ const Main = (parentName: string, _options: Options = {}) => {
 
         nukeChildren(+currentSlideId);
 
-        console.log(nextSlide);
-
         isSliding = true;
         // scroll down
         // TODO: declare these slideIds globally to mutate them correctly when using the nav
@@ -347,6 +362,18 @@ const Main = (parentName: string, _options: Options = {}) => {
         }
 
         return children?.[0]?.id || children?.[1]?.id;
+    }
+
+    function updateOnHashChange() {
+        createVerticalNav();
+        let currentSlideId = getCurrentSlideId();
+        if (currentSlideId.includes("#")) {
+            currentSlideId = currentSlideId.replace("#", "");
+        }
+        const currentSlideIndex = Array.from(children).find(child => child.id === currentSlideId)?.dataset.index as unknown as string;
+        children = reorderArrayByIndex(Array.from(children), +currentSlideIndex);
+        nukeChildren(+currentSlideIndex);
+        updateNav(currentSlideId);
     }
 }
 
