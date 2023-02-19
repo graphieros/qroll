@@ -129,14 +129,38 @@ html body {
     height: 100%;
   }
 
-a[data-current-slide="true"] {
-    transform: scale(1.5,1.5);
-}
-a[data-current-slide="true"]:hover {
-    transform: scale(1.5,1.5);
-}
+a[data-current-slide="true"],
+a[data-current-slide="true"]:hover,
 a[data-current-slide="true"]:focus {
     transform: scale(1.5,1.5);
+}
+.alpra-nav-element-wrapper {
+    position: relative;
+}
+.alpra-tooltip-left {
+    position: absolute;
+    right: calc(100% + 12px);
+    display:none;
+    background: white;
+    border-radius: 4px;
+    padding: 0px 12px;
+    height: 20px;
+    white-space: nowrap;
+    line-height: 1.2rem;
+    text-align:center;
+    border:1px solid white;
+    user-select: none;
+}
+.alpra-tooltip-left::after {
+    content: "⏵";
+    position: absolute;
+    right:-10px;
+    color: white;
+    top:0px;
+}
+.alpra-nav-element-wrapper:hover .alpra-tooltip-left {
+    display: inline-block;
+    width:min-content;
 }
 
 /* TEMP TEST CLASSES TO BE REMOVED AFTER DEV */
@@ -218,3 +242,7 @@ a[data-current-slide="true"]:focus {
     background: rgb(247, 208, 247);
 }
 
+h2 {
+    width: 100%;
+    text-align:center;
+}

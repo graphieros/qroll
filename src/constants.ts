@@ -19,6 +19,8 @@ export namespace CssClass {
     export const TRANSITION_800 = "alpra-transition-800";
     export const TRANSITION_900 = "alpra-transition-900";
     export const TRANSITION_Y = "alpra-transitionY";
+    export const TOOLTIP_LEFT = "alpra-tooltip-left";
+    export const NAV_ELEMENT_WRAPPER = "alpra-nav-element-wrapper";
 }
 
 export namespace Direction {
