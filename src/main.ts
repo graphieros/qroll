@@ -1,6 +1,6 @@
 import { EventTriggerListener, MoveEvent, Options, ScrollDirection } from "../types";
-import { CssClass, Direction, ElementId, KeyboardCode, NodeName, EventTrigger } from "./constants";
-import { createUid, detectTrackPad, grabByData, grabId, logError, reorderArrayByIndex, setTabIndex, walkTheDOM } from "./functions";
+import { CssClass, Direction, ElementId, KeyboardCode, NodeName, EventTrigger, DomElement } from "./constants";
+import { applyEllipsis, createUid, detectTrackPad, grabByData, grabId, logError, reorderArrayByIndex, setTabIndex, spawn, walkTheDOM } from "./functions";
 
 // TODO: find a way to include css
 
@@ -25,6 +25,7 @@ const Main = (parentName: string, _options: Options = {}) => {
     let timeoutTransitionY: any;
     let cssClassTransition: any;
     let isTrackpad = false;
+    let tooltipEllipsisLimit = 30;
 
     //------------------------------------------------------------------------//
     //------------------------|    EVENT LISTENERS    |-----------------------//
@@ -221,21 +222,18 @@ const Main = (parentName: string, _options: Options = {}) => {
     function createVerticalNav() {
         const alreadyHasNav = document.querySelectorAll(`#${ElementId.NAV}`);
         if (alreadyHasNav.length) {
-            const oldNav = document.getElementById(ElementId.NAV) as HTMLElement;
+            const oldNav = grabId(ElementId.NAV) as HTMLElement;
             document.body.removeChild(oldNav);
         }
-        if (Array.from(parent.classList).includes(CssClass.NAV)) {
-            const nav = document.createElement("nav");
+        if (Array.from(parent.classList).includes(CssClass.HAS_NAV)) {
+            const nav = spawn(DomElement.NAV);
             nav.setAttribute("id", ElementId.NAV);
-            nav.classList.add("alpra-nav-vertical");
-            nav.setAttribute("style", `right:0; top:0; height: ${pageHeight}px; display:flex; align-items:center; justify-content:center; flex-direction: column;`);
-
-            // TODO: find a way to order consistently when scroll occurs
-            // TODO: highlight current page link
+            nav.classList.add(CssClass.NAV_VERTICAL);
+            // TODO: find a way to order consistently when scroll occurs on a distant target
             Array.from(children).forEach((child, i) => {
-                const slideLinkWrapper = document.createElement("DIV");
+                const slideLinkWrapper = spawn(DomElement.DIV);
                 slideLinkWrapper.classList.add(CssClass.NAV_ELEMENT_WRAPPER);
-                const slideLink = document.createElement("a");
+                const slideLink = spawn(DomElement.A);
                 slideLink.setAttribute("tabindex", "1");
                 slideLink.dataset.index = child.dataset.index;
                 slideLink.addEventListener("click", () => clickVerticalNavLink(i));
@@ -244,28 +242,25 @@ const Main = (parentName: string, _options: Options = {}) => {
                         clickVerticalNavLink(i);
                     }
                 });
-                slideLink.innerHTML = "●";
-                // tooltip
-                const tooltip = document.createElement("DIV") as any;
+                const span = spawn(DomElement.SPAN);
+                span.innerHTML = "●";
+                slideLink.appendChild(span);
 
+                const tooltip = spawn(DomElement.DIV) as any;
                 tooltip.classList.add(CssClass.TOOLTIP_LEFT);
                 tooltip.dataset.index = `${i}`;
-                // find a way to get the content of the first h1 or h2 element of the corresponding slide
-                // get computed style.fontfamily to apply it to the tooltip
-                const slideTitle = Array.from(children).find(slide => Number(slide.dataset.index) === i)?.querySelectorAll("h1,h2,h3")[0] as any;
-
-                tooltip.setAttribute("style", `font-family:${getComputedStyle(slideTitle).fontFamily.split(",")[0]}`);
+                const slideTitle = Array.from(children).find(slide => Number(slide.dataset.index) === i)?.querySelectorAll("h1,h2,h3,h4")[0] as any;
 
                 if (slideTitle) {
-                    tooltip.innerHTML = slideTitle.textContent;
+                    tooltip.setAttribute("style", `font-family:${getComputedStyle(slideTitle).fontFamily.split(",")[0]}`);
+                    tooltip.innerHTML = applyEllipsis(slideTitle.textContent, tooltipEllipsisLimit);
                 } else {
+                    tooltip.setAttribute("style", `font-family:Helvetica`);
                     tooltip.innerHTML = `${i}`;
                 }
 
                 tooltip.addEventListener("click", () => clickVerticalNavLink(i));
-
-                slideLinkWrapper.appendChild(tooltip);
-                slideLinkWrapper.appendChild(slideLink);
+                [tooltip, slideLink].forEach(el => slideLinkWrapper.appendChild(el));
                 nav.appendChild(slideLinkWrapper);
             });
 
@@ -431,12 +426,12 @@ const Main = (parentName: string, _options: Options = {}) => {
      * @param slideId - slide-v-{slideId}
      */
     function updateNav(slideId: string) {
-        const nav = document.getElementById(ElementId.NAV);
+        const nav = grabId(ElementId.NAV);
         location.hash = slideId;
         const thatSlide = Array.from(children).find(child => child.id === slideId);
 
         if (nav) {
-            Array.from(nav.getElementsByTagName("a")).map((child: any) => {
+            Array.from(nav.getElementsByTagName(DomElement.A)).map((child: any) => {
                 child.dataset.currentSlide = child.dataset.index === thatSlide?.dataset.index;
             });
         }
@@ -446,11 +441,8 @@ const Main = (parentName: string, _options: Options = {}) => {
      * 
      */
     function updateNavFromCurrentSlideId() {
-        let currentSlideId = getCurrentSlideId();
-        if (currentSlideId.includes("#")) {
-            currentSlideId = currentSlideId.replace("#", "");
-        }
-        updateNav(currentSlideId)
+        let currentSlideId = getCurrentSlideId().replace("#", "");
+        updateNav(currentSlideId);
     }
 
     /** Update location and history
@@ -468,10 +460,7 @@ const Main = (parentName: string, _options: Options = {}) => {
      */
     function updateOnHashChange() {
         createVerticalNav();
-        let currentSlideId = getCurrentSlideId();
-        if (currentSlideId.includes("#")) {
-            currentSlideId = currentSlideId.replace("#", "");
-        }
+        let currentSlideId = getCurrentSlideId().replace("#", "");
         const currentSlideIndex = Array.from(children).find(child => child.id === currentSlideId)?.dataset.index as unknown as string;
         children = reorderArrayByIndex(Array.from(children), +currentSlideIndex);
         nukeChildren(+currentSlideIndex);

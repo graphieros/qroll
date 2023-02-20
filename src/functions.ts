@@ -1,3 +1,14 @@
+/** Apply ellipsis on a string depending on a limit
+ * 
+ * @param text - string to apply the ellipsis on
+ * @param limit - number over which exceeding text will be replaced with '...'
+ * @returns the text with allipsis applied on the char limit
+ */
+export function applyEllipsis(text: string, limit: number) {
+    if (text.length < limit) return text;
+    return `${text.slice(0, limit)}...`;
+}
+
 /** Generates a unique id
  * 
  * @returns a unique string id
@@ -37,7 +48,7 @@ export function detectTrackPad(event: any) {
     return isTrack;
 }
 
-/** A shorthand for the tedious document.getElementById
+/** Shorthand for document.getElementById
  * 
  * @param elementId - string
  * @returns an HTMLElement
@@ -88,6 +99,15 @@ export function setTabIndex(element: { scrollHeight: number; clientHeight: numbe
     }
 }
 
+/** Shorthand for document.createElement
+ * 
+ * @param element - string
+ * @returns a dom element
+ */
+export function spawn(element: string) {
+    return document.createElement(element);
+}
+
 export function updateCssClasses({ element, addedClasses = [], removedClasses = [] }: { element: HTMLElement, addedClasses: string[], removedClasses: string[] }) {
     if (addedClasses.length) {
         addedClasses.forEach(addedClass => {
@@ -118,6 +138,7 @@ export function walkTheDOM(node: any, func: any) {
 
 
 const alpra = {
+    applyEllipsis,
     createUid,
     detectTrackPad,
     grabId,

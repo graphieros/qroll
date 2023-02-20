@@ -96,16 +96,24 @@ html body {
     max-width: 100%;
 }
 .alpra-nav-vertical {
-    width: 40px;
-    position: fixed;
+    align-items: center;
+    display:flex;
+    flex-direction: column;
     gap:2px;
+    height: 100vh;
+    height: 100svh;
+    justify-content: center;
+    position: fixed;
+    right:0;
+    top:0;
+    width: 40px;
 }
 .alpra-nav-vertical a {
     text-decoration:none;
     color: inherit;
     opacity: 0.8;
     color: white;
-    transition: opacity 0.15s ease-in-out;
+    transition: opacity 0.15s ease-in-out, font-size 0.15s ease-in-out;
     text-shadow: 0px 0px 3px black;
     cursor: pointer;
     height: 18px;
@@ -116,11 +124,11 @@ html body {
 }
 .alpra-nav-vertical a:hover {
     opacity:1;
-    transform: scale(1.2,1.2);
+    text-shadow: 0px 0px 4px black;
 }
 .alpra-nav-vertical a:focus {
     opacity:1;
-    transform: scale(1.2,1.2);
+    text-shadow: 0px 0px 6px black;
     border-radius: 50%;   
 }
 
@@ -132,30 +140,34 @@ html body {
 a[data-current-slide="true"],
 a[data-current-slide="true"]:hover,
 a[data-current-slide="true"]:focus {
-    transform: scale(1.5,1.5);
+    text-shadow: 0px 0px 3px black;
+    font-size: 1.5rem;
 }
 .alpra-nav-element-wrapper {
     position: relative;
 }
 .alpra-tooltip-left {
-    position: absolute;
-    right: calc(100% + 12px);
-    display:none;
     background: white;
     border-radius: 4px;
-    padding: 0px 12px;
-    height: 20px;
-    white-space: nowrap;
-    line-height: 1.2rem;
-    text-align:center;
     border:1px solid white;
+    box-shadow: 5px 0px 5px rgba(0,0,0,0.1);
+    cursor: pointer;
+    display:none;
+    height: 28px;
+    line-height: 1.7rem;
+    padding: 0px 12px;
+    position: absolute;
+    right: calc(100% + 12px);
+    text-align:center;
     user-select: none;
+    white-space: nowrap;
+    margin-top:-5.5px;
 }
 .alpra-tooltip-left::after {
+    color: white;
     content: "⏵";
     position: absolute;
-    right:-10px;
-    color: white;
+    right:-11px;
     top:0px;
 }
 .alpra-nav-element-wrapper:hover .alpra-tooltip-left {

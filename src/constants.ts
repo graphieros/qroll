@@ -7,7 +7,7 @@ export namespace CssClass {
     export const CHILDREN_WRAPPER = "alpra-children-wrapper";
     export const CHILD_VISIBLE = "alpra-child-visible";
     export const HIDDEN = "alpra-hidden";
-    export const NAV = "alpra-nav";
+    export const HAS_NAV = "alpra-nav";
     export const PARENT = "alpra-parent";
     export const TOP = "alpra-top";
     export const TRANSITION_1000 = "alpra-transition-1000";
@@ -20,6 +20,7 @@ export namespace CssClass {
     export const TRANSITION_900 = "alpra-transition-900";
     export const TRANSITION_Y = "alpra-transitionY";
     export const TOOLTIP_LEFT = "alpra-tooltip-left";
+    export const NAV_VERTICAL = "alpra-nav-vertical";
     export const NAV_ELEMENT_WRAPPER = "alpra-nav-element-wrapper";
 }
 
@@ -28,6 +29,13 @@ export namespace Direction {
     export const LEFT = "left" as ScrollDirection;
     export const RIGHT = "right" as ScrollDirection;
     export const UP = "up" as ScrollDirection;
+}
+
+export namespace DomElement {
+    export const A = "a";
+    export const DIV = "DIV";
+    export const NAV = "nav";
+    export const SPAN = "span";
 }
 
 export namespace ElementId {
