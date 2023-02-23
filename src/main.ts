@@ -26,6 +26,8 @@ const Main = (parentName: string, _options: Options = {}) => {
     let cssClassTransition: any;
     let isTrackpad = false;
     let tooltipEllipsisLimit = 30;
+    let isLoop = Array.from(grabId(ElementId.PARENT).classList).includes(CssClass.LOOP);
+    let currentNoLoopSlide = 1;
 
     //------------------------------------------------------------------------//
     //------------------------|    EVENT LISTENERS    |-----------------------//
@@ -38,6 +40,33 @@ const Main = (parentName: string, _options: Options = {}) => {
 
     function hashChangeEvent() {
         updateNavFromCurrentSlideId();
+    }
+
+    /** Translate Y the Parent in case of non looping scroll
+     * 
+     * @param delta - number, positive will scroll down
+     * @param positionY - number, current Y position of the parent
+     */
+    function scrollWithoutLoop(delta: number, positionY: number) {
+        if (delta > 0) {
+            if (currentNoLoopSlide > children.length - 1) {
+                currentNoLoopSlide = children.length - 1;
+            }
+            translateY(-pageHeight * currentNoLoopSlide);
+            currentNoLoopSlide += 1;
+
+        } else {
+            if (positionY <= -pageHeight) {
+                translateY(positionY + pageHeight);
+                currentNoLoopSlide -= 1;
+                if (currentNoLoopSlide < 1) {
+                    currentNoLoopSlide = 1;
+                }
+            }
+        }
+        setTimeout(() => {
+            isSliding = false;
+        }, transitionDuration);
     }
 
     /** Scrolls to the next slide depending on the computed scroll direction
@@ -62,13 +91,32 @@ const Main = (parentName: string, _options: Options = {}) => {
         const isScrollableIsland = hasVerticalScrollBar && target.nodeName !== NodeName.BODY;
         if ([isInputField, isScrollableIsland].includes(true)) return;
 
+        const positionY = parent.getBoundingClientRect().y;
+
+        const is = {
+            loopDown: [KeyboardCode.ARROW_DOWN, KeyboardCode.SPACE].includes(keyCode) && isLoop,
+            loopUp: [KeyboardCode.ARROW_UP].includes(keyCode) && isLoop,
+            noLoopDown: [KeyboardCode.ARROW_DOWN, KeyboardCode.SPACE].includes(keyCode) && !isLoop && !isSliding,
+            noLoopUp: [KeyboardCode.ARROW_UP].includes(keyCode) && !isLoop && !isSliding
+        }
+
         switch (true) {
-            case [KeyboardCode.ARROW_DOWN, KeyboardCode.SPACE].includes(keyCode):
+            case is.loopDown:
                 scroll(Direction.DOWN);
                 break;
 
-            case [KeyboardCode.ARROW_UP].includes(keyCode):
+            case is.noLoopDown:
+                isSliding = true;
+                scrollWithoutLoop(1, positionY);
+                break;
+
+            case is.loopUp:
                 scroll(Direction.UP);
+                break;
+
+            case is.noLoopUp:
+                isSliding = true;
+                scrollWithoutLoop(-1, positionY);
                 break;
 
             default:
@@ -103,6 +151,14 @@ const Main = (parentName: string, _options: Options = {}) => {
         if ([isScrollableIsland].includes(true)) return;
 
         const deltaTouch = (eventTouchStart?.clientY - eventTouchEnd?.clientY) ?? 0;
+        const positionY = parent.getBoundingClientRect().y;
+
+        if (!isLoop && !isSliding) {
+            isSliding = true;
+            scrollWithoutLoop(deltaTouch, positionY);
+            return;
+        }
+
         if (deltaTouch > 0) {
             scroll(Direction.DOWN);
         } else if (deltaTouch < 0) {
@@ -127,6 +183,16 @@ const Main = (parentName: string, _options: Options = {}) => {
         if (!Array.from(event.target.classList).includes(CssClass.CHILD) && hasVerticalScrollBar) {
             return;
         }
+
+        // WITHOUT SCROLL LOOP
+        const positionY = parent.getBoundingClientRect().y;
+        if (!isLoop && !isSliding) {
+            isSliding = true;
+            scrollWithoutLoop(event.deltaY, positionY);
+            return;
+        }
+
+        // WITH SCROLL LOOP
         if (isTrackpad) return;
         if (event.deltaY === -0) return; // fixes a bug that caused a snap to previous slide on trackpad when finger is lift up
         if (event.deltaY && event.deltaY > 0) {
@@ -460,11 +526,14 @@ const Main = (parentName: string, _options: Options = {}) => {
      */
     function updateOnHashChange() {
         createVerticalNav();
-        let currentSlideId = getCurrentSlideId().replace("#", "");
-        const currentSlideIndex = Array.from(children).find(child => child.id === currentSlideId)?.dataset.index as unknown as string;
-        children = reorderArrayByIndex(Array.from(children), +currentSlideIndex);
-        nukeChildren(+currentSlideIndex);
-        updateNav(currentSlideId);
+        // TODO: find a way to manage nav when !isLoop
+        if (isLoop) {
+            let currentSlideId = getCurrentSlideId().replace("#", "");
+            const currentSlideIndex = Array.from(children).find(child => child.id === currentSlideId)?.dataset.index as unknown as string;
+            children = reorderArrayByIndex(Array.from(children), +currentSlideIndex);
+            nukeChildren(+currentSlideIndex);
+            updateNav(currentSlideId);
+        }
     }
 }
 

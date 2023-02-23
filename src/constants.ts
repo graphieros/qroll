@@ -22,6 +22,7 @@ export namespace CssClass {
     export const TOOLTIP_LEFT = "alpra-tooltip-left";
     export const NAV_VERTICAL = "alpra-nav-vertical";
     export const NAV_ELEMENT_WRAPPER = "alpra-nav-element-wrapper";
+    export const LOOP = "alpra-loop";
 }
 
 export namespace Direction {
@@ -40,6 +41,7 @@ export namespace DomElement {
 
 export namespace ElementId {
     export const NAV = "alpraNav";
+    export const PARENT = "alpra-parent";
 }
 
 export namespace EventTrigger {
