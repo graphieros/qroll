@@ -1,0 +1,205 @@
+/*
+    This css must not be shipped as part of the library.
+    It's itended for Kodex presentation page only
+*/
+
+@font-face {
+    font-family: 'Satoshi';
+    font-weight: 500;
+    src: url("../fonts/Satoshi-Medium.ttf") format('truetype');
+}
+
+h1::first-letter,
+h1 span {
+    color: rgb(73, 98, 151);
+    color:rgb(177, 229, 238);
+}
+
+h1 {
+    color:rgb(115, 189, 202);
+    display: block;
+    user-select:none;
+}
+
+.test-light {
+    color:rgb(177, 229, 238);
+}
+.test-title-light {
+    background: radial-gradient(at top, rgb(177, 229, 238), rgb(83, 172, 110));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+code.npm {
+    font-size: 0.4em;
+    background: radial-gradient(at top, rgba(255,255,255,0.05), transparent, rgba(255,255,255,0.05));
+    padding: 12px;
+    border-radius: 0.4rem;
+    color: rgb(177, 229, 238);
+    box-shadow: 0 3px 10px -5px rgb(40, 40, 65);
+}
+
+.test-child {
+    align-items:center;
+    display: flex;
+    font-family:Satoshi;
+    font-size: 5rem;
+    font-weight:bold;
+    justify-content:center;
+    flex-direction: column;
+    color: rgb(40, 40, 65);
+}
+.test-child > p {
+    font-size: 1rem;
+    padding: 0 24px;
+    width: 100%;
+    max-width: 80ch;
+    user-select:none;
+}
+
+.test-child form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 0 auto;
+    max-width: 400px;
+}
+
+.test-child form input,
+.test-child form textarea {
+    border-radius: 6px;
+    border: none;
+    padding: 0 6px;
+    font-family: Helvetica;
+}
+
+.test-child form textarea {
+    padding: 6px;
+}
+
+.test-child form input {
+    height: 32px;
+}
+
+.test-child form label {
+    font-size: 0.17em;
+    font-weight: 400;
+}
+
+.test-scrollable-div {
+    background: white;
+    border-radius: 6px;
+    border: 1px solid grey;
+    font-size: 0.16em;
+    font-weight: 400;
+    max-height: 200px;
+    max-width: 400px;
+    overflow: auto;
+    padding: 6px 12px;
+}
+
+.test-blue {
+    background: radial-gradient(at top right, #0f0c29, #302b63, rgb(96, 148, 184));
+}
+
+.test-blue-reversed {
+    background: radial-gradient(at bottom right, #0f0c29, #302b63, rgb(96, 148, 184));
+}
+
+.test-green {
+    background: rgb(210, 245, 210);
+}
+
+.test-orange {
+    background: radial-gradient(at top right, rgb(102, 191, 202), rgba(66, 100, 133, 0.589), rgb(123, 131, 207));
+    /* background: rgb(236, 222, 195); */
+}
+
+.test-red {
+    background: rgb(238, 198, 198);
+}
+
+.test-purple {
+    background: rgb(247, 208, 247);
+}
+
+h2 {
+    width: 100%;
+    text-align:center;
+}
+
+
+.front-page p {
+    margin: 0 auto;
+    text-align:center;
+    margin: -100px 0 48px 0;
+    color: rgb(177, 229, 238);
+    font-size: 0.38em;
+}
+
+p.subtitle {
+    font-size: 0.38em;
+    margin: 0 auto;
+    text-align:center;
+}
+
+.sample-code {
+    padding: 24px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 12px;
+    font-size: 1rem;
+    color: rgb(212, 196, 196);
+    font-weight: 400;
+}
+
+.css {
+    color: rgb(83, 172, 110);
+}
+
+header.test-header{
+    position: fixed;
+    top:0;
+    left:0;
+    width: 100%;
+    background: rgb(40, 40, 65);
+    z-index:1;
+    padding: 12px 0;
+}
+
+.test-header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    font-family: "Satoshi";
+    display: flex;
+    font-weight: bold;
+    align-items: center;
+    gap: 12px;
+    font-size:1.5em;
+}
+
+.showcase {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    margin-top: 48px;
+}
+
+.showcase svg {
+    border: 3px solid rgb(40, 40, 65);
+    padding: 6px;
+    border-radius: 8px;
+    background: rgba(0,0,0,0.2);
+}
+
+.test-title-dark {
+    background: radial-gradient(at top, rgb(196, 243, 255), rgb(147, 226, 172));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+small.scroll {
+    color: rgb(147, 226, 172);
+    font-size: 0.2em;
+    margin: 24px 0 -24px 0;
+}

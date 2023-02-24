@@ -1,14 +1,14 @@
 {
-  "name": "alpra-scroll",
+  "name": "kodex",
   "version": "0.0.0",
   "type": "module",
-  "main": "./dist/alpra-scroll.umd.cjs",
-  "module": "./dist/alpra-scroll.js",
+  "main": "./dist/kodex.umd.cjs",
+  "module": "./dist/kodex.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/alpra-scroll.js",
-      "export": "./dist/alpra-scroll.umd.cjs"
+      "import": "./dist/kodex.js",
+      "export": "./dist/kodex.umd.cjs"
     }
   },
   "files": [

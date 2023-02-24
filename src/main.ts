@@ -5,10 +5,12 @@ import { applyEllipsis, createUid, detectTrackPad, grabByData, grabId, logError,
 // TODO: find a way to include css
 
 // TODO: options:
-// > add css class to enable infinite vertical loop
 // > add css class to enable infinite horizontal loop
 
-// ISSUE: using nav to slide up should respect the expected slide order and scroll direction
+// TODO: use first h1|h2|h3|h4 innerText as hash instead of "slide-v-{slideId}"
+
+// IDEA: show icon to turn on/off scroll (basically add or remove the css class on parent)
+
 
 // ISSUE: using the browser's history previous|next buttons does not update routing to slide
 
@@ -28,13 +30,21 @@ const Main = (parentName: string, _options: Options = {}) => {
     let tooltipEllipsisLimit = 30;
     let isLoop = Array.from(grabId(ElementId.PARENT).classList).includes(CssClass.LOOP);
     let currentNoLoopSlide = 1;
+    let trackpadSensitivityThreshold = 30;
+
+    // this needs extra testing for all browsers to check if wheel event makes the scroll work !
+    let userAgent = navigator.userAgent;
+    if (userAgent.match(/chrome|chromium|crios/i)) {
+        trackpadSensitivityThreshold = 30;
+    } else {
+        trackpadSensitivityThreshold = 10;
+    }
 
     //------------------------------------------------------------------------//
     //------------------------|    EVENT LISTENERS    |-----------------------//
     //------------------------------------------------------------------------//
 
     window.onload = () => {
-        // createVerticalNav();
         updateOnHashChange();
     }
 
@@ -47,7 +57,7 @@ const Main = (parentName: string, _options: Options = {}) => {
      * @param delta - number, positive will scroll down
      * @param positionY - number, current Y position of the parent
      */
-    function scrollWithoutLoop(delta: number, positionY: number) {
+    function scrollWithoutLoop(delta: number, positionY: number, slides: number = 1) {
         if (delta > 0) {
             if (currentNoLoopSlide > children.length - 1) {
                 currentNoLoopSlide = children.length - 1;
@@ -57,15 +67,19 @@ const Main = (parentName: string, _options: Options = {}) => {
 
         } else {
             if (positionY <= -pageHeight) {
-                translateY(positionY + pageHeight);
+                translateY(positionY + pageHeight * slides);
                 currentNoLoopSlide -= 1;
                 if (currentNoLoopSlide < 1) {
                     currentNoLoopSlide = 1;
                 }
             }
         }
+        const activeSlide = Array.from(children).find((_child, i) => i === currentNoLoopSlide - 1) as HTMLElement;
+
         setTimeout(() => {
             isSliding = false;
+            updateNav(activeSlide.id);
+            updateLocation(activeSlide.id);
         }, transitionDuration);
     }
 
@@ -195,10 +209,12 @@ const Main = (parentName: string, _options: Options = {}) => {
         // WITH SCROLL LOOP
         if (isTrackpad) return;
         if (event.deltaY === -0) return; // fixes a bug that caused a snap to previous slide on trackpad when finger is lift up
+
         if (event.deltaY && event.deltaY > 0) {
-            if (event.deltaY < 7) return; // prevents touchpad excessive scrolling
+            if (event.deltaY < trackpadSensitivityThreshold) return;
             scroll(Direction.DOWN);
         } else {
+            if (-event.deltaY < trackpadSensitivityThreshold) return;
             scroll(Direction.UP);
         }
     }
@@ -310,12 +326,15 @@ const Main = (parentName: string, _options: Options = {}) => {
                 });
                 const span = spawn(DomElement.SPAN);
                 span.innerHTML = "●";
+                span.style.color = getNavColorFromParentClasses();
+
                 slideLink.appendChild(span);
 
                 const tooltip = spawn(DomElement.DIV) as any;
                 tooltip.classList.add(CssClass.TOOLTIP_LEFT);
                 tooltip.dataset.index = `${i}`;
                 const slideTitle = Array.from(children).find(slide => Number(slide.dataset.index) === i)?.querySelectorAll("h1,h2,h3,h4")[0] as any;
+                // TODO: slideTitle could be refined. If no h element is provided, we need to find the first words of the first p or article or whatever
 
                 if (slideTitle) {
                     tooltip.setAttribute("style", `font-family:${getComputedStyle(slideTitle).fontFamily.split(",")[0]}`);
@@ -332,6 +351,30 @@ const Main = (parentName: string, _options: Options = {}) => {
 
             document.body.appendChild(nav);
         }
+    }
+
+    //------------------------------------------------------------------------//
+    //---------------------|     DEDUCED CSS CLASSES    |---------------------//
+    //------------------------------------------------------------------------//
+
+    function getCssColor(cssClass: string) {
+        const regex = /\[([a-zA-Z]+#[a-fA-F\d]{6}|#[a-fA-F\d]{6}|rgba?\([\d, ]+\)|\b(?:aliceblue|antiquewhite|aqua|aquamarine|azure|beige|bisque|black|blanchedalmond|blue|blueviolet|brown|burlywood|cadetblue|chartreuse|chocolate|coral|cornflowerblue|cornsilk|crimson|cyan|darkblue|darkcyan|darkgoldenrod|darkgray|darkgrey|darkgreen|darkkhaki|darkmagenta|darkolivegreen|darkorange|darkorchid|darkred|darksalmon|darkseagreen|darkslateblue|darkslategray|darkslategrey|darkturquoise|darkviolet|deeppink|deepskyblue|dimgray|dimgrey|dodgerblue|firebrick|floralwhite|forestgreen|fuchsia|gainsboro|ghostwhite|gold|goldenrod|gray|grey|green|greenyellow|honeydew|hotpink|indianred|indigo|ivory|khaki|lavender|lavenderblush|lawngreen|lemonchiffon|lightblue|lightcoral|lightcyan|lightgoldenrodyellow|lightgray|lightgrey|lightgreen|lightpink|lightsalmon|lightseagreen|lightskyblue|lightslategray|lightslategrey|lightsteelblue|lightyellow|lime|limegreen|linen|maroon|mediumaquamarine|mediumblue|mediumorchid|mediumpurple|mediumseagreen|mediumslateblue|mediumspringgreen|mediumturquoise|mediumvioletred|midnightblue|mintcream|mistyrose|moccasin|navajowhite|navy|oldlace|olive|olivedrab|orange|orangered|orchid|palegoldenrod|palegreen|paleturquoise|palevioletred|papayawhip|peachpuff|peru|pink|plum|powderblue|purple|rebeccapurple|red|rosybrown|royalblue|saddlebrown|salmon|sandybrown|seagreen|seashell|sienna|silver|skyblue|slateblue|slategray|slategrey|snow|springgreen|steelblue|tan|teal|thistle|tomato|turquoise|violet|wheat|white|whitesmoke|yellow|yellowgreen)\b)]/;
+        const match = regex.exec(cssClass);
+        if (match) {
+            console.log(match[1])
+            return match[1];
+        } else {
+            return 'white';
+        }
+    }
+
+    function getNavColorFromParentClasses() {
+        // adding a color class to the parent, like 'kodex-nav-[rgb(128,211,135)]' or 'kodex-nav-[#6376DD]' or 'kodex-nav-[red]'
+        const parentClasses = Array.from(parent.classList);
+        const regex = /\bkodex-nav-\[(?:([a-zA-Z]+#[a-fA-F\d]{6}|#[a-fA-F\d]{6}|rgba?\([\d, ]+\)|\b(?:aliceblue|antiquewhite|aqua|aquamarine|azure|beige|bisque|black|blanchedalmond|blue|blueviolet|brown|burlywood|cadetblue|chartreuse|chocolate|coral|cornflowerblue|cornsilk|crimson|cyan|darkblue|darkcyan|darkgoldenrod|darkgray|darkgrey|darkgreen|darkkhaki|darkmagenta|darkolivegreen|darkorange|darkorchid|darkred|darksalmon|darkseagreen|darkslateblue|darkslategray|darkslategrey|darkturquoise|darkviolet|deeppink|deepskyblue|dimgray|dimgrey|dodgerblue|firebrick|floralwhite|forestgreen|fuchsia|gainsboro|ghostwhite|gold|goldenrod|gray|grey|green|greenyellow|honeydew|hotpink|indianred|indigo|ivory|khaki|lavender|lavenderblush|lawngreen|lemonchiffon|lightblue|lightcoral|lightcyan|lightgoldenrodyellow|lightgray|lightgrey|lightgreen|lightpink|lightsalmon|lightseagreen|lightskyblue|lightslategray|lightslategrey|lightsteelblue|lightyellow|lime|limegreen|linen|maroon|mediumaquamarine|mediumblue|mediumorchid|mediumpurple|mediumseagreen|mediumslateblue|mediumspringgreen|mediumturquoise|mediumvioletred|midnightblue|mintcream|mistyrose|moccasin|navajowhite|navy|oldlace|olive|olivedrab|orange|orangered|orchid|palegoldenrod|palegreen|paleturquoise|palevioletred|papayawhip|peachpuff|peru|pink|plum|powderblue|purple|rebeccapurple|red|rosybrown|royalblue|saddlebrown|salmon|sandybrown|seagreen|seashell|sienna|silver|skyblue|slateblue|slategray|slategrey|snow|springgreen|steelblue|tan|teal|thistle|tomato|turquoise|violet|wheat|white|whitesmoke|yellow|yellowgreen)\b)|([a-fA-F\d]{3,4}|[a-fA-F\d]{6}|[a-fA-F\d]{8})]\b)/;
+
+        const colorClass = parentClasses.find(c => regex.test(c));
+        return getCssColor(colorClass || "white");
     }
 
     //------------------------------------------------------------------------//
@@ -425,9 +468,10 @@ const Main = (parentName: string, _options: Options = {}) => {
      */
     function scroll(direction: ScrollDirection) {
         if (isSliding) return;
-        const currentSlideId = getCurrentSlideId().replace("#slide-v-", "");
+        const currentSlideId = getCurrentSlideId().replace("#", "");
+        const currentSlideIndex = (Array.from(children).find(child => child.id === currentSlideId) as any).dataset.index;
 
-        nukeChildren(+currentSlideId);
+        nukeChildren(+currentSlideIndex);
 
         isSliding = true;
         let firstSlideId = children[0].dataset.slide as any; // scroll down
@@ -454,17 +498,36 @@ const Main = (parentName: string, _options: Options = {}) => {
 
     /** Scrolls the target slide into view; updates nav & nukeChildren after a timeout
      * 
-     * @param slideId - slide-v-{slideId}
+     * @param slideIndex - int
      */
-    function clickVerticalNavLink(slideId: number) {
-        const targetSlide = Array.from(children).find(child => Number(child.dataset.index) === slideId) as any;
-        const currentSlideIndex = Number(getCurrentSlideId().replace("#slide-v-", ""));
+    function clickVerticalNavLink(slideIndex: number) {
 
-        if (slideId === currentSlideIndex + 1) {
+        const targetSlide = Array.from(children).find(child => Number(child.dataset.index) === slideIndex) as any;
+        const currentSlideId = getCurrentSlideId().replace("#", "");
+        const currentSlideIndex = Number((Array.from(children).find(child => child.id === currentSlideId) as any).dataset.index) || 0;
+        const positionY = parent.getBoundingClientRect().y;
+
+        if (!isLoop) {
+            const slidesToScroll = Math.abs(slideIndex - currentSlideIndex);
+            currentNoLoopSlide = currentSlideIndex + 1;
+
+            if (Number(targetSlide.dataset.index) > currentSlideIndex) {
+                for (let i = 0; i < slidesToScroll; i += 1) {
+                    scrollWithoutLoop(1, positionY);
+                }
+            } else {
+                for (let i = 0; i < slidesToScroll; i += 1) {
+                    scrollWithoutLoop(-1, positionY, slidesToScroll);
+                }
+            }
+            return;
+        }
+
+        if (slideIndex === currentSlideIndex + 1) {
             scroll(Direction.DOWN);
             return;
         }
-        if (slideId === currentSlideIndex - 1) {
+        if (slideIndex === currentSlideIndex - 1) {
             scroll(Direction.UP);
             return;
         }
@@ -473,7 +536,7 @@ const Main = (parentName: string, _options: Options = {}) => {
         setTimeout(() => {
             location.hash = targetSlide.id;
             updateNav(targetSlide.id);
-            nukeChildren(slideId);
+            nukeChildren(slideIndex);
         }, transitionDuration);
     }
 
@@ -527,12 +590,16 @@ const Main = (parentName: string, _options: Options = {}) => {
     function updateOnHashChange() {
         createVerticalNav();
         // TODO: find a way to manage nav when !isLoop
+        let currentSlideId = getCurrentSlideId().replace("#", "");
+        const currentSlideIndex = Array.from(children).find(child => child.id === currentSlideId)?.dataset.index as unknown as string;
         if (isLoop) {
-            let currentSlideId = getCurrentSlideId().replace("#", "");
-            const currentSlideIndex = Array.from(children).find(child => child.id === currentSlideId)?.dataset.index as unknown as string;
             children = reorderArrayByIndex(Array.from(children), +currentSlideIndex);
             nukeChildren(+currentSlideIndex);
             updateNav(currentSlideId);
+        } else {
+            translateY(-pageHeight * Number(currentSlideIndex));
+            updateNav(currentSlideId);
+            currentNoLoopSlide = +currentSlideIndex + 1
         }
     }
 }

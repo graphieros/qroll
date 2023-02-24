@@ -108,6 +108,18 @@ export function spawn(element: string) {
     return document.createElement(element);
 }
 
+/** Mutate an array by swapping 2 elements
+ * 
+ * @param arr - any array of any datatype
+ * @param from - int: the index to move
+ * @param to - int: the destination index of the moved element
+ * @returns the reordered array
+ */
+export function swapArrayPositions(arr: any, from: number, to: number) {
+    arr.splice(to, 0, arr.splice(from, 1)[0]);
+    return arr;
+}
+
 export function updateCssClasses({ element, addedClasses = [], removedClasses = [] }: { element: HTMLElement, addedClasses: string[], removedClasses: string[] }) {
     if (addedClasses.length) {
         addedClasses.forEach(addedClass => {
@@ -146,6 +158,7 @@ const alpra = {
     logError,
     reorderArrayByIndex,
     setTabIndex,
+    swapArrayPositions,
     updateCssClasses,
     walkTheDOM
 };
