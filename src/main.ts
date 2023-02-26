@@ -7,37 +7,39 @@ import { applyEllipsis, createUid, detectTrackPad, grabByData, grabId, logError,
 // TODO: options:
 // > add css class to enable infinite horizontal loop
 
-// TODO: use first h1|h2|h3|h4 innerText as hash instead of "slide-v-{slideId}"
-
 // IDEA: show icon to turn on/off scroll (basically add or remove the css class on parent)
 
 
-// ISSUE: using the browser's history previous|next buttons does not update routing to slide
+// ISSUE: using the browser's history previous|next buttons does not update routing to slide in Chrome, Edge, Brave (but does in Firefox)
 
 const Main = (parentName: string, _options: Options = {}) => {
 
-    let transitionDuration = 500;
-    const parentClass = CssClass.PARENT;
-    let isSliding = false;
-    let pageHeight = (window as any).innerHeight;
-    let eventTouchStart: Touch;
-    let eventTouchEnd: Touch;
-    let timeoutDestroySlide: any;
-    let timeoutClassTransition: any;
-    let timeoutTransitionY: any;
-    let cssClassTransition: any;
-    let isTrackpad = false;
-    let tooltipEllipsisLimit = 30;
-    let isLoop = Array.from(grabId(ElementId.PARENT).classList).includes(CssClass.LOOP);
-    let currentNoLoopSlide = 1;
-    let trackpadSensitivityThreshold = 30;
+    const state = {
+        cssClassTransition: "",
+        currentNoLoopSlide: 1,
+        eventTouchEnd: null as unknown as Touch,
+        eventTouchStart: null as unknown as Touch,
+        isBrowserNavigation: false,
+        isLoop: Array.from(grabId(ElementId.PARENT).classList).includes(CssClass.LOOP),
+        isSliding: false,
+        isTrackpad: false,
+        pageHeight: (window as Window).innerHeight,
+        parentClass: CssClass.PARENT,
+        timeoutClassTransition: null as unknown as NodeJS.Timeout | number,
+        timeoutDestroySlide: null as unknown as NodeJS.Timeout | number,
+        timeoutTransitionY: null as unknown as NodeJS.Timeout | number,
+        tooltipEllipsisLimit: 30,
+        trackpadSensitivityThreshold: 30,
+        transitionDuration: 500,
+        userAgent: navigator.userAgent,
+    }
 
     // this needs extra testing for all browsers to check if wheel event makes the scroll work !
-    let userAgent = navigator.userAgent;
-    if (userAgent.match(/chrome|chromium|crios/i)) {
-        trackpadSensitivityThreshold = 30;
+
+    if (state.userAgent.match(/chrome|chromium|crios/i)) {
+        state.trackpadSensitivityThreshold = 30;
     } else {
-        trackpadSensitivityThreshold = 10;
+        state.trackpadSensitivityThreshold = 10;
     }
 
     //------------------------------------------------------------------------//
@@ -49,6 +51,15 @@ const Main = (parentName: string, _options: Options = {}) => {
     }
 
     function hashChangeEvent() {
+        if (state.isBrowserNavigation) {
+            const currentSlideId = getCurrentSlideId().replace("#", "");
+            const currentSlideIndex = (Array.from(children).find(child => child.id === currentSlideId) as any).dataset.index;
+            if (state.isLoop) {
+                nukeChildren(+currentSlideIndex);
+            } else {
+                translateY(-state.pageHeight * currentSlideIndex);
+            }
+        }
         updateNavFromCurrentSlideId();
     }
 
@@ -58,29 +69,32 @@ const Main = (parentName: string, _options: Options = {}) => {
      * @param positionY - number, current Y position of the parent
      */
     function scrollWithoutLoop(delta: number, positionY: number, slides: number = 1) {
+        toggleBrowserNavigation(false);
         if (delta > 0) {
-            if (currentNoLoopSlide > children.length - 1) {
-                currentNoLoopSlide = children.length - 1;
+            if (state.currentNoLoopSlide > children.length - 1) {
+                state.currentNoLoopSlide = children.length - 1;
             }
-            translateY(-pageHeight * currentNoLoopSlide);
-            currentNoLoopSlide += 1;
+            translateY(-state.pageHeight * state.currentNoLoopSlide);
+            state.currentNoLoopSlide += 1;
 
         } else {
-            if (positionY <= -pageHeight) {
-                translateY(positionY + pageHeight * slides);
-                currentNoLoopSlide -= 1;
-                if (currentNoLoopSlide < 1) {
-                    currentNoLoopSlide = 1;
+            if (positionY <= -state.pageHeight) {
+                translateY(positionY + state.pageHeight * slides);
+                state.currentNoLoopSlide -= 1;
+                if (state.currentNoLoopSlide < 1) {
+                    state.currentNoLoopSlide = 1;
                 }
             }
         }
-        const activeSlide = Array.from(children).find((_child, i) => i === currentNoLoopSlide - 1) as HTMLElement;
+        const activeSlide = Array.from(children).find((_child, i) => i === state.currentNoLoopSlide - 1) as HTMLElement;
 
         setTimeout(() => {
-            isSliding = false;
+            state.isSliding = false;
             updateNav(activeSlide.id);
-            updateLocation(activeSlide.id);
-        }, transitionDuration);
+            setTimeout(() => {
+                toggleBrowserNavigation(true);
+            }, state.transitionDuration)
+        }, state.transitionDuration);
     }
 
     /** Scrolls to the next slide depending on the computed scroll direction
@@ -108,10 +122,10 @@ const Main = (parentName: string, _options: Options = {}) => {
         const positionY = parent.getBoundingClientRect().y;
 
         const is = {
-            loopDown: [KeyboardCode.ARROW_DOWN, KeyboardCode.SPACE].includes(keyCode) && isLoop,
-            loopUp: [KeyboardCode.ARROW_UP].includes(keyCode) && isLoop,
-            noLoopDown: [KeyboardCode.ARROW_DOWN, KeyboardCode.SPACE].includes(keyCode) && !isLoop && !isSliding,
-            noLoopUp: [KeyboardCode.ARROW_UP].includes(keyCode) && !isLoop && !isSliding
+            loopDown: [KeyboardCode.ARROW_DOWN, KeyboardCode.SPACE].includes(keyCode) && state.isLoop,
+            loopUp: [KeyboardCode.ARROW_UP].includes(keyCode) && state.isLoop,
+            noLoopDown: [KeyboardCode.ARROW_DOWN, KeyboardCode.SPACE].includes(keyCode) && !state.isLoop && !state.isSliding,
+            noLoopUp: [KeyboardCode.ARROW_UP].includes(keyCode) && !state.isLoop && !state.isSliding
         }
 
         switch (true) {
@@ -120,7 +134,7 @@ const Main = (parentName: string, _options: Options = {}) => {
                 break;
 
             case is.noLoopDown:
-                isSliding = true;
+                state.isSliding = true;
                 scrollWithoutLoop(1, positionY);
                 break;
 
@@ -129,7 +143,7 @@ const Main = (parentName: string, _options: Options = {}) => {
                 break;
 
             case is.noLoopUp:
-                isSliding = true;
+                state.isSliding = true;
                 scrollWithoutLoop(-1, positionY);
                 break;
 
@@ -143,11 +157,11 @@ const Main = (parentName: string, _options: Options = {}) => {
      * @param event - resize event
      */
     function resizeEvent(event: Event) {
-        pageHeight = (event.target as Window).innerHeight;
+        state.pageHeight = (event.target as Window).innerHeight;
     }
 
     function touchendEvent(event: TouchEvent) {
-        eventTouchEnd = event.changedTouches?.[0] || eventTouchEnd;
+        state.eventTouchEnd = event.changedTouches?.[0] || state.eventTouchEnd;
     }
 
     /** Executes the scroll depending on a computed touch direction
@@ -164,11 +178,11 @@ const Main = (parentName: string, _options: Options = {}) => {
         const isScrollableIsland = !Array.from(event.target.classList).includes(CssClass.CHILD) && hasVerticalScrollBar;
         if ([isScrollableIsland].includes(true)) return;
 
-        const deltaTouch = (eventTouchStart?.clientY - eventTouchEnd?.clientY) ?? 0;
+        const deltaTouch = (state.eventTouchStart?.clientY - state.eventTouchEnd?.clientY) ?? 0;
         const positionY = parent.getBoundingClientRect().y;
 
-        if (!isLoop && !isSliding) {
-            isSliding = true;
+        if (!state.isLoop && !state.isSliding) {
+            state.isSliding = true;
             scrollWithoutLoop(deltaTouch, positionY);
             return;
         }
@@ -181,7 +195,7 @@ const Main = (parentName: string, _options: Options = {}) => {
     }
 
     function touchstartEvent(event: TouchEvent) {
-        eventTouchStart = event.changedTouches?.[0] || eventTouchStart;
+        state.eventTouchStart = event.changedTouches?.[0] || state.eventTouchStart;
     }
 
     /** Detects a wheel or a trackpad event, and tames down trackpad excessive scroll behavior.
@@ -190,7 +204,7 @@ const Main = (parentName: string, _options: Options = {}) => {
      * @returns without executing if the event occurs inside a scrollable island element
      */
     function wheelEvent(event: MoveEvent) {
-        isTrackpad = detectTrackPad(event);
+        state.isTrackpad = detectTrackPad(event);
         // scroll events inside a scrollable element inside a slide must not trigger sliding
         const hasVerticalScrollBar = event.target.scrollHeight > event.target.clientHeight;
         // FOR LATER: const hasHorizontalScrollBar = event.target.scrollWidth > event.target.clientWidth;
@@ -200,21 +214,21 @@ const Main = (parentName: string, _options: Options = {}) => {
 
         // WITHOUT SCROLL LOOP
         const positionY = parent.getBoundingClientRect().y;
-        if (!isLoop && !isSliding) {
-            isSliding = true;
+        if (!state.isLoop && !state.isSliding) {
+            state.isSliding = true;
             scrollWithoutLoop(event.deltaY, positionY);
             return;
         }
 
         // WITH SCROLL LOOP
-        if (isTrackpad) return;
+        if (state.isTrackpad) return;
         if (event.deltaY === -0) return; // fixes a bug that caused a snap to previous slide on trackpad when finger is lift up
 
         if (event.deltaY && event.deltaY > 0) {
-            if (event.deltaY < trackpadSensitivityThreshold) return;
+            if (event.deltaY < state.trackpadSensitivityThreshold) return;
             scroll(Direction.DOWN);
         } else {
-            if (-event.deltaY < trackpadSensitivityThreshold) return;
+            if (-event.deltaY < state.trackpadSensitivityThreshold) return;
             scroll(Direction.UP);
         }
     }
@@ -249,43 +263,43 @@ const Main = (parentName: string, _options: Options = {}) => {
     // Apply css class transition from provided classes to the parent
     switch (true) {
         case Array.from(parent.classList).includes(CssClass.TRANSITION_300):
-            cssClassTransition = CssClass.TRANSITION_300;
-            transitionDuration = 300;
+            state.cssClassTransition = CssClass.TRANSITION_300;
+            state.transitionDuration = 300;
             break;
         case Array.from(parent.classList).includes(CssClass.TRANSITION_400):
-            cssClassTransition = CssClass.TRANSITION_400;
-            transitionDuration = 400;
+            state.cssClassTransition = CssClass.TRANSITION_400;
+            state.transitionDuration = 400;
             break;
         case Array.from(parent.classList).includes(CssClass.TRANSITION_500):
-            cssClassTransition = CssClass.TRANSITION_500;
-            transitionDuration = 500;
+            state.cssClassTransition = CssClass.TRANSITION_500;
+            state.transitionDuration = 500;
             break;
         case Array.from(parent.classList).includes(CssClass.TRANSITION_600):
-            cssClassTransition = CssClass.TRANSITION_600;
-            transitionDuration = 600;
+            state.cssClassTransition = CssClass.TRANSITION_600;
+            state.transitionDuration = 600;
             break;
         case Array.from(parent.classList).includes(CssClass.TRANSITION_700):
-            cssClassTransition = CssClass.TRANSITION_700;
-            transitionDuration = 700;
+            state.cssClassTransition = CssClass.TRANSITION_700;
+            state.transitionDuration = 700;
             break;
         case Array.from(parent.classList).includes(CssClass.TRANSITION_800):
-            cssClassTransition = CssClass.TRANSITION_800;
-            transitionDuration = 800;
+            state.cssClassTransition = CssClass.TRANSITION_800;
+            state.transitionDuration = 800;
             break;
         case Array.from(parent.classList).includes(CssClass.TRANSITION_900):
-            cssClassTransition = CssClass.TRANSITION_900;
-            transitionDuration = 900;
+            state.cssClassTransition = CssClass.TRANSITION_900;
+            state.transitionDuration = 900;
             break;
         case Array.from(parent.classList).includes(CssClass.TRANSITION_1000):
-            cssClassTransition = CssClass.TRANSITION_1000;
-            transitionDuration = 1000;
+            state.cssClassTransition = CssClass.TRANSITION_1000;
+            state.transitionDuration = 1000;
             break;
         default:
-            cssClassTransition = CssClass.TRANSITION_500;
+            state.cssClassTransition = CssClass.TRANSITION_500;
             break;
     }
 
-    parent.classList.add(parentClass);
+    parent.classList.add(state.parentClass);
 
     let children = parent.children as unknown as HTMLElement[];
     for (let i = 0; i < children.length; i += 1) {
@@ -338,7 +352,7 @@ const Main = (parentName: string, _options: Options = {}) => {
 
                 if (slideTitle) {
                     tooltip.setAttribute("style", `font-family:${getComputedStyle(slideTitle).fontFamily.split(",")[0]}`);
-                    tooltip.innerHTML = applyEllipsis(slideTitle.textContent, tooltipEllipsisLimit);
+                    tooltip.innerHTML = applyEllipsis(slideTitle.textContent, state.tooltipEllipsisLimit);
                 } else {
                     tooltip.setAttribute("style", `font-family:Helvetica`);
                     tooltip.innerHTML = `${i}`;
@@ -361,7 +375,6 @@ const Main = (parentName: string, _options: Options = {}) => {
         const regex = /\[([a-zA-Z]+#[a-fA-F\d]{6}|#[a-fA-F\d]{6}|rgba?\([\d, ]+\)|\b(?:aliceblue|antiquewhite|aqua|aquamarine|azure|beige|bisque|black|blanchedalmond|blue|blueviolet|brown|burlywood|cadetblue|chartreuse|chocolate|coral|cornflowerblue|cornsilk|crimson|cyan|darkblue|darkcyan|darkgoldenrod|darkgray|darkgrey|darkgreen|darkkhaki|darkmagenta|darkolivegreen|darkorange|darkorchid|darkred|darksalmon|darkseagreen|darkslateblue|darkslategray|darkslategrey|darkturquoise|darkviolet|deeppink|deepskyblue|dimgray|dimgrey|dodgerblue|firebrick|floralwhite|forestgreen|fuchsia|gainsboro|ghostwhite|gold|goldenrod|gray|grey|green|greenyellow|honeydew|hotpink|indianred|indigo|ivory|khaki|lavender|lavenderblush|lawngreen|lemonchiffon|lightblue|lightcoral|lightcyan|lightgoldenrodyellow|lightgray|lightgrey|lightgreen|lightpink|lightsalmon|lightseagreen|lightskyblue|lightslategray|lightslategrey|lightsteelblue|lightyellow|lime|limegreen|linen|maroon|mediumaquamarine|mediumblue|mediumorchid|mediumpurple|mediumseagreen|mediumslateblue|mediumspringgreen|mediumturquoise|mediumvioletred|midnightblue|mintcream|mistyrose|moccasin|navajowhite|navy|oldlace|olive|olivedrab|orange|orangered|orchid|palegoldenrod|palegreen|paleturquoise|palevioletred|papayawhip|peachpuff|peru|pink|plum|powderblue|purple|rebeccapurple|red|rosybrown|royalblue|saddlebrown|salmon|sandybrown|seagreen|seashell|sienna|silver|skyblue|slateblue|slategray|slategrey|snow|springgreen|steelblue|tan|teal|thistle|tomato|turquoise|violet|wheat|white|whitesmoke|yellow|yellowgreen)\b)]/;
         const match = regex.exec(cssClass);
         if (match) {
-            console.log(match[1])
             return match[1];
         } else {
             return 'white';
@@ -411,12 +424,12 @@ const Main = (parentName: string, _options: Options = {}) => {
      * @param slideId - slide-v-{slideId}
      */
     function destroySlide(slideId: string) {
-        if (isSliding) {
-            clearTimeout(timeoutDestroySlide);
-            timeoutDestroySlide = setTimeout(() => {
+        if (state.isSliding) {
+            clearTimeout(state.timeoutDestroySlide);
+            state.timeoutDestroySlide = setTimeout(() => {
                 parent.removeChild(grabByData(slideId) as any);
-                isSliding = false;
-            }, transitionDuration)
+                state.isSliding = false;
+            }, state.transitionDuration)
         }
     }
 
@@ -428,28 +441,29 @@ const Main = (parentName: string, _options: Options = {}) => {
      */
     function snapSlide(slideId: string, nextSlideId: string, direction: ScrollDirection) {
         if (direction === Direction.DOWN) {
-            parent.classList.add(cssClassTransition);
-            translateY(-pageHeight);
-            clearTimeout(timeoutClassTransition);
-            timeoutClassTransition = setTimeout(() => parent.classList.remove(cssClassTransition), transitionDuration - transitionDuration * 0.1);
-            clearTimeout(timeoutTransitionY);
-            timeoutTransitionY = setTimeout(() => translateY(0), transitionDuration);
+            parent.classList.add(state.cssClassTransition);
+            translateY(-state.pageHeight);
+            clearTimeout(state.timeoutClassTransition);
+            state.timeoutClassTransition = setTimeout(() => parent.classList.remove(state.cssClassTransition), state.transitionDuration - state.transitionDuration * 0.1);
+            clearTimeout(state.timeoutTransitionY);
+            state.timeoutTransitionY = setTimeout(() => translateY(0), state.transitionDuration);
             destroySlide(slideId);
-            updateLocation(nextSlideId);
         } else if (direction === Direction.UP) {
-            parent.classList.remove(cssClassTransition);
-            translateY(-pageHeight);
-            clearTimeout(timeoutClassTransition);
+            parent.classList.remove(state.cssClassTransition);
+            translateY(-state.pageHeight);
+            clearTimeout(state.timeoutClassTransition);
             // TODO: this random small timeout of 50 makes it work with the same apparent speed as the DOWN direction. We need to try other speeds, the make sure 50 / 500 (transitionDuration) is the right proportion, or if can even work this way
-            timeoutClassTransition = setTimeout(() => parent.classList.add(cssClassTransition), 50);
-            clearTimeout(timeoutTransitionY);
-            timeoutTransitionY = setTimeout(() => translateY(0), 50);
+            state.timeoutClassTransition = setTimeout(() => parent.classList.add(state.cssClassTransition), 50);
+            clearTimeout(state.timeoutTransitionY);
+            state.timeoutTransitionY = setTimeout(() => translateY(0), 50);
             destroySlide(slideId);
-            updateLocation(nextSlideId);
         }
         const nextSlide = Array.from(children).find(child => child.dataset.slide === nextSlideId) as any;
         if ([Direction.DOWN, Direction.UP].includes(direction)) {
-            setTimeout(() => updateNav(nextSlide.id), 600);
+            setTimeout(() => updateNav(nextSlide.id), state.transitionDuration);
+            setTimeout(() => {
+                toggleBrowserNavigation(true);
+            }, state.transitionDuration)
         }
     }
 
@@ -467,13 +481,15 @@ const Main = (parentName: string, _options: Options = {}) => {
      * @returns without executing if a sliding is already in progress
      */
     function scroll(direction: ScrollDirection) {
-        if (isSliding) return;
+        toggleBrowserNavigation(false);
+
+        if (state.isSliding) return;
         const currentSlideId = getCurrentSlideId().replace("#", "");
         const currentSlideIndex = (Array.from(children).find(child => child.id === currentSlideId) as any).dataset.index;
 
         nukeChildren(+currentSlideIndex);
 
-        isSliding = true;
+        state.isSliding = true;
         let firstSlideId = children[0].dataset.slide as any; // scroll down
         let firstSlideNextId = children[1].dataset.slide as any;
         let previousSlideId = children[children.length - 1].dataset.slide as any; // scroll up
@@ -491,6 +507,11 @@ const Main = (parentName: string, _options: Options = {}) => {
     //--------------------------|    NAV LOGIC    |---------------------------//
     //------------------------------------------------------------------------//
 
+    function toggleBrowserNavigation(isOn: boolean) {
+        setTimeout(() => {
+            state.isBrowserNavigation = isOn;
+        }, state.transitionDuration)
+    }
 
     function restoreInitialSlideOrder() {
         children = reorderArrayByIndex(Array.from(children), 0);
@@ -501,15 +522,16 @@ const Main = (parentName: string, _options: Options = {}) => {
      * @param slideIndex - int
      */
     function clickVerticalNavLink(slideIndex: number) {
+        toggleBrowserNavigation(false);
 
         const targetSlide = Array.from(children).find(child => Number(child.dataset.index) === slideIndex) as any;
         const currentSlideId = getCurrentSlideId().replace("#", "");
         const currentSlideIndex = Number((Array.from(children).find(child => child.id === currentSlideId) as any).dataset.index) || 0;
         const positionY = parent.getBoundingClientRect().y;
 
-        if (!isLoop) {
+        if (!state.isLoop) {
             const slidesToScroll = Math.abs(slideIndex - currentSlideIndex);
-            currentNoLoopSlide = currentSlideIndex + 1;
+            state.currentNoLoopSlide = currentSlideIndex + 1;
 
             if (Number(targetSlide.dataset.index) > currentSlideIndex) {
                 for (let i = 0; i < slidesToScroll; i += 1) {
@@ -534,10 +556,12 @@ const Main = (parentName: string, _options: Options = {}) => {
         restoreInitialSlideOrder();
         targetSlide?.scrollIntoView({ behavior: "smooth" });
         setTimeout(() => {
-            location.hash = targetSlide.id;
-            updateNav(targetSlide.id);
+            updateLocation(targetSlide.id);
             nukeChildren(slideIndex);
-        }, transitionDuration);
+            setTimeout(() => {
+                toggleBrowserNavigation(true)
+            })
+        }, state.transitionDuration);
     }
 
     /** Reorders the Children starting from the given index and repaint the Parent with the new DOM order
@@ -556,7 +580,7 @@ const Main = (parentName: string, _options: Options = {}) => {
      */
     function updateNav(slideId: string) {
         const nav = grabId(ElementId.NAV);
-        location.hash = slideId;
+        updateLocation(slideId);
         const thatSlide = Array.from(children).find(child => child.id === slideId);
 
         if (nav) {
@@ -576,12 +600,11 @@ const Main = (parentName: string, _options: Options = {}) => {
 
     /** Update location and history
      * 
-     * @param slideId - slide-v-{slideId}
+     * @param slideId - str
      */
     function updateLocation(slideId: string) {
-        const url = location.href;
-        location.href = `#${slideId}`;
-        history.replaceState(null, '', url);
+        location.hash = slideId;
+        history.replaceState(null, '', location.hash);
     }
 
     /** Find current slide from hash; update the Children order and the nav
@@ -592,14 +615,14 @@ const Main = (parentName: string, _options: Options = {}) => {
         // TODO: find a way to manage nav when !isLoop
         let currentSlideId = getCurrentSlideId().replace("#", "");
         const currentSlideIndex = Array.from(children).find(child => child.id === currentSlideId)?.dataset.index as unknown as string;
-        if (isLoop) {
+        if (state.isLoop) {
             children = reorderArrayByIndex(Array.from(children), +currentSlideIndex);
             nukeChildren(+currentSlideIndex);
             updateNav(currentSlideId);
         } else {
-            translateY(-pageHeight * Number(currentSlideIndex));
+            translateY(-state.pageHeight * Number(currentSlideIndex));
             updateNav(currentSlideId);
-            currentNoLoopSlide = +currentSlideIndex + 1
+            state.currentNoLoopSlide = +currentSlideIndex + 1
         }
     }
 }

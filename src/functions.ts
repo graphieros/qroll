@@ -67,7 +67,7 @@ export function grabByData(elementId: string) {
 }
 
 export function logError(error: string) {
-    console.error('Alpra-scroll exception:', { error })
+    console.error('Kodex exception:', { error })
 }
 
 /**

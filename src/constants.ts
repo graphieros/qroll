@@ -23,6 +23,7 @@ export namespace CssClass {
     export const NAV_VERTICAL = "kodex-nav-vertical";
     export const NAV_ELEMENT_WRAPPER = "kodex-nav-element-wrapper";
     export const LOOP = "kodex-loop";
+    export const CAROUSEL = "kodex-carousel";
 }
 
 export namespace Direction {
