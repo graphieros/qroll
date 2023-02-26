@@ -557,7 +557,6 @@ const Main = (parentName: string, _options: Options = {}) => {
         targetSlide?.scrollIntoView({ behavior: "smooth" });
         setTimeout(() => {
             updateLocation(targetSlide.id);
-            updateNav(targetSlide.id);
             nukeChildren(slideIndex);
             setTimeout(() => {
                 toggleBrowserNavigation(true)
@@ -601,7 +600,7 @@ const Main = (parentName: string, _options: Options = {}) => {
 
     /** Update location and history
      * 
-     * @param slideId - slide-v-{slideId}
+     * @param slideId - str
      */
     function updateLocation(slideId: string) {
         location.hash = slideId;
