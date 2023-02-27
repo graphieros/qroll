@@ -149,6 +149,7 @@ export function walkTheDOM(node: any, func: any) {
 }
 
 
+
 const alpra = {
     applyEllipsis,
     createUid,

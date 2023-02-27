@@ -24,6 +24,7 @@ export interface MoveEventTarget {
 export type MoveEvent = {
     target: MoveEventTarget;
     deltaY: number;
+    deltaX: number;
 }
 
 

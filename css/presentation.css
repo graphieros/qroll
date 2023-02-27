@@ -21,6 +21,10 @@ h1 {
     user-select:none;
 }
 
+.kodex-logo {
+    width: 30%;
+}
+
 .test-light {
     color:rgb(177, 229, 238);
 }
@@ -102,6 +106,10 @@ code.npm {
     background: radial-gradient(at top right, #0f0c29, #302b63, rgb(96, 148, 184));
 }
 
+.test-blue-carousel {
+    background: linear-gradient(to top, #837fb1, #8ab2ca, rgb(210, 245, 210));
+}
+
 .test-blue-reversed {
     background: radial-gradient(at bottom right, #0f0c29, #302b63, rgb(96, 148, 184));
 }
@@ -144,16 +152,37 @@ p.subtitle {
 }
 
 .sample-code {
-    padding: 24px;
+    padding: 0 24px 24px 24px;
     background: rgba(0,0,0,0.2);
     border-radius: 12px;
     font-size: 1rem;
     color: rgb(212, 196, 196);
     font-weight: 400;
+    width: 80vw;
+    max-width: 600px;
+    margin: 0 auto;
+    text-align:left;
+}
+
+.sample-code-carousel {
+    padding: 0 24px 24px 24px;
+    background: rgba(19, 14, 39, 0.7);
+    border-radius: 12px;
+    font-size: 1rem;
+    color: rgb(212, 196, 196);
+    font-weight: 400;
+    width: 80vw;
+    max-width: 600px;
+    margin: 0 auto;
+    text-align:left;
 }
 
 .css {
     color: rgb(83, 172, 110);
+}
+
+.css-light {
+    color: rgb(126, 206, 119);
 }
 
 header.test-header{
@@ -185,12 +214,26 @@ header.test-header{
     margin-top: 48px;
 }
 
-.showcase svg {
-    border: 3px solid rgb(40, 40, 65);
-    padding: 6px;
+.showcase-wrapper {
+    position: relative;
+    height: 56px;
+    width: 56px;
     border-radius: 8px;
-    background: rgba(0,0,0,0.2);
+    background: radial-gradient(at top left, rgb(196, 243, 255), rgb(110, 177, 131), rgb(196, 243, 255));
 }
+
+.showcase-wrapper svg {
+    padding: 6px;
+    border-radius: 6px;
+    background: rgb(64, 67, 87);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    height: 40px;
+    width: 40px;
+}
+
 
 .test-title-dark {
     background: radial-gradient(at top, rgb(196, 243, 255), rgb(147, 226, 172));
@@ -202,4 +245,55 @@ small.scroll {
     color: rgb(147, 226, 172);
     font-size: 0.2em;
     margin: 24px 0 -24px 0;
+}
+
+.test-blue-carousel {
+    display: flex;
+    flex-direction: column;
+    align-items:center;
+    justify-content:center;
+}
+
+@media screen and (max-width:769px) {
+    .kodex-logo {
+        width: 60%;
+    }
+    .front-page p {
+        font-size: 0.26em;
+        margin: 0 auto;
+        margin: 24px 0;
+        margin-top: 24px !important;
+        max-width: calc(100vw - 108px) !important;
+    }
+    code.npm {
+        font-size: 0.3em;
+    }
+    .big-h2-title {
+        font-size: 0.45em;
+    }
+    p.subtitle {
+        font-size: 0.26em;
+        margin-top: 24px !important;
+        max-width: calc(100vw - 96px);
+    }
+    form {
+        margin: 0 auto;
+        max-width: calc(100vw - 96px) !important;
+    }
+    p.article-p {
+        margin-top: 24px !important;
+        margin: 0 auto;
+        max-width: calc(100vw - 96px) !important;
+
+    }
+    .sample-code-carousel,
+    .sample-code {
+        font-size: 12px !important;
+        margin: 0 auto;
+        max-width: calc(100vw - 108px) !important;
+    }
+    .test-blue-carousel p {
+        font-size: 0.26em !important;
+        margin-top: 0px !important;
+    }
 }
