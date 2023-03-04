@@ -14,7 +14,7 @@ html body {
     overscroll-behavior-x: none; /* prevents browser navigation by left or right swipe */
 }
 
-.kodex-parent {
+.qroll-parent {
     height: 100vh !important;
     height: 100svh !important;
     left: 0 !important;
@@ -24,56 +24,56 @@ html body {
     max-width: 100% !important;
 }
 
-.kodex-transitionY {
+.qroll-transitionY {
     transition: transform 500ms ease-in-out !important;
 }
 
 /* PARENT TRANSITION CLASSES */
-.kodex-transition-300 {
+.qroll-transition-300 {
     transition: transform 300ms ease !important;
 }
-.kodex-transition-400 {
+.qroll-transition-400 {
     transition: transform 400ms ease !important;
 }
-.kodex-transition-500 {
+.qroll-transition-500 {
     transition: transform 500ms ease !important;
 }
-.kodex-transition-600 {
+.qroll-transition-600 {
     transition: transform 600ms ease !important;
 }
-.kodex-transition-700 {
+.qroll-transition-700 {
     transition: transform 700ms ease !important;
 }
-.kodex-transition-800 {
+.qroll-transition-800 {
     transition: transform 800ms ease !important;
 }
-.kodex-transition-900 {
+.qroll-transition-900 {
     transition: transform 900ms ease !important;
 }
-.kodex-transition-1000 {
+.qroll-transition-1000 {
     transition: transform 1000ms ease !important;
 }
 
-.kodex-child {
+.qroll-child {
     height: 100vh;
     width: 100vw;
     max-width: 100%;
     position: relative;
 }
 
-.kodex-child.kodex-child-visible {
+.qroll-child.qroll-child-visible {
     transform: translate(0, 0);
 }
 
-.kodex-child.kodex-top:not(.kodex-child-visible) {
+.qroll-child.qroll-top:not(.qroll-child-visible) {
     transform: translateY(-105vh);
 }
 
-.kodex-child.kodex-bottom:not(.kodex-child-visible) {
+.qroll-child.qroll-bottom:not(.qroll-child-visible) {
     transform: translateY(105vh);
 }
 
-.kodex-children-wrapper {
+.qroll-children-wrapper {
     align-items: center;
     display: flex;
     height: 100vh !important;
@@ -84,21 +84,21 @@ html body {
     width: 100vw !important;
 }
 
-.kodex-hidden {
+.qroll-hidden {
     display: none !important;
 }
 
-.kodex-child-visible {
+.qroll-child-visible {
     height: auto;
     margin: auto;
     width: auto;
 }
-.kodex-bottom-invisible {
+.qroll-bottom-invisible {
     height: 120vh;
     width:100vw;
     max-width: 100%;
 }
-.kodex-nav-vertical {
+.qroll-nav-vertical {
     align-items: center;
     display:flex;
     flex-direction: column;
@@ -111,7 +111,7 @@ html body {
     top:0;
     width: 40px;
 }
-.kodex-nav-vertical a {
+.qroll-nav-vertical a {
     text-decoration:none;
     color: inherit;
     opacity: 0.8;
@@ -124,11 +124,11 @@ html body {
     align-items: center;
     justify-content: center;
 }
-.kodex-nav-vertical a:hover {
+.qroll-nav-vertical a:hover {
     opacity:1;
     text-shadow: 0px 0px 4px black;
 }
-.kodex-nav-vertical a:focus {
+.qroll-nav-vertical a:focus {
     opacity:1;
     text-shadow: 0px 0px 6px black;
     border-radius: 50%;   
@@ -145,11 +145,11 @@ a[data-current-slide="true"]:focus {
     text-shadow: 0px 0px 3px black;
     font-size: 1.5rem;
 }
-.kodex-nav-element-wrapper,
-.kodex-nav-horizontal-element-wrapper {
+.qroll-nav-element-wrapper,
+.qroll-nav-horizontal-element-wrapper {
     position: relative;
 }
-.kodex-tooltip-left {
+.qroll-tooltip-left {
     background: white;
     border-radius: 4px;
     border:1px solid white;
@@ -166,23 +166,23 @@ a[data-current-slide="true"]:focus {
     white-space: nowrap;
     margin-top:-5.5px;
 }
-.kodex-tooltip-left::after {
+.qroll-tooltip-left::after {
     color: white;
     content: "⏵";
     position: absolute;
     right:-11px;
     top:0px;
 }
-.kodex-nav-element-wrapper:hover .kodex-tooltip-left {
+.qroll-nav-element-wrapper:hover .qroll-tooltip-left {
     display: inline-block;
     width:min-content;
 }
-.kodex-nav-element-wrapper:hover .kodex-tooltip-top {
+.qroll-nav-element-wrapper:hover .qroll-tooltip-top {
     display: inline-block;
     width:min-content;
 }
 
-.kodex-tooltip-top {
+.qroll-tooltip-top {
     position: absolute;
     top: calc(-100% - 40px);
     display:none !important;
@@ -197,7 +197,7 @@ a[data-current-slide="true"]:focus {
     white-space: nowrap !important;
 }
 
-.kodex-tooltip-top::after {
+.qroll-tooltip-top::after {
     color: white;
     content: "⏷";
     position: absolute;
@@ -207,26 +207,26 @@ a[data-current-slide="true"]:focus {
     z-index:1;
 }
 
-.kodex-nav-horizontal-element-wrapper:hover .kodex-tooltip-top {
+.qroll-nav-horizontal-element-wrapper:hover .qroll-tooltip-top {
     display: inline-block !important;
     display: flex !important;
     align-items:center !important;
     justify-content:center !important;
 }
 
-.kodex-carousel {
+.qroll-carousel {
     position: relative;
 }
 
-.kodex-carousel-slide {
+.qroll-carousel-slide {
     height: 100vh;
     width: 100vw;
     max-width: 100%;
     position: absolute;
 }
 
-.kodex-carousel-nav-right,
-.kodex-carousel-nav-left {
+.qroll-carousel-nav-right,
+.qroll-carousel-nav-left {
     position: fixed;
     bottom: 24px;
     display: flex;
@@ -239,29 +239,29 @@ a[data-current-slide="true"]:focus {
     background: transparent;
     cursor: pointer;
     z-index:10000;
+    transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
-.kodex-carousel-nav-right {
+.qroll-carousel-nav-right {
     right: 24px;
 }
-.kodex-carousel-nav-left {
+.qroll-carousel-nav-left {
     left: 24px;
 }
 
-.kodex-carousel-nav-right:hover,
-.kodex-carousel-nav-left:hover,
-.kodex-carousel-nav-right:focus,
-.kodex-carousel-nav-left:focus {
+.qroll-carousel-nav-right:hover,
+.qroll-carousel-nav-left:hover,
+.qroll-carousel-nav-right:focus,
+.qroll-carousel-nav-left:focus {
     outline: 1px solid white;
     background: rgba(255, 255, 255, 0.116);
-} 
+}
 
-.kodex-icon-chevron {
-    stroke: white;
+.qroll-icon-chevron {
     filter: drop-shadow(0 0px 2px rgba(0, 0, 0, 0.432));
 }
 
-.kodex-nav-horizontal {
+.qroll-nav-horizontal {
     position: fixed;
     bottom: 24px;
     left: 50%;
@@ -273,7 +273,7 @@ a[data-current-slide="true"]:focus {
     gap: 12px;
 }
 
-.kodex-nav-horizontal div {
+.qroll-nav-horizontal div {
     color: inherit;
     opacity: 0.8;
     transition: opacity 0.15s ease-in-out, font-size 0.15s ease-in-out;
@@ -288,13 +288,44 @@ a[data-current-slide="true"]:focus {
     width: 8px;
     background: white;
 }
-.kodex-nav-horizontal div:hover,
-.kodex-nav-horizontal div:focus {
+.qroll-nav-horizontal div:hover,
+.qroll-nav-horizontal div:focus {
     opacity:1;
     box-shadow: 0px 0px 4px black;
 }
 
-.kodex-plot--selected { 
+.qroll-plot--selected { 
     transform: scale(1.5,1.5);
     opacity:1 !important;
+}
+
+.qroll-transition-100 > .qroll-carousel-slide {
+    transition: left 100ms ease;
+}
+.qroll-transition-200 > .qroll-carousel-slide {
+    transition: left 200ms ease;
+}
+.qroll-transition-300 > .qroll-carousel-slide {
+    transition: left 300ms ease;
+}
+.qroll-transition-400 > .qroll-carousel-slide {
+    transition: left 400ms ease;
+}
+.qroll-transition-500 > .qroll-carousel-slide {
+    transition: left 500ms ease ;
+}
+.qroll-transition-600 > .qroll-carousel-slide {
+    transition: left 600ms ease;
+}
+.qroll-transition-700 > .qroll-carousel-slide {
+    transition: left 700ms ease;
+}
+.qroll-transition-800 > .qroll-carousel-slide {
+    transition: left 800ms ease;
+}
+.qroll-transition-900 > .qroll-carousel-slide {
+    transition: left 900ms ease;
+}
+.qroll-transition-1000 > .qroll-carousel-slide {
+    transition: left 1000ms ease;
 }

@@ -1,24 +1,27 @@
 import { EventTriggerListener, MoveEvent, Options, ScrollDirection } from "../types";
 import { CssClass, Direction, ElementId, KeyboardCode, NodeName, EventTrigger, DomElement } from "./constants";
-import { applyEllipsis, createUid, detectTrackPad, grabByData, grabId, logError, reorderArrayByIndex, setTabIndex, spawn, walkTheDOM } from "./functions";
+import { applyEllipsis, createUid, detectTrackPad, grabId, logError, reorderArrayByIndex, reorderArrayByCarouselIndex, setTabIndex, spawn, walkTheDOM } from "./functions";
 import createCarousel from "./carousel";
 
 // TODO: find a way to include css
 
-// TODO: options:
-// > add css class to enable infinite horizontal loop
-
 // IDEA: show icon to turn on/off scroll (basically add or remove the css class on parent)
+// IDEA: option to provide tooltip names from a data-title html attribute (fallback to first h1... content if none provided)
 
+// TODO: progresion bar (horizontal & vertical) qroll-progress-bar
+
+// ISSUE: scrolling top too quickly snaps immedialtely sometimes
+
+// TODO: better vertical nav from plot click
 
 // ISSUE: using the browser's history previous|next buttons does not update routing to slide in Chrome, Edge, Brave (but does in Firefox)
 
 const Main = (parentName: string, _options: Options = {}) => {
 
     //------------------------------------------------------------------------//
-    //////////////////////////|                       |/////////////////////////
-    //////////////////////////|         STATE         |/////////////////////////
-    //////////////////////////|                       |/////////////////////////
+    //\/\/\/\/\/\/\/\/\/\/\/\/|                       |\/\/\/\/\/\/\/\/\/\/\/\//
+    //\/\/\/\/\/\/\/\/\/\/\/\/|          STATE        |\/\/\/\/\/\/\/\/\/\/\/\//
+    //\/\/\/\/\/\/\/\/\/\/\/\/|                       |\/\/\/\/\/\/\/\/\/\/\/\//
     //------------------------------------------------------------------------//
 
     const state = {
@@ -38,6 +41,7 @@ const Main = (parentName: string, _options: Options = {}) => {
         timeoutClassTransition: null as unknown as NodeJS.Timeout | number,
         timeoutDestroySlide: null as unknown as NodeJS.Timeout | number,
         timeoutTransitionY: null as unknown as NodeJS.Timeout | number,
+        timeoutTransitionX: null as unknown as NodeJS.Timeout | number,
         tooltipEllipsisLimit: 30,
         trackpadSensitivityThreshold: 30,
         transitionDuration: 500,
@@ -45,6 +49,7 @@ const Main = (parentName: string, _options: Options = {}) => {
         carousel: {
             currentSlide: 0,
             currentSlideId: null as null | string,
+            hasLoop: false,
             isVisible: false,
             slideCount: 0,
             htmlElement: null as HTMLDivElement | null,
@@ -52,7 +57,7 @@ const Main = (parentName: string, _options: Options = {}) => {
             clickRight: () => { },
             keyLeft: () => { },
             keyRight: () => { },
-        }
+        },
     }
 
     // this needs extra testing for all browsers to check if wheel event makes the scroll work !
@@ -133,6 +138,11 @@ const Main = (parentName: string, _options: Options = {}) => {
         state.pageHeight = (event.target as Window).innerHeight;
         state.pageWidth = (event.target as Window).innerWidth;
         Array.from(children).forEach(child => createCarousel(state, child));
+        if (state.carousel.htmlElement) {
+            Array.from(state.carousel.htmlElement.children).forEach((child, i) => {
+                (child as HTMLElement).style.left = `${state.pageWidth * i}px`;
+            });
+        }
     }
 
     /** Generate the nav node, injects slide links and applies an event listener to them
@@ -149,7 +159,7 @@ const Main = (parentName: string, _options: Options = {}) => {
             nav.setAttribute("id", ElementId.NAV);
             nav.classList.add(CssClass.NAV_VERTICAL);
             // TODO: find a way to order consistently when scroll occurs on a distant target
-            Array.from(children).forEach((child, i) => {
+            Array.from(children).sort((a, b) => Number((a as HTMLElement).dataset.index) - Number((b as HTMLElement).dataset.index)).forEach((child, i) => {
                 const slideLinkWrapper = spawn(DomElement.DIV);
                 slideLinkWrapper.classList.add(CssClass.NAV_ELEMENT_WRAPPER);
                 const slideLink = spawn(DomElement.A);
@@ -190,8 +200,12 @@ const Main = (parentName: string, _options: Options = {}) => {
         }
     }
 
+    /** Generate carousel navigation elements and methods from a current slide containing a qroll-carousel css class
+     *
+     */
     function createHorizontalNav() {
         if (!state.carousel.isVisible) return;
+        state.carousel.hasLoop = Array.from((state.carousel.htmlElement as HTMLElement).classList).includes(CssClass.LOOP);
         const oldNavLeft = grabId(ElementId.NAV_BUTTON_LEFT);
         const oldNavRight = grabId(ElementId.NAV_BUTTON_RIGHT);
 
@@ -200,8 +214,10 @@ const Main = (parentName: string, _options: Options = {}) => {
             document.body.removeChild(grabId(ElementId.NAV_BUTTON_RIGHT));
         }
 
+        const carouselChildren = (state.carousel.htmlElement as HTMLDivElement).children;
+
         // TODO: mobile detect horizontal swiping (h diff > v diff = h swipe)
-        // TODO: update location
+        // TODO: update location (this one will be tough af)
 
         // nav left & right buttons
         const navLeft = spawn(DomElement.BUTTON);
@@ -212,12 +228,10 @@ const Main = (parentName: string, _options: Options = {}) => {
         navRight.setAttribute("tabindex", "1");
         navLeft.setAttribute("tabindex", "1");
         navRight.setAttribute("type", "button");
-        navLeft.innerHTML = `<svg id="${ElementId.NAV_BUTTON_LEFT}" class="kodex-icon-chevron" xmlns="http://www.w3.org/2000/svg" height="100%" fill="none" viewBox="0 0 24 24" stroke-width="3" ><path id="${ElementId.NAV_BUTTON_LEFT}" stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>`;
-        navRight.innerHTML = `<svg id="${ElementId.NAV_BUTTON_RIGHT}" class="kodex-icon-chevron" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3"><path id="${ElementId.NAV_BUTTON_RIGHT}" stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>`;
+        navLeft.innerHTML = `<svg id="${ElementId.NAV_BUTTON_LEFT}" class="qroll-icon-chevron" xmlns="http://www.w3.org/2000/svg" height="100%" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="${getNavColorFromParentClasses()}" ><path id="${ElementId.NAV_BUTTON_LEFT}" stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>`;
+        navRight.innerHTML = `<svg id="${ElementId.NAV_BUTTON_RIGHT}" class="qroll-icon-chevron" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3"><path id="${ElementId.NAV_BUTTON_RIGHT}" stroke-linecap="round" stroke-linejoin="round" stroke="${getNavColorFromParentClasses()}" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>`;
         navLeft.classList.add(CssClass.CAROUSEL_NAV_LEFT);
         navRight.classList.add(CssClass.CAROUSEL_NAV_RIGHT);
-
-        const carouselChildren = (state.carousel.htmlElement as HTMLDivElement).children;
 
         const oldNav = grabId(ElementId.HORIZONTAL_NAV);
         if (oldNav) {
@@ -230,23 +244,16 @@ const Main = (parentName: string, _options: Options = {}) => {
             nav.setAttribute("id", ElementId.HORIZONTAL_NAV);
             nav.classList.add(CssClass.NAV_HORIZONTAL);
 
-            Array.from(carouselChildren).forEach((child, i) => {
+            Array.from(carouselChildren).sort((a, b) => Number((a as HTMLElement).dataset.carouselIndex) - Number((b as HTMLElement).dataset.carouselIndex)).forEach((child, i) => {
                 const slideLinkWrapper = spawn(DomElement.DIV);
                 slideLinkWrapper.classList.add(CssClass.NAV_HORIZONTAL_ELEMENT_WRAPPER);
                 const slideLink = spawn(DomElement.DIV);
                 slideLink.setAttribute("tabindex", "1");
                 slideLink.dataset.index = (child as HTMLElement).dataset.carouselIndex;
-                slideLink.style.color = "white";
-                slideLink.setAttribute("id", `kodex-plot-${i}`);
+                slideLink.style.background = getNavColorFromParentClasses();
+                slideLink.setAttribute("id", `qroll-plot-${i}`);
                 slideLink.classList.add(CssClass.PLOT);
-                slideLink.addEventListener(EventTrigger.CLICK, () => {
-                    const plots = document.getElementsByClassName(CssClass.PLOT);
-                    Array.from(plots).forEach(plot => {
-                        plot.classList.remove(CssClass.PLOT_SELECTED);
-                    });
-                    translateX((state.carousel.htmlElement as HTMLDivElement), -state.pageWidth * i);
-                    state.carousel.currentSlide = i
-                });
+
                 if (state.carousel.currentSlide === i) {
                     slideLink.classList.add(CssClass.PLOT_SELECTED);
                 } else {
@@ -270,6 +277,11 @@ const Main = (parentName: string, _options: Options = {}) => {
             document.body.appendChild(nav);
 
             state.carousel.clickRight = () => {
+                if (state.carousel.hasLoop) {
+                    loopCarouselToTargetIndex(state.carousel.currentSlide + 1, Direction.RIGHT);
+                    return;
+                }
+
                 if (state.carousel.currentSlide < (state.carousel.htmlElement as HTMLDivElement).children.length - 1) {
                     state.carousel.currentSlide += 1;
                     translateX((grabId(getCurrentSlideId().replace("#", ""))), -state.pageWidth * state.carousel.currentSlide);
@@ -277,6 +289,11 @@ const Main = (parentName: string, _options: Options = {}) => {
             }
 
             state.carousel.keyRight = () => {
+                if (state.carousel.hasLoop) {
+                    loopCarouselToTargetIndex(state.carousel.currentSlide + 1, Direction.RIGHT);
+                    return;
+                }
+
                 if (state.carousel.currentSlide < (state.carousel.htmlElement as HTMLDivElement).children.length - 1) {
                     state.carousel.currentSlide += 1;
                     translateX((grabId(getCurrentSlideId().replace("#", ""))), -state.pageWidth * state.carousel.currentSlide);
@@ -284,6 +301,11 @@ const Main = (parentName: string, _options: Options = {}) => {
             }
 
             state.carousel.clickLeft = () => {
+                if (state.carousel.hasLoop) {
+                    loopCarouselToTargetIndex(state.carousel.currentSlide - 1, Direction.LEFT);
+                    return;
+                }
+
                 if (state.carousel.currentSlide > 0) {
                     state.carousel.currentSlide -= 1;
                     translateX((grabId(getCurrentSlideId().replace("#", ""))), -state.pageWidth * state.carousel.currentSlide);
@@ -291,6 +313,11 @@ const Main = (parentName: string, _options: Options = {}) => {
             }
 
             state.carousel.keyLeft = () => {
+                if (state.carousel.hasLoop) {
+                    loopCarouselToTargetIndex(state.carousel.currentSlide - 1, Direction.LEFT);
+                    return;
+                }
+
                 if (state.carousel.currentSlide > 0) {
                     state.carousel.currentSlide -= 1;
                     translateX((grabId(getCurrentSlideId().replace("#", ""))), -state.pageWidth * state.carousel.currentSlide);
@@ -321,9 +348,9 @@ const Main = (parentName: string, _options: Options = {}) => {
     }
 
     function getNavColorFromParentClasses() {
-        // adding a color class to the parent, like 'kodex-nav-[rgb(128,211,135)]' or 'kodex-nav-[#6376DD]' or 'kodex-nav-[red]'
+        // adding a color class to the parent, like 'qroll-nav-[rgb(128,211,135)]' or 'qroll-nav-[#6376DD]' or 'qroll-nav-[red]'
         const parentClasses = Array.from(parent.classList);
-        const regex = /\bkodex-nav-\[(?:([a-zA-Z]+#[a-fA-F\d]{6}|#[a-fA-F\d]{6}|rgba?\([\d, ]+\)|\b(?:aliceblue|antiquewhite|aqua|aquamarine|azure|beige|bisque|black|blanchedalmond|blue|blueviolet|brown|burlywood|cadetblue|chartreuse|chocolate|coral|cornflowerblue|cornsilk|crimson|cyan|darkblue|darkcyan|darkgoldenrod|darkgray|darkgrey|darkgreen|darkkhaki|darkmagenta|darkolivegreen|darkorange|darkorchid|darkred|darksalmon|darkseagreen|darkslateblue|darkslategray|darkslategrey|darkturquoise|darkviolet|deeppink|deepskyblue|dimgray|dimgrey|dodgerblue|firebrick|floralwhite|forestgreen|fuchsia|gainsboro|ghostwhite|gold|goldenrod|gray|grey|green|greenyellow|honeydew|hotpink|indianred|indigo|ivory|khaki|lavender|lavenderblush|lawngreen|lemonchiffon|lightblue|lightcoral|lightcyan|lightgoldenrodyellow|lightgray|lightgrey|lightgreen|lightpink|lightsalmon|lightseagreen|lightskyblue|lightslategray|lightslategrey|lightsteelblue|lightyellow|lime|limegreen|linen|maroon|mediumaquamarine|mediumblue|mediumorchid|mediumpurple|mediumseagreen|mediumslateblue|mediumspringgreen|mediumturquoise|mediumvioletred|midnightblue|mintcream|mistyrose|moccasin|navajowhite|navy|oldlace|olive|olivedrab|orange|orangered|orchid|palegoldenrod|palegreen|paleturquoise|palevioletred|papayawhip|peachpuff|peru|pink|plum|powderblue|purple|rebeccapurple|red|rosybrown|royalblue|saddlebrown|salmon|sandybrown|seagreen|seashell|sienna|silver|skyblue|slateblue|slategray|slategrey|snow|springgreen|steelblue|tan|teal|thistle|tomato|turquoise|violet|wheat|white|whitesmoke|yellow|yellowgreen)\b)|([a-fA-F\d]{3,4}|[a-fA-F\d]{6}|[a-fA-F\d]{8})]\b)/;
+        const regex = /\bqroll-nav-\[(?:([a-zA-Z]+#[a-fA-F\d]{6}|#[a-fA-F\d]{6}|rgba?\([\d, ]+\)|\b(?:aliceblue|antiquewhite|aqua|aquamarine|azure|beige|bisque|black|blanchedalmond|blue|blueviolet|brown|burlywood|cadetblue|chartreuse|chocolate|coral|cornflowerblue|cornsilk|crimson|cyan|darkblue|darkcyan|darkgoldenrod|darkgray|darkgrey|darkgreen|darkkhaki|darkmagenta|darkolivegreen|darkorange|darkorchid|darkred|darksalmon|darkseagreen|darkslateblue|darkslategray|darkslategrey|darkturquoise|darkviolet|deeppink|deepskyblue|dimgray|dimgrey|dodgerblue|firebrick|floralwhite|forestgreen|fuchsia|gainsboro|ghostwhite|gold|goldenrod|gray|grey|green|greenyellow|honeydew|hotpink|indianred|indigo|ivory|khaki|lavender|lavenderblush|lawngreen|lemonchiffon|lightblue|lightcoral|lightcyan|lightgoldenrodyellow|lightgray|lightgrey|lightgreen|lightpink|lightsalmon|lightseagreen|lightskyblue|lightslategray|lightslategrey|lightsteelblue|lightyellow|lime|limegreen|linen|maroon|mediumaquamarine|mediumblue|mediumorchid|mediumpurple|mediumseagreen|mediumslateblue|mediumspringgreen|mediumturquoise|mediumvioletred|midnightblue|mintcream|mistyrose|moccasin|navajowhite|navy|oldlace|olive|olivedrab|orange|orangered|orchid|palegoldenrod|palegreen|paleturquoise|palevioletred|papayawhip|peachpuff|peru|pink|plum|powderblue|purple|rebeccapurple|red|rosybrown|royalblue|saddlebrown|salmon|sandybrown|seagreen|seashell|sienna|silver|skyblue|slateblue|slategray|slategrey|snow|springgreen|steelblue|tan|teal|thistle|tomato|turquoise|violet|wheat|white|whitesmoke|yellow|yellowgreen)\b)|([a-fA-F\d]{3,4}|[a-fA-F\d]{6}|[a-fA-F\d]{8})]\b)/;
 
         const colorClass = parentClasses.find(c => regex.test(c));
         return getCssColor(colorClass || "white");
@@ -346,82 +373,15 @@ const Main = (parentName: string, _options: Options = {}) => {
         return children?.[0]?.id || children?.[1]?.id;
     }
 
-    /** Clone the next slide and append | prepend to parent depending on the vertical scroll direction
-     * 
-     * @param slideId - slide-v-{slideId}
-     * @param direction - direction of the scroll
+    /** Set the state.carousel from a current slide containing a qroll-carousel css class
+     *
+     * @param slide - HTMLelement
      */
-    function duplicateSlide(slideId: string, direction: ScrollDirection) {
-        const element = grabByData(slideId)?.cloneNode(true) as HTMLElement; // true also clones innerHTML
-        element.dataset.slide = createUid();
-        if (direction === Direction.DOWN) {
-            parent.appendChild(element as HTMLElement);
-        } else if (direction === Direction.UP) {
-            parent.prepend(element);
-        }
-        // TODO: find a way to save current state of carousel before recreating it
-        // maybe using global state for each child
-        createCarousel(state, element);
-    }
-
-    /** Destroys a slide after a timeout
-     * 
-     * @param slideId - slide-v-{slideId}
-     */
-    function destroySlide(slideId: string) {
-        if (state.isSliding) {
-            clearTimeout(state.timeoutDestroySlide);
-            state.timeoutDestroySlide = setTimeout(() => {
-                parent.removeChild(grabByData(slideId) as HTMLDivElement);
-                state.isSliding = false;
-            }, state.transitionDuration)
-        }
-    }
-
-    /** Offsets the parent on Y axis; destroys the old slide; updates location with the current slide
-     * 
-     * @param slideId - slide-v-{slideId}
-     * @param nextSlideId - slide-v-{slideId}
-     * @param direction - scroll direction
-     */
-    function snapSlide(slideId: string, nextSlideId: string, direction: ScrollDirection) {
-        if (direction === Direction.DOWN) {
-            parent.classList.add(state.cssClassTransition);
-            translateY(-state.pageHeight);
-            clearTimeout(state.timeoutClassTransition);
-            state.timeoutClassTransition = setTimeout(() => parent.classList.remove(state.cssClassTransition), state.transitionDuration - state.transitionDuration * 0.1);
-            clearTimeout(state.timeoutTransitionY);
-            state.timeoutTransitionY = setTimeout(() => translateY(0), state.transitionDuration);
-            destroySlide(slideId);
-        } else if (direction === Direction.UP) {
-            parent.classList.remove(state.cssClassTransition);
-            translateY(-state.pageHeight);
-            clearTimeout(state.timeoutClassTransition);
-            // TODO: this random small timeout of 50 makes it work with the same apparent speed as the DOWN direction. We need to try other speeds, the make sure 50 / 500 (transitionDuration) is the right proportion, or if can even work this way
-            state.timeoutClassTransition = setTimeout(() => parent.classList.add(state.cssClassTransition), 50);
-            clearTimeout(state.timeoutTransitionY);
-            state.timeoutTransitionY = setTimeout(() => translateY(0), 50);
-            destroySlide(slideId);
-        }
-        const nextSlide = Array.from(children).find(child => child.dataset.slide === nextSlideId) as HTMLDivElement;
-
-        // check if next slide has carousel
-        createCarouselIfAny(nextSlide);
-
-        // resolve navigation
-        if ([Direction.DOWN, Direction.UP].includes(direction)) {
-            setTimeout(() => updateNav(nextSlide.id), state.transitionDuration);
-            setTimeout(() => {
-                toggleBrowserNavigation(true);
-                createCarouselIfAny(nextSlide);
-            }, state.transitionDuration)
-        }
-    }
-
     function createCarouselIfAny(slide: any) {
         state.carousel = {
             currentSlide: 0,
             currentSlideId: null,
+            hasLoop: state.carousel.hasLoop,
             isVisible: false,
             slideCount: 0,
             htmlElement: null,
@@ -444,21 +404,27 @@ const Main = (parentName: string, _options: Options = {}) => {
 
         if ((Array.from(slide.classList).includes(CssClass.CAROUSEL))) {
             state.carousel.htmlElement = slide;
+            state.carousel.hasLoop = Array.from(slide.classList).includes(CssClass.LOOP);
             state.carousel.isVisible = true;
             state.carousel.slideCount = slide.children.length;
+
             // get current transform css prop to deduce state.carousel.currentSlide
-            const transform = slide.style.transform;
-            const matches = transform.match(/translateX\((-?\d+)px\)/);
-            if (matches && matches.length) {
-                state.carousel.currentSlide = Math.round(Math.abs(Number(matches[1]) / state.pageWidth)) === Infinity ? 0 : Math.round(Math.abs(Number(matches[1]) / state.pageWidth));
+            state.carousel.currentSlide = Number((state.carousel.htmlElement?.children[0] as HTMLElement).dataset.carouselIndex);
+
+            if (Array.from((state.carousel.htmlElement as HTMLElement).classList).includes(CssClass.SWAP) || !Array.from((state.carousel.htmlElement as HTMLElement).classList).includes(CssClass.LOOP)) {
+                const transform = (state.carousel.htmlElement as HTMLElement).style.transform;
+                const matches = transform.match(/translateX\((-?\d+)px\)/);
+                if (matches && matches.length) {
+                    state.carousel.currentSlide = Math.round(Math.abs(Number(matches[1]) / state.pageWidth)) === Infinity ? 0 : Math.round(Math.abs(Number(matches[1]) / state.pageWidth));
+                }
             }
-            // TODO: set state.carousel.currentSlide depending on the translateX value of the currentSlide
+
             createHorizontalNav();
+            updateCarouselButtonState();
         } else {
             state.carousel.htmlElement = null;
             state.carousel.isVisible = false;
             state.carousel.slideCount = 0;
-
         }
     }
 
@@ -474,33 +440,101 @@ const Main = (parentName: string, _options: Options = {}) => {
         carousel.style.transform = `translateX(${pixels}px)`;
     }
 
-    /** Finds and snapes to the next slide depending on the scroll direction
+    function loopVerticallyFromPlotClick(targetIndex: number) {
+        const slidesStep = targetIndex - Number(grabId(getCurrentSlideId().replace("#", "")).dataset.index);
+        console.log({ slidesStep })
+        if (slidesStep === 0) return;
+        if (slidesStep > 0) {
+            scrollFromTargetIndex(targetIndex, Direction.DOWN);
+        } else {
+            scrollFromTargetIndex(targetIndex, Direction.UP);
+        }
+    }
+
+    function scrollFromTargetIndex(targetIndex: number, direction: ScrollDirection) {
+        if (targetIndex > parent.children.length - 1) {
+            targetIndex = 0;
+        }
+
+        let clones;
+
+        if (direction === Direction.DOWN) {
+            clones = reorderArrayByIndex(Array.from(parent.children), targetIndex - 1).map((child: { cloneNode: (arg0: boolean) => any; }) => child.cloneNode(true));
+            parent.innerHTML = "";
+            clones.forEach((clone: HTMLElement) => {
+                parent.appendChild(clone);
+            });
+            scroll(Direction.DOWN)
+        } else if (direction === Direction.UP) {
+            clones = reorderArrayByIndex(Array.from(parent.children), targetIndex + 1).map((child: { cloneNode: (arg0: boolean) => any; }) => child.cloneNode(true));
+            parent.innerHTML = "";
+            clones.forEach((clone: HTMLElement) => {
+                parent.appendChild(clone);
+            });
+            scroll(Direction.UP);
+        }
+    }
+
+
+    /** Shuffles the order of slides to create an infinite loop (DOWN & UP directions)
      * 
      * @param direction - scroll direction
      * @returns without executing if a sliding is already in progress
      */
     function scroll(direction: ScrollDirection) {
         toggleBrowserNavigation(false);
+        console.log(state.isSliding)
 
+        // other possibility
         if (state.isSliding) return;
-        const currentSlideId = getCurrentSlideId().replace("#", "");
-        const currentSlideIndex = (Array.from(children).find(child => child.id === currentSlideId) as HTMLDivElement).dataset.index;
-
-        if (currentSlideIndex) {
-            nukeChildren(+currentSlideIndex);
-        }
-
-        state.isSliding = true;
-        let firstSlideId = children[0].dataset.slide as string; // scroll down
-        let firstSlideNextId = children[1].dataset.slide as string;
-        let previousSlideId = children[children.length - 1].dataset.slide as string; // scroll up
+        let clone: string | Node;
 
         if (direction === Direction.DOWN) {
-            duplicateSlide(firstSlideId, direction);
-            snapSlide(firstSlideId, firstSlideNextId, direction);
+            if (state.isSliding) return;
+            state.isSliding = true;
+            clone = parent.children[0].cloneNode(true);
+            parent.appendChild(clone);
+            parent.setAttribute("style", `transform: translateY(-${state.pageHeight}px)`);
+
+            clearTimeout(state.timeoutTransitionY);
+            state.timeoutTransitionY = setTimeout(() => {
+                parent.removeChild(parent.children[0]);
+                parent.classList.remove(`qroll-transition-${state.transitionDuration}`);
+                parent.setAttribute("style", "transform: translateX(0)");
+                setTimeout(() => {
+                    parent.classList.add(`qroll-transition-${state.transitionDuration}`);
+                    createCarouselIfAny(parent.children[0]);
+                    updateNav(parent.children[0].id)
+                }, 100)
+            }, state.transitionDuration);
+
+            setTimeout(() => {
+                state.isSliding = false
+            }, state.transitionDuration)
+
         } else if (direction === Direction.UP) {
-            duplicateSlide(previousSlideId, direction);
-            snapSlide(previousSlideId, previousSlideId, direction);
+            if (state.isSliding) return;
+            state.isSliding = true;
+            clone = parent.children[parent.children.length - 1].cloneNode(true);
+
+            clearTimeout(state.timeoutTransitionY);
+            state.timeoutTransitionY = setTimeout(() => {
+                parent.prepend(clone);
+                parent.classList.remove(`qroll-transition-${state.transitionDuration}`);
+                parent.setAttribute("style", `transform: translateY(-${state.pageHeight}px)`);
+                parent.removeChild(parent.children[parent.children.length - 1]);
+
+                setTimeout(() => {
+                    parent.setAttribute("style", "transform: translateY(0)");
+                    parent.classList.add(`qroll-transition-${state.transitionDuration}`);
+                    createCarouselIfAny(parent.children[0]);
+                    updateNav(parent.children[0].id)
+                }, 10)
+            }, 10)
+            console.log(state.isSliding)
+            setTimeout(() => {
+                state.isSliding = false
+            }, state.transitionDuration)
         }
     }
 
@@ -517,15 +551,12 @@ const Main = (parentName: string, _options: Options = {}) => {
         }, state.transitionDuration)
     }
 
-    function restoreInitialSlideOrder() {
-        children = reorderArrayByIndex(Array.from(children), 0);
-    }
-
     /** Scrolls the target slide into view; updates nav & nukeChildren after a timeout
      * 
      * @param slideIndex - int
      */
     function clickVerticalNavLink(slideIndex: number) {
+        // make this work like the carousel
         toggleBrowserNavigation(false);
 
         const targetSlide = Array.from(children).find(child => Number(child.dataset.index) === slideIndex) as HTMLDivElement;
@@ -547,25 +578,9 @@ const Main = (parentName: string, _options: Options = {}) => {
                 }
             }
             return;
+        } else {
+            loopVerticallyFromPlotClick(slideIndex);
         }
-
-        if (slideIndex === currentSlideIndex + 1) {
-            scroll(Direction.DOWN);
-            return;
-        }
-        if (slideIndex === currentSlideIndex - 1) {
-            scroll(Direction.UP);
-            return;
-        }
-        restoreInitialSlideOrder();
-        targetSlide?.scrollIntoView({ behavior: "smooth" });
-        setTimeout(() => {
-            updateLocation(targetSlide.id);
-            nukeChildren(slideIndex);
-            setTimeout(() => {
-                toggleBrowserNavigation(true);
-            })
-        }, state.transitionDuration);
     }
 
     /** Reorders the Children starting from the given index and repaint the Parent with the new DOM order
@@ -638,11 +653,13 @@ const Main = (parentName: string, _options: Options = {}) => {
         Array.from(plots).forEach(plot => {
             plot.classList.remove(CssClass.PLOT_SELECTED);
         });
+        if (state.carousel.currentSlide < 0) {
+            state.carousel.currentSlide = (state.carousel.htmlElement as HTMLDivElement).children.length - 1;
+        }
         plots[state.carousel.currentSlide].classList.add(CssClass.PLOT_SELECTED);
     }
 
     /** Detect url hash change & update DOM accordingly
-     * 
      */
     function hashChangeEvent() {
         if (state.isBrowserNavigation) {
@@ -655,6 +672,196 @@ const Main = (parentName: string, _options: Options = {}) => {
             }
         }
         updateNavFromCurrentSlideId();
+    }
+
+    /** Hide carousel buttons when reaching start | end on non-loop mode
+     */
+    function updateCarouselButtonState() {
+        if (!state.carousel.htmlElement || !state.carousel.htmlElement.children.length) return;
+
+        if (Array.from((state.carousel.htmlElement as HTMLElement).classList).includes(CssClass.LOOP)) {
+            // buttons will always be visible
+            return;
+        }
+
+        const buttonRight = grabId(ElementId.NAV_BUTTON_RIGHT);
+        const buttonLeft = grabId(ElementId.NAV_BUTTON_LEFT);
+
+        if (state.carousel.currentSlide === (state.carousel.htmlElement as HTMLElement).children.length - 1) {
+            // disable right button
+            buttonRight.style.opacity = "0";
+            buttonRight.style.cursor = "default";
+            buttonRight.style.transform = "scale(0,0)";
+        } else {
+            buttonRight.style.opacity = "1";
+            buttonRight.style.cursor = "pointer";
+            buttonRight.style.transform = "scale(1,1)"
+        }
+
+        if (state.carousel.currentSlide === 0) {
+            buttonLeft.style.opacity = "0";
+            buttonLeft.style.cursor = "default";
+            buttonLeft.style.transform = "scale(0,0)";
+        } else {
+            buttonLeft.style.opacity = "1";
+            buttonLeft.style.cursor = "pointer";
+            buttonLeft.style.transform = "scale(1,1)";
+        }
+    }
+
+    function loopCarouselFromPlotClick(targetIndex: number) {
+        const slidesStep = targetIndex - state.carousel.currentSlide;
+        if (slidesStep === 0) return;
+        if (slidesStep > 0) {
+            loopCarouselToTargetIndex(targetIndex, Direction.RIGHT);
+        } else {
+            loopCarouselToTargetIndex(targetIndex, Direction.LEFT);
+        }
+    }
+
+
+    function loopCarouselToTargetIndex(targetIndex: number, direction: ScrollDirection) {
+        const carousel = state.carousel.htmlElement as HTMLElement;
+
+        if (state.carousel.currentSlide === targetIndex) return;
+        if (targetIndex > carousel.children.length - 1) {
+            targetIndex = 0;
+        }
+
+        let clones;
+
+        if (Array.from(carousel.classList).includes(CssClass.SWAP)) {
+            // swap loop
+        } else {
+            // Regular loop: order array into a state where a slide by 1 is made possible
+            if (direction === Direction.RIGHT) {
+                clones = reorderArrayByCarouselIndex(Array.from(carousel.children), targetIndex - 1).map((el: { cloneNode: (arg0: boolean) => any; }) => el.cloneNode(true));
+                carousel.innerHTML = "";
+                clones.forEach((clone: HTMLElement) => {
+                    carousel.appendChild(clone);
+                });
+                loopCarousel(Direction.RIGHT, targetIndex);
+
+            } else if (direction === Direction.LEFT) {
+                clones = reorderArrayByCarouselIndex(Array.from(carousel.children), targetIndex + 1).map((el: { cloneNode: (arg0: boolean) => any; }) => el.cloneNode(true));
+                carousel.innerHTML = "";
+                clones.forEach((clone: HTMLElement) => {
+                    carousel.appendChild(clone);
+                });
+                loopCarousel(Direction.LEFT, targetIndex);
+            }
+        }
+    }
+
+    function loopCarousel(direction: ScrollDirection, targetIndex: number | undefined = undefined) {
+
+        const carousel = state.carousel.htmlElement as HTMLDivElement;
+        // MAYBE GET RID OF THE SWAP ALTOGETHER
+        if (Array.from(carousel.classList).includes(CssClass.SWAP)) {
+            switch (true) {
+                case direction === Direction.RIGHT:
+                    const lastDistance = (Array.from(carousel.children).at(-1) as HTMLElement).style.left;
+
+                    for (let i = carousel.children.length - 1; i > 0; i -= 1) {
+                        const temp = (carousel.children[i - 1] as HTMLElement).style.left;
+                        (carousel.children[i - 1] as HTMLElement).style.left = (carousel.children[i] as HTMLElement).style.left;
+                        (carousel.children[i] as HTMLElement).style.left = temp;
+                    }
+                    (carousel.children[0] as HTMLElement).style.left = lastDistance;
+
+                    if (state.carousel.currentSlide === (state.carousel.htmlElement as HTMLDivElement).children.length - 1) {
+                        state.carousel.currentSlide = 0;
+                    } else {
+                        state.carousel.currentSlide += 1;
+                    }
+
+                    break;
+
+                case direction === Direction.LEFT:
+                    const firstDistance = (carousel.children[0] as HTMLElement).style.left;
+
+                    for (let i = 0; i < carousel.children.length; i += 1) {
+                        const temp = (carousel.children[i] as HTMLElement).style.left;
+                        if (i > 0) {
+                            (carousel.children[i] as HTMLElement).style.left = (carousel.children[i - 1] as HTMLElement).style.left;
+                            (carousel.children[i - 1] as HTMLElement).style.left = temp;
+                        }
+                    }
+
+                    if (state.carousel.currentSlide === 0) {
+                        state.carousel.currentSlide = carousel.children.length - 1;
+                    } else {
+                        state.carousel.currentSlide -= 1;
+                    }
+
+                    (Array.from(carousel.children).at(-1) as HTMLElement).style.left = firstDistance;
+
+                    break;
+
+                default:
+                    break;
+
+            }
+        } else {
+            // normal loop
+            let firstSlideClone;
+            if (state.isSliding) return;
+            state.isSliding = true;
+
+            switch (true) {
+                case direction === Direction.RIGHT:
+                    firstSlideClone = (carousel.children[0] as HTMLElement).cloneNode(true) as HTMLElement;
+                    firstSlideClone.style.visibility = "hidden";
+                    carousel.appendChild(firstSlideClone);
+                    carousel.setAttribute("style", `transform: translateX(-${state.pageWidth}px)`);
+
+                    clearTimeout(state.timeoutTransitionX);
+                    state.timeoutTransitionX = setTimeout(() => {
+                        carousel.removeChild(carousel.children[0]);
+                        Array.from(carousel.children).forEach((child, i) => {
+                            (child as HTMLElement).style.left = `${state.pageWidth * i}px`;
+                            (child as HTMLElement).style.left = `${state.pageWidth * i}px`;
+                        });
+                        carousel.classList.remove(`qroll-transition-${state.transitionDuration}`);
+                        carousel.setAttribute("style", `transform: translateX(0)`);
+                        if (typeof targetIndex === "number") {
+                            state.carousel.currentSlide = targetIndex
+                        }
+                        setTimeout(() => {
+                            (carousel.children[carousel.children.length - 1] as HTMLElement).style.visibility = "initial";
+                            state.isSliding = false;
+                            carousel.classList.add(`qroll-transition-${state.transitionDuration}`);
+                            udpateHorizontalNavPlots();
+                        }, 100)
+                    }, state.transitionDuration);
+
+                    break;
+
+                case direction === Direction.LEFT:
+                    firstSlideClone = (carousel.children[carousel.children.length - 1] as HTMLElement).cloneNode(true) as HTMLElement;
+                    firstSlideClone.style.left = `-${state.pageWidth}px`;
+                    carousel.prepend(firstSlideClone);
+                    carousel.setAttribute("style", `transform: translateX(${state.pageWidth}px)`);
+
+                    clearTimeout(state.timeoutTransitionX);
+                    state.timeoutTransitionX = setTimeout(() => {
+                        carousel.removeChild(carousel.children[carousel.children.length - 1]);
+                        Array.from(carousel.children).forEach((child, i) => {
+                            (child as HTMLElement).style.left = `${state.pageWidth * i}px`;
+                        });
+                        state.isSliding = false;
+                        if (typeof targetIndex === "number") {
+                            state.carousel.currentSlide = targetIndex
+                        }
+                        udpateHorizontalNavPlots();
+                    }, 10);
+                    carousel.setAttribute("style", `transform: translateX(0)`);
+
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 
 
@@ -790,6 +997,7 @@ const Main = (parentName: string, _options: Options = {}) => {
                         state.isSlidingX = true;
                         state.carousel.keyLeft();
                         udpateHorizontalNavPlots();
+                        updateCarouselButtonState();
                         setTimeout(() => {
                             state.isSlidingX = false;
                         }, state.transitionDuration);
@@ -799,6 +1007,7 @@ const Main = (parentName: string, _options: Options = {}) => {
                         state.isSlidingX = true;
                         state.carousel.keyRight();
                         udpateHorizontalNavPlots();
+                        updateCarouselButtonState();
                         setTimeout(() => {
                             state.isSlidingX = false;
                         }, state.transitionDuration)
@@ -835,14 +1044,15 @@ const Main = (parentName: string, _options: Options = {}) => {
      * @returns without executing if the event occurs inside a scrollable island element
      */
     function wheelEvent(event: MoveEvent) {
+
         state.isTrackpad = detectTrackPad(event);
         // scroll events inside a scrollable element inside a slide must not trigger sliding
         const hasVerticalScrollBar = event.target.scrollHeight > event.target.clientHeight;
         // FOR LATER: const hasHorizontalScrollBar = event.target.scrollWidth > event.target.clientWidth;
+
         if (!Array.from(event.target.classList).includes(CssClass.CHILD) && hasVerticalScrollBar) {
             return;
         }
-
 
         // WITHOUT SCROLL LOOP
         const positionY = parent.getBoundingClientRect().y;
@@ -853,14 +1063,27 @@ const Main = (parentName: string, _options: Options = {}) => {
         }
 
         // WITH SCROLL LOOP
-        if (state.isTrackpad) return;
-        if (event.deltaY === -0) return; // fixes a bug that caused a snap to previous slide on trackpad when finger is lift up
+        if (state.isTrackpad) {
+            state.isSliding = false;
+            return;
+        }
+
+        if (event.deltaY === -0) {
+            state.isSliding = false;
+            return;
+        } // fixes a bug that caused a snap to previous slide on trackpad when finger is lift up
 
         if (event.deltaY && event.deltaY > 0) {
-            if (event.deltaY < state.trackpadSensitivityThreshold) return;
+            if (event.deltaY < state.trackpadSensitivityThreshold) {
+                state.isSliding = false;
+                return;
+            }
             scroll(Direction.DOWN);
         } else {
-            if (-event.deltaY < state.trackpadSensitivityThreshold) return;
+            if (-event.deltaY < state.trackpadSensitivityThreshold) {
+                state.isSliding = false;
+                return;
+            }
             scroll(Direction.UP);
         }
     }
@@ -885,7 +1108,6 @@ const Main = (parentName: string, _options: Options = {}) => {
         });
     }
 
-    // ONLOAD
     window.onload = () => {
         updateOnHashChange();
         const currentSlideId = getCurrentSlideId().replace("#", '');
@@ -902,6 +1124,7 @@ const Main = (parentName: string, _options: Options = {}) => {
             state.carousel.slideCount = 0;
             createHorizontalNav();
         }
+        updateCarouselButtonState();
     }
 
     document.addEventListener(EventTrigger.CLICK, (event: MouseEvent) => {
@@ -912,20 +1135,28 @@ const Main = (parentName: string, _options: Options = {}) => {
         if (target.id === ElementId.NAV_BUTTON_LEFT) {
             state.carousel.clickLeft();
             udpateHorizontalNavPlots();
+            updateCarouselButtonState();
         }
         if (target.id === ElementId.NAV_BUTTON_RIGHT) {
             state.carousel.clickRight();
             udpateHorizontalNavPlots();
+            updateCarouselButtonState();
         }
         if (target.id.includes(CssClass.PLOT)) {
             const currentSlide = grabId(getCurrentSlideId().replace("#", ""));
-            const index = target.id.replace("kodex-plot-", '');
+            const index = target.id.replace("qroll-plot-", '');
             const plots = document.getElementsByClassName(CssClass.PLOT);
             Array.from(plots).forEach(plot => {
                 plot.classList.remove(CssClass.PLOT_SELECTED);
             })
             target.classList.add(CssClass.PLOT_SELECTED);
-            translateX(currentSlide, -state.pageWidth * Number(index));
+            if (state.carousel.hasLoop) {
+                loopCarouselFromPlotClick(Number(index));
+            } else {
+                translateX(currentSlide, -state.pageWidth * Number(index));
+                state.carousel.currentSlide = Number(index);
+                updateCarouselButtonState();
+            }
         }
     });
 
@@ -935,10 +1166,12 @@ const Main = (parentName: string, _options: Options = {}) => {
         if (event.code === KeyboardCode.ARROW_RIGHT && hasCarousel) {
             state.carousel.keyRight();
             udpateHorizontalNavPlots();
+            updateCarouselButtonState();
         }
         if (event.code === KeyboardCode.ARROW_LEFT && hasCarousel) {
             state.carousel.keyLeft();
             udpateHorizontalNavPlots();
+            updateCarouselButtonState();
         }
     });
 

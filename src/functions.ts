@@ -67,7 +67,7 @@ export function grabByData(elementId: string) {
 }
 
 export function logError(error: string) {
-    console.error('Kodex exception:', { error })
+    console.error('qroll exception:', { error })
 }
 
 /**
@@ -78,6 +78,25 @@ export function logError(error: string) {
  */
 export function reorderArrayByIndex(arr: any, index: number) {
     const thatIndex = arr.findIndex((element: any) => Number(element.dataset.index) === index);
+
+    if (index === -1) {
+        return arr;
+    }
+
+    const firstHalf = arr.slice(thatIndex);
+    const secondHalf = arr.slice(0, thatIndex);
+
+    return [...firstHalf, ...secondHalf];
+}
+
+/**
+ * 
+ * @param arr - alpra-parent children array
+ * @param index - the target index
+ * @returns the reordered children, starting with the target index. If the original array is [0,1,2,3] and the target index is 2, the output will be ordered as [2,3,0,1]
+ */
+export function reorderArrayByCarouselIndex(arr: any, index: number) {
+    const thatIndex = arr.findIndex((element: any) => Number(element.dataset.carouselIndex) === index);
 
     if (index === -1) {
         return arr;
@@ -158,6 +177,7 @@ const alpra = {
     grabByData,
     logError,
     reorderArrayByIndex,
+    reorderArrayByCarouselIndex,
     setTabIndex,
     swapArrayPositions,
     updateCssClasses,

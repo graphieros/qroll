@@ -1,14 +1,14 @@
 {
-  "name": "kodex",
+  "name": "qroll",
   "version": "0.0.0",
   "type": "module",
-  "main": "./dist/kodex.umd.cjs",
-  "module": "./dist/kodex.js",
+  "main": "./dist/qroll.umd.cjs",
+  "module": "./dist/qroll.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/kodex.js",
-      "export": "./dist/kodex.umd.cjs"
+      "import": "./dist/qroll.js",
+      "export": "./dist/qroll.umd.cjs"
     }
   },
   "files": [
