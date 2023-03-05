@@ -7,8 +7,8 @@ export default defineConfig({
   build: {
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
-      name: 'kodex',
-      fileName: 'kodex',
+      name: 'qroll',
+      fileName: 'qroll',
     },
   },
   plugins: [dts()],
