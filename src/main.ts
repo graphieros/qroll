@@ -10,8 +10,6 @@ import createCarousel from "./carousel";
 
 // TODO: progresion bar (horizontal & vertical) qroll-progress-bar
 
-// ISSUE: scrolling top too quickly snaps immedialtely sometimes
-
 // TODO: better vertical nav from plot click
 
 // ISSUE: using the browser's history previous|next buttons does not update routing to slide in Chrome, Edge, Brave (but does in Firefox)
@@ -182,15 +180,22 @@ const Main = (parentName: string, _options: Options = {}) => {
                 const tooltip = spawn(DomElement.DIV) as HTMLDivElement;
                 tooltip.classList.add(CssClass.TOOLTIP_LEFT);
                 tooltip.dataset.index = `${i}`;
-                const slideTitle = Array.from(children).find(slide => Number(slide.dataset.index) === i)?.querySelectorAll("h1,h2,h3,h4")[0];
+                const slideTitle = Array.from(children).find(slide => Number(slide.dataset.index) === i)?.querySelectorAll("h1,h2,h3,h4,h5,h6")[0];
                 // TODO: slideTitle could be refined. If no h element is provided, we need to find the first words of the first p or article or whatever
-
-                if (slideTitle && slideTitle.textContent) {
+                if ((child as HTMLElement).dataset.title) {
+                    tooltip.innerHTML = (child as HTMLElement).dataset.title || "";
+                    tooltip.setAttribute("style", `font-family:Helvetica`);
+                } else if (slideTitle && slideTitle.textContent) {
                     tooltip.setAttribute("style", `font-family:${getComputedStyle(slideTitle).fontFamily.split(",")[0]}`);
                     tooltip.innerHTML = applyEllipsis(slideTitle.textContent, state.tooltipEllipsisLimit);
                 } else {
                     tooltip.setAttribute("style", `font-family:Helvetica`);
                     tooltip.innerHTML = `${i}`;
+                }
+
+                // apply custom css from data-css attribute
+                if ((child as HTMLElement).dataset.tooltipCss) {
+                    tooltip.setAttribute("style", (child as HTMLElement).dataset.tooltipCss || "");
                 }
 
                 tooltip.addEventListener(EventTrigger.CLICK, () => clickVerticalNavLink(i));
@@ -265,7 +270,13 @@ const Main = (parentName: string, _options: Options = {}) => {
                 tooltip.classList.add(CssClass.TOOLTIP_TOP);
                 tooltip.dataset.index = `${i}`;
                 const slideTitle = child.querySelectorAll("h1,h2,h3,h4")[0];
-                if (slideTitle && slideTitle.textContent) {
+
+                console.log((child as HTMLElement).dataset)
+
+                if ((child as HTMLElement).dataset.title) {
+                    tooltip.innerHTML = (child as HTMLElement).dataset.title || "";
+                    tooltip.setAttribute("style", `font-family:Helvetica`);
+                } else if (slideTitle && slideTitle.textContent) {
                     const fontFamily = getComputedStyle(slideTitle).fontFamily.split(",")[0];
                     tooltip.setAttribute("style", `font-family:${fontFamily || 'Helvetica'}`);
                     tooltip.innerHTML = applyEllipsis(slideTitle.textContent, state.tooltipEllipsisLimit);
@@ -273,6 +284,12 @@ const Main = (parentName: string, _options: Options = {}) => {
                     tooltip.setAttribute("style", `font-family:Helvetica`);
                     tooltip.innerHTML = `${i}`;
                 }
+
+                // apply custom css from data-css attribute
+                if ((child as HTMLElement).dataset.tooltipCss) {
+                    tooltip.setAttribute("style", (child as HTMLElement).dataset.tooltipCss || "");
+                }
+
                 [tooltip, slideLink].forEach(el => slideLinkWrapper.appendChild(el));
                 nav.appendChild(slideLinkWrapper);
             });
@@ -508,11 +525,12 @@ const Main = (parentName: string, _options: Options = {}) => {
                     createCarouselIfAny(parent.children[0]);
                     updateNav(parent.children[0].id)
                 }, 100)
+                setTimeout(() => {
+                    state.isSliding = false
+                }, 100)
             }, state.transitionDuration);
 
-            setTimeout(() => {
-                state.isSliding = false
-            }, state.transitionDuration)
+
 
         } else if (direction === Direction.UP) {
             if (state.isSliding) return;
