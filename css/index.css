@@ -28,7 +28,7 @@ html body {
     transition: transform 500ms ease-in-out !important;
 }
 
-/* PARENT TRANSITION CLASSES */
+/* TRANSITION CLASSES */
 .qroll-transition-300 {
     transition: transform 300ms ease !important;
 }
@@ -53,6 +53,7 @@ html body {
 .qroll-transition-1000 {
     transition: transform 1000ms ease !important;
 }
+
 
 .qroll-child {
     height: 100vh;
@@ -328,4 +329,15 @@ a[data-current-slide="true"]:focus {
 }
 .qroll-transition-1000 > .qroll-carousel-slide {
     transition: left 1000ms ease;
+}
+
+.qroll-progress-bar {
+    background: white;
+    display:block;
+    height: 3px;
+    left:0;
+    position: fixed;
+    top:0;
+    transition: width 0.1s ease-in-out;
+    z-index: 1;
 }

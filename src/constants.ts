@@ -35,6 +35,8 @@ export namespace CssClass {
     export const TRANSITION_800 = "qroll-transition-800";
     export const TRANSITION_900 = "qroll-transition-900";
     export const TRANSITION_Y = "qroll-transitionY";
+    export const PROGRESS = "qroll-progress";
+    export const PROGRESS_BAR = "qroll-progress-bar";
 }
 
 export namespace Direction {
@@ -58,6 +60,7 @@ export namespace ElementId {
     export const NAV_BUTTON_LEFT = "qroll-nav-button-left";
     export const NAV_BUTTON_RIGHT = "qroll-nav-button-right";
     export const PARENT = "qroll-parent";
+    export const PROGRESS = "qrollProgressVertical"
 }
 
 export namespace EventTrigger {

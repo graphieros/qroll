@@ -13,13 +13,15 @@
 <body>
     <header class="test-header">
         <div class="test-header-content test-title-light">
-           Qro⇅
+            <img src="./assets/android-chrome-512x512.png" height="20"><span style="margin-left:-10px">roll</span>
         </div>
     </header>
-    <div id="qroll-parent" class="qroll-transition-500 qroll-nav qroll-loop qroll-nav-[white]">
+    <div id="qroll-parent" class="qroll-transition-500 qroll-nav qroll-loop qroll-nav-[white] qroll-progress" data-progress-css="background: linear-gradient(to right, transparent,rgb(83,172,110))">
 
-        <div class="test-child test-blue front-page">
-                <h1 class="test-title-light">Qro⇅</h1>
+        <div class="test-child test-blue front-page"  data-title="Qroll" data-tooltip-css="font-family:'Satoshi'">
+                <h1 class="test-title-light">
+                    <img src="./assets/android-chrome-512x512.png" height="125"><span style="margin-left:0px">roll</span>
+                </h1>
                 <!-- <img src="./qroll_logo.png" class="qroll-logo" style="margin-bottom: 120px;"/> -->
                 <p >A friendly full page scroll library</p>
 
@@ -40,14 +42,14 @@
                         &lt;div id="<span class="css-light">qroll-parent</span>" class="<span class="css-light">qroll-transition-500 qroll-nav</span>"&gt;
                         <br>
                         <br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&lt;div class="any-class-you-want"&gt;
+                        &nbsp;&nbsp;&nbsp;&nbsp;&lt;div id="anyIdWorks1" class="any-class-you-want"&gt;
                         <br>
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;h1&gt; Title &lt;/h1&gt;
                         <br>
                         &nbsp;&nbsp;&nbsp;&nbsp;&lt;/div&gt;
                         <br>
                         <br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&lt;div class="any-class-you-want"&gt;
+                        &nbsp;&nbsp;&nbsp;&nbsp;&lt;div id="anyIdWorks2" class="any-class-you-want"&gt;
                         <br>
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;h2&gt; Slide &lt;/h2&gt;
                         <br>
@@ -60,10 +62,10 @@
             </div>
         
         </div>
-        <div class="test-child test-blue-carousel qroll-carousel qroll-transition-500 qroll-loop">
-            <div style="width:100%; text-align:center;" class="test-blue-carousel">
-                <h2 class="big-h2-title">Horizontal carousel</h2>
-                <p style="margin-top:-40px; font-size: 30px;">Make a slide an horizontal carousel</p>
+        <div class="test-child test-blue-carousel qroll-carousel qroll-transition-500">
+            <div style="width:100%; text-align:center;" class="test-blue-carousel" data-title="TEST">
+                <h2 class="big-h2-title">Carousel</h2>
+                <p style="margin-top:-40px; font-size: 30px;">Make a slide an horizontal carousel...</p>
                 <div class="sample-code-carousel">
                     <br>
                     <br/>
@@ -71,7 +73,7 @@
                         &lt;div id="<span class="css-light">qroll-parent</span>" class="<span class="css-light">qroll-transition-500 qroll-nav</span>"&gt;
                         <br>
                         <br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&lt;div class="<span class="css-light">qroll-carousel qroll-transition-500 qroll-loop</span>"&gt;
+                        &nbsp;&nbsp;&nbsp;&nbsp;&lt;div class="<span class="css-light">qroll-carousel qroll-transition-500</span>"&gt;
                         <br>
                         <br>
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;div class="any-class-you-want"&gt;
@@ -109,10 +111,10 @@
             </div>
         </div>
 
-        <div class="test-child test-blue-carousel qroll-carousel qroll-transition-500 ">
+        <div class="test-child test-blue-carousel qroll-carousel qroll-transition-500 qroll-loop">
             <div style="width:100%; text-align:center;" class="test-blue-carousel">
-                <h2 class="big-h2-title">Horizontal carousel</h2>
-                <p style="margin-top:-40px; font-size: 30px;">This is the swap effect</p>
+                <h2 class="big-h2-title">Infinite carousel</h2>
+                <p style="margin-top:-40px; font-size: 30px;">...or make your carousel infinite</p>
                 <div class="sample-code-carousel">
                     <br>
                     <br/>
@@ -120,7 +122,7 @@
                         &lt;div id="<span class="css-light">qroll-parent</span>" class="<span class="css-light">qroll-transition-500 qroll-nav</span>"&gt;
                         <br>
                         <br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&lt;div class="<span class="css-light">qroll-carousel qroll-transition-500 qroll-loop qroll-swap</span>"&gt;
+                        &nbsp;&nbsp;&nbsp;&nbsp;&lt;div class="<span class="css-light">qroll-carousel qroll-transition-500 qroll-loop</span>"&gt;
                         <br>
                         <br>
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;div class="any-class-you-want"&gt;
