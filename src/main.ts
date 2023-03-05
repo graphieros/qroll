@@ -141,6 +141,8 @@ const Main = (parentName: string, _options: Options = {}) => {
         if (state.carousel.htmlElement) {
             Array.from(state.carousel.htmlElement.children).forEach((child, i) => {
                 (child as HTMLElement).style.left = `${state.pageWidth * i}px`;
+                (child as HTMLElement).style.width = `${state.pageWidth}px`;
+
             });
         }
     }
@@ -525,11 +527,11 @@ const Main = (parentName: string, _options: Options = {}) => {
                 parent.removeChild(parent.children[parent.children.length - 1]);
 
                 setTimeout(() => {
-                    parent.setAttribute("style", "transform: translateY(0)");
                     parent.classList.add(`qroll-transition-${state.transitionDuration}`);
+                    parent.setAttribute("style", "transform: translateY(0)");
                     createCarouselIfAny(parent.children[0]);
                     updateNav(parent.children[0].id)
-                }, 10)
+                }, 20)
             }, 10)
             console.log(state.isSliding)
             setTimeout(() => {
