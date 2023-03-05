@@ -179,3 +179,26 @@ You can also customize the tooltip contents and their css, by providing data-tit
     </div>
 </div>
 ```
+
+### OTHER OPTIONS
+
+#### Progress bar
+
+You can show a progress bar on top of the page that will reflect the current vertical sliding state.
+
+It takes one css class, and one data property if you want to customize its css:
+
+```
+<div id="qroll-parent" class="qroll-transition-500 qroll-nav qroll-loop qroll-progress" data-progress-css="background: blue">
+   <div>
+        <h1>My First slide</h1>
+    </div>
+
+    <div>
+        <h2>My Second slide</h2>
+    </div>
+    
+    <div>
+        <h2>My Third slide</h2>
+    </div>
+</div>

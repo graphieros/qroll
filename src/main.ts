@@ -5,13 +5,6 @@ import createCarousel from "./carousel";
 
 // TODO: find a way to include css
 
-// IDEA: show icon to turn on/off scroll (basically add or remove the css class on parent)
-// IDEA: option to provide tooltip names from a data-title html attribute (fallback to first h1... content if none provided)
-
-// TODO: progresion bar (horizontal & vertical) qroll-progress-bar
-
-// TODO: better vertical nav from plot click
-
 // ISSUE: using the browser's history previous|next buttons does not update routing to slide in Chrome, Edge, Brave (but does in Firefox)
 
 const Main = (parentName: string, _options: Options = {}) => {
@@ -73,7 +66,7 @@ const Main = (parentName: string, _options: Options = {}) => {
     //------------------------------------------------------------------------//
 
     const parent = grabId(parentName);
-    if (!parent) return logError('parent name not found: ' + parentName);
+    if (!parent) return logError('parent id not found: ' + parentName);
 
     // Apply css class transition from provided classes to the parent
     switch (true) {
@@ -136,13 +129,16 @@ const Main = (parentName: string, _options: Options = {}) => {
         state.pageHeight = (event.target as Window).innerHeight;
         state.pageWidth = (event.target as Window).innerWidth;
         Array.from(children).forEach(child => createCarousel(state, child));
-        if (state.carousel.htmlElement) {
-            Array.from(state.carousel.htmlElement.children).forEach((child, i) => {
-                (child as HTMLElement).style.left = `${state.pageWidth * i}px`;
-                (child as HTMLElement).style.width = `${state.pageWidth}px`;
+        Array.from(parent.children).forEach(child => {
+            if (Array.from(child.classList).includes(CssClass.CAROUSEL)) {
+                Array.from(child.children).forEach((carouselSlide, i) => {
+                    (carouselSlide as HTMLElement).style.left = `${state.pageWidth * i}px`;
+                    (carouselSlide as HTMLElement).style.width = `${state.pageWidth}px`;
+                })
+            }
+        });
 
-            });
-        }
+        setProgressBar(getCurrentSlideId().replace("#", ""));
     }
 
     /** Generate the nav node, injects slide links and applies an event listener to them
@@ -154,6 +150,17 @@ const Main = (parentName: string, _options: Options = {}) => {
             const oldNav = grabId(ElementId.NAV) as HTMLElement;
             document.body.removeChild(oldNav);
         }
+
+        if ((Array.from(parent.classList).includes(CssClass.PROGRESS))) {
+            const progress = spawn(DomElement.DIV);
+            progress.setAttribute("id", ElementId.PROGRESS)
+            progress.classList.add(CssClass.PROGRESS_BAR);
+            if (parent.dataset.progressCss) {
+                progress.setAttribute("style", parent.dataset.progressCss);
+            }
+            document.body.appendChild(progress);
+        }
+
         if (Array.from(parent.classList).includes(CssClass.HAS_NAV)) {
             const nav = spawn(DomElement.NAV);
             nav.setAttribute("id", ElementId.NAV);
@@ -270,8 +277,6 @@ const Main = (parentName: string, _options: Options = {}) => {
                 tooltip.classList.add(CssClass.TOOLTIP_TOP);
                 tooltip.dataset.index = `${i}`;
                 const slideTitle = child.querySelectorAll("h1,h2,h3,h4")[0];
-
-                console.log((child as HTMLElement).dataset)
 
                 if ((child as HTMLElement).dataset.title) {
                     tooltip.innerHTML = (child as HTMLElement).dataset.title || "";
@@ -461,7 +466,6 @@ const Main = (parentName: string, _options: Options = {}) => {
 
     function loopVerticallyFromPlotClick(targetIndex: number) {
         const slidesStep = targetIndex - Number(grabId(getCurrentSlideId().replace("#", "")).dataset.index);
-        console.log({ slidesStep })
         if (slidesStep === 0) return;
         if (slidesStep > 0) {
             scrollFromTargetIndex(targetIndex, Direction.DOWN);
@@ -502,7 +506,6 @@ const Main = (parentName: string, _options: Options = {}) => {
      */
     function scroll(direction: ScrollDirection) {
         toggleBrowserNavigation(false);
-        console.log(state.isSliding)
 
         // other possibility
         if (state.isSliding) return;
@@ -523,14 +526,12 @@ const Main = (parentName: string, _options: Options = {}) => {
                 setTimeout(() => {
                     parent.classList.add(`qroll-transition-${state.transitionDuration}`);
                     createCarouselIfAny(parent.children[0]);
-                    updateNav(parent.children[0].id)
+                    updateNav(parent.children[0].id);
                 }, 100)
                 setTimeout(() => {
-                    state.isSliding = false
+                    state.isSliding = false;
                 }, 100)
             }, state.transitionDuration);
-
-
 
         } else if (direction === Direction.UP) {
             if (state.isSliding) return;
@@ -548,14 +549,15 @@ const Main = (parentName: string, _options: Options = {}) => {
                     parent.classList.add(`qroll-transition-${state.transitionDuration}`);
                     parent.setAttribute("style", "transform: translateY(0)");
                     createCarouselIfAny(parent.children[0]);
-                    updateNav(parent.children[0].id)
+                    updateNav(parent.children[0].id);
                 }, 20)
             }, 10)
-            console.log(state.isSliding)
             setTimeout(() => {
                 state.isSliding = false
             }, state.transitionDuration)
         }
+
+
     }
 
 
@@ -626,6 +628,15 @@ const Main = (parentName: string, _options: Options = {}) => {
             Array.from(nav.getElementsByTagName(DomElement.A)).map((child: HTMLAnchorElement) => {
                 child.dataset.currentSlide = `${child.dataset.index === thatSlide?.dataset.index}`;
             });
+        }
+        setProgressBar(slideId);
+    }
+
+    function setProgressBar(slideId: string) {
+        if (Array.from(parent.classList).includes(CssClass.PROGRESS)) {
+            const slideIndex = Number(grabId(slideId).dataset.index);
+            const progress = slideIndex / (parent.children.length - 1);
+            grabId(ElementId.PROGRESS).style.width = `${state.pageWidth * progress}px`
         }
     }
 
