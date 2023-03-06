@@ -171,23 +171,36 @@
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="rgb(196, 243, 255)"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path fill="transparent" d="M395 115c-35-51-106-66-157-34l-89 57a103 103 0 00-46 69 108 108 0 0010 69 103 103 0 00-15 39 109 109 0 0019 82c35 51 106 66 157 34l89-57a103 103 0 0046-69 108 108 0 00-10-69 103 103 0 0015-39 109 109 0 00-19-82"></path><path fill="rgb(196, 243, 255)" d="M230 402a71 71 0 01-77-28 66 66 0 01-11-50 62 62 0 012-8l2-5 5 3a115 115 0 0035 17l3 1v4a20 20 0 003 13 21 21 0 0023 9 20 20 0 006-3l89-57a19 19 0 008-12 20 20 0 00-3-15 21 21 0 00-23-9 20 20 0 00-5 3l-34 21a65 65 0 01-19 8 71 71 0 01-76-28 66 66 0 01-11-50 62 62 0 0128-41l89-57a65 65 0 0118-8 71 71 0 0177 28 66 66 0 0111 50 63 63 0 01-2 8l-2 5-5-3a115 115 0 00-35-17l-3-1v-4a20 20 0 00-3-13 21 21 0 00-23-9 20 20 0 00-6 3l-89 57a19 19 0 00-8 12 20 20 0 003 15 21 21 0 0023 9 20 20 0 005-3l34-21a65 65 0 0119-8 71 71 0 0176 28 66 66 0 0111 50 62 62 0 01-28 41l-89 57a65 65 0 01-18 8"></path></g></svg>
                 </div>
             </div>
-            <!-- <div class="test-scrollable-div">
-                <b>Scrolling inside this div must not trigger page sliding.</b><br>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis iusto consequatur odit, minus maxime beatae facere vitae quia, laboriosam eum rerum provident. Soluta, voluptatem nesciunt exercitationem quia molestias esse enim ab atque, voluptate expedita doloremque sed vitae maxime. Nobis ullam vel molestiae odit dolorem deserunt autem, officia asperiores esse accusamus, voluptates neque nulla repellat unde magni excepturi totam! Tempore perspiciatis porro praesentium. Velit at consequatur cumque quidem odit saepe vel a vero, doloribus rem, repellat, assumenda autem fuga architecto exercitationem reiciendis numquam. Nihil quam ratione a, quo eaque labore laudantium? Voluptas distinctio, libero qui dolorem necessitatibus cum autem tempore veniam numquam doloribus quasi, harum quam. Aliquid ducimus ratione fuga molestias dicta aspernatur qui cumque fugiat exercitationem saepe? Architecto incidunt, possimus magni, molestiae nemo dicta corrupti ipsum doloribus modi eum exercitationem harum enim saepe? Doloremque neque facilis natus illum modi eligendi repudiandae enim architecto tenetur optio maiores id sed sint itaque debitis harum explicabo ullam, veritatis asperiores ex praesentium inventore recusandae. Explicabo asperiores voluptas aliquam expedita voluptate sit maxime ipsa distinctio deleniti. Eveniet impedit et optio ut, ducimus unde possimus hic officiis error, fuga sapiente adipisci ullam necessitatibus deserunt corporis! Cum reiciendis earum officiis eligendi dolores sapiente alias quia. Totam, sed!
-            </div> -->
+            
         </div>
         <div class="test-child test-green">
-            <h2 class="big-h2-title">Slide 5</h2>
-            <form>
+            <h2 class="big-h2-title">Native behaviors</h2>
+            <div class="test-cheat">
+                <div class="test-cheat-item">
+                  <form>
                 <label for="testInput">
-                    This form allows us to test scroll exclusion cases. While using the keybord inside the fields, keyboard events must not be enabled to scroll.
+                    When in focus, the fields of a form take precedence over the vent listeners used to slide. Using arrow keys inside an input or a textarea will keep the native behavior.
                 </label>
                 <input id="testInput" type="text">
                 <textarea></textarea>
-            </form>
-            <p class="article-p">
-                Possible names for the library: Zleek, qroll
-            </p>
+            </form>  
+                </div>
+                
+            <div class="test-cheat">
+                <div class="test-cheat-item">
+
+                    <div style="font-size: 14px; font-weight:500; margin-bottom: 24px">
+                        When in focus or when mouse is inside, a scrollable div captures scroll events.
+                    </div>
+                    <div id="scrollableDiv" class="test-scrollable-div">
+                    <b>Scrolling inside this div must not trigger page sliding.</b><br>
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis iusto consequatur odit, minus maxime beatae facere vitae quia, laboriosam eum rerum provident. Soluta, voluptatem nesciunt exercitationem quia molestias esse enim ab atque, voluptate expedita doloremque sed vitae maxime. Nobis ullam vel molestiae odit dolorem deserunt autem, officia asperiores esse accusamus, voluptates neque nulla repellat unde magni excepturi totam! Tempore perspiciatis porro praesentium. Velit at consequatur cumque quidem odit saepe vel a vero, doloribus rem, repellat, assumenda autem fuga architecto exercitationem reiciendis numquam. Nihil quam ratione a, quo eaque labore laudantium? Voluptas distinctio, libero qui dolorem necessitatibus cum autem tempore veniam numquam doloribus quasi, harum quam. Aliquid ducimus ratione fuga molestias dicta aspernatur qui cumque fugiat exercitationem saepe? Architecto incidunt, possimus magni, molestiae nemo dicta corrupti ipsum doloribus modi eum exercitationem harum enim saepe? Doloremque neque facilis natus illum modi eligendi repudiandae enim architecto tenetur optio maiores id sed sint itaque debitis harum explicabo ullam, veritatis asperiores ex praesentium inventore recusandae. Explicabo asperiores voluptas aliquam expedita voluptate sit maxime ipsa distinctio deleniti. Eveniet impedit et optio ut, ducimus unde possimus hic officiis error, fuga sapiente adipisci ullam necessitatibus deserunt corporis! Cum reiciendis earum officiis eligendi dolores sapiente alias quia. Totam, sed!
+                </div>
+                </div>
+            </div>
+            
+            </div>
+            
         </div>
     </div>
 </body>

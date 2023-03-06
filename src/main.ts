@@ -632,6 +632,10 @@ const Main = (parentName: string, _options: Options = {}) => {
         setProgressBar(slideId);
     }
 
+    /** Set state of progress bar from the current slide to total slides
+     * 
+     * @param slideId - string
+     */
     function setProgressBar(slideId: string) {
         if (Array.from(parent.classList).includes(CssClass.PROGRESS)) {
             const slideIndex = Number(grabId(slideId).dataset.index);
@@ -740,6 +744,11 @@ const Main = (parentName: string, _options: Options = {}) => {
         }
     }
 
+    /** Calculates the gap between the current slide and the target index, and calls loopCarouselToTargetIndex
+     * 
+     * @param targetIndex - number
+     * @returns without processing if the target is same as current slide
+     */
     function loopCarouselFromPlotClick(targetIndex: number) {
         const slidesStep = targetIndex - state.carousel.currentSlide;
         if (slidesStep === 0) return;
@@ -750,7 +759,12 @@ const Main = (parentName: string, _options: Options = {}) => {
         }
     }
 
-
+    /** Orders the slides to put them in a state where a slide of 1 becomes possible, and then calls loopCarousel
+     * 
+     * @param targetIndex - number
+     * @param direction - string (right or left)
+     * @returns 
+     */
     function loopCarouselToTargetIndex(targetIndex: number, direction: ScrollDirection) {
         const carousel = state.carousel.htmlElement as HTMLElement;
 
@@ -784,6 +798,12 @@ const Main = (parentName: string, _options: Options = {}) => {
         }
     }
 
+    /** Slide carousel by 1 to the given direction
+     * 
+     * @param direction - string (left or right)
+     * @param targetIndex - number
+     * @returns 
+     */
     function loopCarousel(direction: ScrollDirection, targetIndex: number | undefined = undefined) {
 
         const carousel = state.carousel.htmlElement as HTMLDivElement;
