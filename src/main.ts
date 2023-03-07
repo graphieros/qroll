@@ -38,6 +38,7 @@ const Main = (parentName: string, _options: Options = {}) => {
         transitionDuration: 500,
         userAgent: navigator.userAgent,
         carousel: {
+            transitionDuration: 500,
             currentSlide: 0,
             currentSlideId: null as null | string,
             hasLoop: false,
@@ -403,6 +404,7 @@ const Main = (parentName: string, _options: Options = {}) => {
      */
     function createCarouselIfAny(slide: any) {
         state.carousel = {
+            transitionDuration: 500,
             currentSlide: 0,
             currentSlideId: null,
             hasLoop: state.carousel.hasLoop,
@@ -431,6 +433,38 @@ const Main = (parentName: string, _options: Options = {}) => {
             state.carousel.hasLoop = Array.from(slide.classList).includes(CssClass.LOOP);
             state.carousel.isVisible = true;
             state.carousel.slideCount = slide.children.length;
+
+            const carouselClassList = Array.from((state.carousel.htmlElement as HTMLElement).classList);
+
+            switch (true) {
+                case carouselClassList.includes(CssClass.TRANSITION_300):
+                    state.carousel.transitionDuration = 300;
+                    break;
+                case carouselClassList.includes(CssClass.TRANSITION_400):
+                    state.carousel.transitionDuration = 400;
+                    break;
+                case carouselClassList.includes(CssClass.TRANSITION_500):
+                    state.carousel.transitionDuration = 500;
+                    break;
+                case carouselClassList.includes(CssClass.TRANSITION_600):
+                    state.carousel.transitionDuration = 600;
+                    break;
+                case carouselClassList.includes(CssClass.TRANSITION_700):
+                    state.carousel.transitionDuration = 700;
+                    break;
+                case carouselClassList.includes(CssClass.TRANSITION_800):
+                    state.carousel.transitionDuration = 800;
+                    break;
+                case carouselClassList.includes(CssClass.TRANSITION_900):
+                    state.carousel.transitionDuration = 900;
+                    break;
+                case carouselClassList.includes(CssClass.TRANSITION_1000):
+                    state.carousel.transitionDuration = 1000;
+                    break;
+                default:
+                    state.carousel.transitionDuration = state.transitionDuration;
+                    break;
+            }
 
             // get current transform css prop to deduce state.carousel.currentSlide
             state.carousel.currentSlide = Number((state.carousel.htmlElement?.children[0] as HTMLElement).dataset.carouselIndex);
@@ -632,6 +666,10 @@ const Main = (parentName: string, _options: Options = {}) => {
         setProgressBar(slideId);
     }
 
+    /** Set state of progress bar from the current slide to total slides
+     * 
+     * @param slideId - string
+     */
     function setProgressBar(slideId: string) {
         if (Array.from(parent.classList).includes(CssClass.PROGRESS)) {
             const slideIndex = Number(grabId(slideId).dataset.index);
@@ -740,6 +778,11 @@ const Main = (parentName: string, _options: Options = {}) => {
         }
     }
 
+    /** Calculates the gap between the current slide and the target index, and calls loopCarouselToTargetIndex
+     * 
+     * @param targetIndex - number
+     * @returns without processing if the target is same as current slide
+     */
     function loopCarouselFromPlotClick(targetIndex: number) {
         const slidesStep = targetIndex - state.carousel.currentSlide;
         if (slidesStep === 0) return;
@@ -750,7 +793,12 @@ const Main = (parentName: string, _options: Options = {}) => {
         }
     }
 
-
+    /** Orders the slides to put them in a state where a slide of 1 becomes possible, and then calls loopCarousel
+     * 
+     * @param targetIndex - number
+     * @param direction - string (right or left)
+     * @returns 
+     */
     function loopCarouselToTargetIndex(targetIndex: number, direction: ScrollDirection) {
         const carousel = state.carousel.htmlElement as HTMLElement;
 
@@ -784,6 +832,12 @@ const Main = (parentName: string, _options: Options = {}) => {
         }
     }
 
+    /** Slide carousel by 1 to the given direction
+     * 
+     * @param direction - string (left or right)
+     * @param targetIndex - number
+     * @returns 
+     */
     function loopCarousel(direction: ScrollDirection, targetIndex: number | undefined = undefined) {
 
         const carousel = state.carousel.htmlElement as HTMLDivElement;
@@ -853,7 +907,7 @@ const Main = (parentName: string, _options: Options = {}) => {
                             (child as HTMLElement).style.left = `${state.pageWidth * i}px`;
                             (child as HTMLElement).style.left = `${state.pageWidth * i}px`;
                         });
-                        carousel.classList.remove(`qroll-transition-${state.transitionDuration}`);
+                        carousel.classList.remove(`qroll-transition-${state.carousel.transitionDuration}`);
                         carousel.setAttribute("style", `transform: translateX(0)`);
                         if (typeof targetIndex === "number") {
                             state.carousel.currentSlide = targetIndex
@@ -861,10 +915,10 @@ const Main = (parentName: string, _options: Options = {}) => {
                         setTimeout(() => {
                             (carousel.children[carousel.children.length - 1] as HTMLElement).style.visibility = "initial";
                             state.isSliding = false;
-                            carousel.classList.add(`qroll-transition-${state.transitionDuration}`);
+                            carousel.classList.add(`qroll-transition-${state.carousel.transitionDuration}`);
                             udpateHorizontalNavPlots();
-                        }, 100)
-                    }, state.transitionDuration);
+                        }, 50)
+                    }, state.carousel.transitionDuration);
 
                     break;
 
@@ -1143,6 +1197,7 @@ const Main = (parentName: string, _options: Options = {}) => {
         updateOnHashChange();
         const currentSlideId = getCurrentSlideId().replace("#", '');
         const currentSlide = Array.from(children).find(child => child.id === currentSlideId) as HTMLDivElement;
+        createCarouselIfAny(currentSlide);
 
         if ((Array.from(currentSlide.classList).includes(CssClass.CAROUSEL))) {
             state.carousel.htmlElement = currentSlide;

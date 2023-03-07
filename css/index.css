@@ -104,12 +104,13 @@ html body {
     display:flex;
     flex-direction: column;
     gap:2px;
-    height: 100vh;
     height: 100svh;
+    height: 100vh;
     justify-content: center;
     position: fixed;
     right:0;
     top:0;
+    user-select:none;
     width: 40px;
 }
 .qroll-nav-vertical a {
