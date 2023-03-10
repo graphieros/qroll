@@ -5,6 +5,9 @@ import createCarousel from "./carousel";
 
 // TODO: find a way to include css
 
+// ISSUE duplicates when scrolling to heavily
+// --> use new Set
+
 // ISSUE: using the browser's history previous|next buttons does not update routing to slide in Chrome, Edge, Brave (but does in Firefox)
 
 const Main = (parentName: string, _options: Options = {}) => {
@@ -55,7 +58,7 @@ const Main = (parentName: string, _options: Options = {}) => {
     // this needs extra testing for all browsers to check if wheel event makes the scroll work !
 
     if (state.userAgent.match(/chrome|chromium|crios/i)) {
-        state.trackpadSensitivityThreshold = 30;
+        state.trackpadSensitivityThreshold = 10;
     } else {
         state.trackpadSensitivityThreshold = 10;
     }
@@ -564,6 +567,7 @@ const Main = (parentName: string, _options: Options = {}) => {
                 }, 100)
                 setTimeout(() => {
                     state.isSliding = false;
+                    removeDuplicatesFromParent();
                 }, 100)
             }, state.transitionDuration);
 
@@ -584,6 +588,7 @@ const Main = (parentName: string, _options: Options = {}) => {
                     parent.setAttribute("style", "transform: translateY(0)");
                     createCarouselIfAny(parent.children[0]);
                     updateNav(parent.children[0].id);
+                    removeDuplicatesFromParent();
                 }, 20)
             }, 10)
             setTimeout(() => {
@@ -591,7 +596,17 @@ const Main = (parentName: string, _options: Options = {}) => {
             }, state.transitionDuration)
         }
 
+    }
 
+    function removeDuplicatesFromParent() {
+        const uniqueChildren = Array.from(parent.children).reduce((acc: HTMLElement[], curr: any) => {
+            if (!acc.find((child: HTMLElement) => (child as HTMLElement).dataset.index === (curr as HTMLElement).dataset.index)) {
+                acc.push(curr);
+            }
+            return acc;
+        }, []);
+        parent.innerHTML = "";
+        uniqueChildren.forEach((child: HTMLElement) => parent.appendChild(child));
     }
 
 
@@ -814,7 +829,7 @@ const Main = (parentName: string, _options: Options = {}) => {
         } else {
             // Regular loop: order array into a state where a slide by 1 is made possible
             if (direction === Direction.RIGHT) {
-                clones = reorderArrayByCarouselIndex(Array.from(carousel.children), targetIndex - 1).map((el: { cloneNode: (arg0: boolean) => any; }) => el.cloneNode(true));
+                clones = reorderArrayByCarouselIndex(Array.from(carousel.children), targetIndex - 1).map((el: { cloneNode: (arg0: boolean) => Node; }) => el.cloneNode(true));
                 carousel.innerHTML = "";
                 clones.forEach((clone: HTMLElement) => {
                     carousel.appendChild(clone);
@@ -822,7 +837,7 @@ const Main = (parentName: string, _options: Options = {}) => {
                 loopCarousel(Direction.RIGHT, targetIndex);
 
             } else if (direction === Direction.LEFT) {
-                clones = reorderArrayByCarouselIndex(Array.from(carousel.children), targetIndex + 1).map((el: { cloneNode: (arg0: boolean) => any; }) => el.cloneNode(true));
+                clones = reorderArrayByCarouselIndex(Array.from(carousel.children), targetIndex + 1).map((el: { cloneNode: (arg0: boolean) => Node; }) => el.cloneNode(true));
                 carousel.innerHTML = "";
                 clones.forEach((clone: HTMLElement) => {
                     carousel.appendChild(clone);
@@ -1131,6 +1146,7 @@ const Main = (parentName: string, _options: Options = {}) => {
     function wheelEvent(event: MoveEvent) {
 
         state.isTrackpad = detectTrackPad(event);
+
         // scroll events inside a scrollable element inside a slide must not trigger sliding
         const hasVerticalScrollBar = event.target.scrollHeight > event.target.clientHeight;
         // FOR LATER: const hasHorizontalScrollBar = event.target.scrollWidth > event.target.clientWidth;
@@ -1138,6 +1154,8 @@ const Main = (parentName: string, _options: Options = {}) => {
         if (!Array.from(event.target.classList).includes(CssClass.CHILD) && hasVerticalScrollBar) {
             return;
         }
+
+        if (state.isTrackpad) return;
 
         // WITHOUT SCROLL LOOP
         const positionY = parent.getBoundingClientRect().y;
@@ -1165,13 +1183,19 @@ const Main = (parentName: string, _options: Options = {}) => {
             }
             scroll(Direction.DOWN);
         } else {
-            if (-event.deltaY < state.trackpadSensitivityThreshold) {
-                state.isSliding = false;
-                return;
-            }
             scroll(Direction.UP);
         }
     }
+
+    function toggleWheelEvent() {
+
+        if (state.isSliding) {
+            document.removeEventListener(EventTrigger.WHEEL, wheelEvent as any);
+        } else {
+            document.addEventListener(EventTrigger.WHEEL, wheelEvent as any);
+        }
+    }
+
 
     const documentEvents: EventTriggerListener[] = [
         { target: document, trigger: EventTrigger.KEYUP, method: keyboardEvent },
@@ -1179,6 +1203,7 @@ const Main = (parentName: string, _options: Options = {}) => {
         { target: document, trigger: EventTrigger.TOUCHMOVE, method: touchMoveEvent },
         { target: document, trigger: EventTrigger.TOUCHSTART, method: touchstartEvent },
         { target: document, trigger: EventTrigger.WHEEL, method: wheelEvent },
+        { target: document, trigger: EventTrigger.WHEEL, method: toggleWheelEvent },
         { target: window, trigger: EventTrigger.HASHCHANGE, method: hashChangeEvent },
         { target: window, trigger: EventTrigger.RESIZE, method: resizeEvent },
     ];
