@@ -1,12 +1,9 @@
 import { EventTriggerListener, MoveEvent, Options, ScrollDirection } from "../types";
-import { CssClass, Direction, ElementId, KeyboardCode, NodeName, EventTrigger, DomElement } from "./constants";
+import { CssClass, CssPointer, CssUnit, Direction, ElementAttribute, ElementId, KeyboardCode, NodeName, EventTrigger, DomElement } from "./constants";
 import { applyEllipsis, createUid, detectTrackPad, findClosestAncestorByClassName, getNavColorFromParentClasses, grabId, logError, reorderArrayByIndex, reorderArrayByCarouselIndex, setTabIndex, spawn, walkTheDOM } from "./functions";
 import { createCarousel, createNestedCarousels, updateNestedCarousels } from "./carousel";
 
 // TODO: find a way to include css
-
-// ISSUE duplicates when scrolling to heavily
-// --> use new Set
 
 // ISSUE: using the browser's history previous|next buttons does not update routing to slide in Chrome, Edge, Brave (but does in Firefox)
 
@@ -119,7 +116,7 @@ const Main = (parentName: string, _options: Options = {}) => {
         const element = children[i];
         element.classList.add(CssClass.CHILD);
         element.dataset.slide = uid;
-        element.setAttribute("id", element.id || `slide-v-${i}`);
+        element.setAttribute(ElementAttribute.ID, element.id || `slide-v-${i}`);
         element.dataset.index = `${i}`;
         Array.from(element.children).forEach(child => walkTheDOM(child, setTabIndex));
         createCarousel(state, element);
@@ -139,8 +136,8 @@ const Main = (parentName: string, _options: Options = {}) => {
             updateNestedCarousels(child as HTMLElement, true);
             if (Array.from(child.classList).includes(CssClass.CAROUSEL)) {
                 Array.from(child.children).forEach((carouselSlide, i) => {
-                    (carouselSlide as HTMLElement).style.left = `${state.pageWidth * i}px`;
-                    (carouselSlide as HTMLElement).style.width = `${state.pageWidth}px`;
+                    (carouselSlide as HTMLElement).style.left = `${state.pageWidth * i}${CssUnit.PX}`;
+                    (carouselSlide as HTMLElement).style.width = `${state.pageWidth}${CssUnit.PX}`;
                 })
             }
         });
@@ -160,27 +157,27 @@ const Main = (parentName: string, _options: Options = {}) => {
 
         if ((Array.from(parent.classList).includes(CssClass.PROGRESS))) {
             const progress = spawn(DomElement.DIV);
-            progress.setAttribute("id", ElementId.PROGRESS)
+            progress.setAttribute(ElementAttribute.ID, ElementId.PROGRESS)
             progress.classList.add(CssClass.PROGRESS_BAR);
             if (parent.dataset.progressCss) {
-                progress.setAttribute("style", parent.dataset.progressCss);
+                progress.setAttribute(ElementAttribute.STYLE, parent.dataset.progressCss);
             }
             document.body.appendChild(progress);
         }
 
         if (Array.from(parent.classList).includes(CssClass.HAS_NAV)) {
             const nav = spawn(DomElement.NAV);
-            nav.setAttribute("id", ElementId.NAV);
+            nav.setAttribute(ElementAttribute.ID, ElementId.NAV);
             nav.classList.add(CssClass.NAV_VERTICAL);
             // TODO: find a way to order consistently when scroll occurs on a distant target
             Array.from(children).sort((a, b) => Number((a as HTMLElement).dataset.index) - Number((b as HTMLElement).dataset.index)).forEach((child, i) => {
                 const slideLinkWrapper = spawn(DomElement.DIV);
                 slideLinkWrapper.classList.add(CssClass.NAV_ELEMENT_WRAPPER);
                 const slideLink = spawn(DomElement.A);
-                slideLink.setAttribute("tabindex", "1");
+                slideLink.setAttribute(ElementAttribute.TABINDEX, "1");
                 slideLink.dataset.index = child.dataset.index;
                 slideLink.addEventListener(EventTrigger.CLICK, () => clickVerticalNavLink(i));
-                slideLink.addEventListener("keyup", (e) => {
+                slideLink.addEventListener(EventTrigger.KEYUP, (e) => {
                     if ([KeyboardCode.SPACE, KeyboardCode.ENTER].includes(e.key)) {
                         clickVerticalNavLink(i);
                     }
@@ -198,18 +195,18 @@ const Main = (parentName: string, _options: Options = {}) => {
                 // TODO: slideTitle could be refined. If no h element is provided, we need to find the first words of the first p or article or whatever
                 if ((child as HTMLElement).dataset.title) {
                     tooltip.innerHTML = (child as HTMLElement).dataset.title || "";
-                    tooltip.setAttribute("style", `font-family:Helvetica`);
+                    tooltip.setAttribute(ElementAttribute.STYLE, `font-family:Helvetica`);
                 } else if (slideTitle && slideTitle.textContent) {
-                    tooltip.setAttribute("style", `font-family:${getComputedStyle(slideTitle).fontFamily.split(",")[0]}`);
+                    tooltip.setAttribute(ElementAttribute.STYLE, `font-family:${getComputedStyle(slideTitle).fontFamily.split(",")[0]}`);
                     tooltip.innerHTML = applyEllipsis(slideTitle.textContent, state.tooltipEllipsisLimit);
                 } else {
-                    tooltip.setAttribute("style", `font-family:Helvetica`);
+                    tooltip.setAttribute(ElementAttribute.STYLE, `font-family:Helvetica`);
                     tooltip.innerHTML = `${i}`;
                 }
 
                 // apply custom css from data-css attribute
                 if ((child as HTMLElement).dataset.tooltipCss) {
-                    tooltip.setAttribute("style", (child as HTMLElement).dataset.tooltipCss || "");
+                    tooltip.setAttribute(ElementAttribute.STYLE, (child as HTMLElement).dataset.tooltipCss || "");
                 }
 
                 tooltip.addEventListener(EventTrigger.CLICK, () => clickVerticalNavLink(i));
@@ -242,13 +239,13 @@ const Main = (parentName: string, _options: Options = {}) => {
 
         // nav left & right buttons
         const navLeft = spawn(DomElement.BUTTON);
-        navLeft.setAttribute("id", ElementId.NAV_BUTTON_LEFT);
+        navLeft.setAttribute(ElementAttribute.ID, ElementId.NAV_BUTTON_LEFT);
         const navRight = spawn(DomElement.BUTTON);
-        navRight.setAttribute("id", ElementId.NAV_BUTTON_RIGHT);
-        navLeft.setAttribute("type", "button");
-        navRight.setAttribute("tabindex", "1");
-        navLeft.setAttribute("tabindex", "1");
-        navRight.setAttribute("type", "button");
+        navRight.setAttribute(ElementAttribute.ID, ElementId.NAV_BUTTON_RIGHT);
+        navLeft.setAttribute(ElementAttribute.TYPE, DomElement.BUTTON);
+        navRight.setAttribute(ElementAttribute.TABINDEX, "1");
+        navLeft.setAttribute(ElementAttribute.TABINDEX, "1");
+        navRight.setAttribute(ElementAttribute.TYPE, DomElement.BUTTON);
         navLeft.innerHTML = `<svg id="${ElementId.NAV_BUTTON_LEFT}" class="qroll-icon-chevron" xmlns="http://www.w3.org/2000/svg" height="100%" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="${getNavColorFromParentClasses(parent)}" ><path id="${ElementId.NAV_BUTTON_LEFT}" stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>`;
         navRight.innerHTML = `<svg id="${ElementId.NAV_BUTTON_RIGHT}" class="qroll-icon-chevron" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3"><path id="${ElementId.NAV_BUTTON_RIGHT}" stroke-linecap="round" stroke-linejoin="round" stroke="${getNavColorFromParentClasses(parent)}" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>`;
         navLeft.classList.add(CssClass.CAROUSEL_NAV_LEFT);
@@ -262,17 +259,17 @@ const Main = (parentName: string, _options: Options = {}) => {
         // nav plots
         if (carouselChildren.length > 0) {
             const nav = spawn(DomElement.NAV);
-            nav.setAttribute("id", ElementId.HORIZONTAL_NAV);
+            nav.setAttribute(ElementAttribute.ID, ElementId.HORIZONTAL_NAV);
             nav.classList.add(CssClass.NAV_HORIZONTAL);
 
             Array.from(carouselChildren).sort((a, b) => Number((a as HTMLElement).dataset.carouselIndex) - Number((b as HTMLElement).dataset.carouselIndex)).forEach((child, i) => {
                 const slideLinkWrapper = spawn(DomElement.DIV);
                 slideLinkWrapper.classList.add(CssClass.NAV_HORIZONTAL_ELEMENT_WRAPPER);
                 const slideLink = spawn(DomElement.DIV);
-                slideLink.setAttribute("tabindex", "1");
+                slideLink.setAttribute(ElementAttribute.TABINDEX, "1");
                 slideLink.dataset.index = (child as HTMLElement).dataset.carouselIndex;
                 slideLink.style.background = getNavColorFromParentClasses(parent);
-                slideLink.setAttribute("id", `qroll-plot-${i}`);
+                slideLink.setAttribute(ElementAttribute.ID, `qroll-plot-${i}`);
                 slideLink.classList.add(CssClass.PLOT);
 
                 if (state.carousel.currentSlide === i) {
@@ -283,23 +280,23 @@ const Main = (parentName: string, _options: Options = {}) => {
                 const tooltip = spawn(DomElement.DIV);
                 tooltip.classList.add(CssClass.TOOLTIP_TOP);
                 tooltip.dataset.index = `${i}`;
-                const slideTitle = child.querySelectorAll("h1,h2,h3,h4")[0];
+                const slideTitle = child.querySelectorAll("h1,h2,h3,h4,h5,h6")[0];
 
                 if ((child as HTMLElement).dataset.title) {
                     tooltip.innerHTML = (child as HTMLElement).dataset.title || "";
-                    tooltip.setAttribute("style", `font-family:Helvetica`);
+                    tooltip.setAttribute(ElementAttribute.STYLE, `font-family:Helvetica`);
                 } else if (slideTitle && slideTitle.textContent) {
                     const fontFamily = getComputedStyle(slideTitle).fontFamily.split(",")[0];
-                    tooltip.setAttribute("style", `font-family:${fontFamily || 'Helvetica'}`);
+                    tooltip.setAttribute(ElementAttribute.STYLE, `font-family:${fontFamily || 'Helvetica'}`);
                     tooltip.innerHTML = applyEllipsis(slideTitle.textContent, state.tooltipEllipsisLimit);
                 } else {
-                    tooltip.setAttribute("style", `font-family:Helvetica`);
+                    tooltip.setAttribute(ElementAttribute.STYLE, `font-family:Helvetica`);
                     tooltip.innerHTML = `${i}`;
                 }
 
                 // apply custom css from data-css attribute
                 if ((child as HTMLElement).dataset.tooltipCss) {
-                    tooltip.setAttribute("style", (child as HTMLElement).dataset.tooltipCss || "");
+                    tooltip.setAttribute(ElementAttribute.STYLE, (child as HTMLElement).dataset.tooltipCss || "");
                 }
 
                 [tooltip, slideLink].forEach(el => slideLinkWrapper.appendChild(el));
@@ -357,8 +354,6 @@ const Main = (parentName: string, _options: Options = {}) => {
 
             [navLeft, navRight].forEach(el => document.body.appendChild(el));
         }
-
-
     }
     createHorizontalNav();
 
@@ -471,11 +466,11 @@ const Main = (parentName: string, _options: Options = {}) => {
      * @param pixels - value in pixels
      */
     function translateY(pixels: number) {
-        parent.style.transform = `translateY(${pixels}px)`;
+        parent.style.transform = `translateY(${pixels}${CssUnit.PX})`;
     }
 
     function translateX(carousel: HTMLElement, pixels: number) {
-        carousel.style.transform = `translateX(${pixels}px)`;
+        carousel.style.transform = `translateX(${pixels}${CssUnit.PX})`;
     }
 
     function loopVerticallyFromPlotClick(targetIndex: number) {
@@ -530,13 +525,13 @@ const Main = (parentName: string, _options: Options = {}) => {
             state.isSliding = true;
             clone = parent.children[0].cloneNode(true);
             parent.appendChild(clone);
-            parent.setAttribute("style", `transform: translateY(-${state.pageHeight}px)`);
+            parent.setAttribute(ElementAttribute.STYLE, `transform: translateY(-${state.pageHeight}${CssUnit.PX})`);
 
             clearTimeout(state.timeoutTransitionY);
             state.timeoutTransitionY = setTimeout(() => {
                 parent.removeChild(parent.children[0]);
                 parent.classList.remove(`qroll-transition-${state.transitionDuration}`);
-                parent.setAttribute("style", "transform: translateX(0)");
+                parent.setAttribute(ElementAttribute.STYLE, "transform: translateX(0)");
                 setTimeout(() => {
                     parent.classList.add(`qroll-transition-${state.transitionDuration}`);
                     createCarouselIfAny(parent.children[0]);
@@ -558,12 +553,12 @@ const Main = (parentName: string, _options: Options = {}) => {
             state.timeoutTransitionY = setTimeout(() => {
                 parent.prepend(clone);
                 parent.classList.remove(`qroll-transition-${state.transitionDuration}`);
-                parent.setAttribute("style", `transform: translateY(-${state.pageHeight}px)`);
+                parent.setAttribute(ElementAttribute.STYLE, `transform: translateY(-${state.pageHeight}${CssUnit.PX})`);
                 parent.removeChild(parent.children[parent.children.length - 1]);
 
                 setTimeout(() => {
                     parent.classList.add(`qroll-transition-${state.transitionDuration}`);
-                    parent.setAttribute("style", "transform: translateY(0)");
+                    parent.setAttribute(ElementAttribute.STYLE, "transform: translateY(0)");
                     createCarouselIfAny(parent.children[0]);
                     updateNav(parent.children[0].id);
                     removeDuplicatesFromParent();
@@ -668,7 +663,7 @@ const Main = (parentName: string, _options: Options = {}) => {
         if (Array.from(parent.classList).includes(CssClass.PROGRESS)) {
             const slideIndex = Number(grabId(slideId).dataset.index);
             const progress = slideIndex / (parent.children.length - 1);
-            grabId(ElementId.PROGRESS).style.width = `${state.pageWidth * progress}px`
+            grabId(ElementId.PROGRESS).style.width = `${state.pageWidth * progress}${CssUnit.PX}`
         }
     }
 
@@ -753,21 +748,21 @@ const Main = (parentName: string, _options: Options = {}) => {
         if (state.carousel.currentSlide === (state.carousel.htmlElement as HTMLElement).children.length - 1) {
             // disable right button
             buttonRight.style.opacity = "0";
-            buttonRight.style.cursor = "default";
+            buttonRight.style.cursor = CssPointer.DEFAULT;
             buttonRight.style.transform = "scale(0,0)";
         } else {
             buttonRight.style.opacity = "1";
-            buttonRight.style.cursor = "pointer";
+            buttonRight.style.cursor = CssPointer.POINTER;
             buttonRight.style.transform = "scale(1,1)"
         }
 
         if (state.carousel.currentSlide === 0) {
             buttonLeft.style.opacity = "0";
-            buttonLeft.style.cursor = "default";
+            buttonLeft.style.cursor = CssPointer.DEFAULT;
             buttonLeft.style.transform = "scale(0,0)";
         } else {
             buttonLeft.style.opacity = "1";
-            buttonLeft.style.cursor = "pointer";
+            buttonLeft.style.cursor = CssPointer.POINTER;
             buttonLeft.style.transform = "scale(1,1)";
         }
     }
@@ -892,17 +887,17 @@ const Main = (parentName: string, _options: Options = {}) => {
                     firstSlideClone = (carousel.children[0] as HTMLElement).cloneNode(true) as HTMLElement;
                     firstSlideClone.style.visibility = "hidden";
                     carousel.appendChild(firstSlideClone);
-                    carousel.setAttribute("style", `transform: translateX(-${state.pageWidth}px)`);
+                    carousel.setAttribute(ElementAttribute.STYLE, `transform: translateX(-${state.pageWidth}${CssUnit.PX})`);
 
                     clearTimeout(state.timeoutTransitionX);
                     state.timeoutTransitionX = setTimeout(() => {
                         carousel.removeChild(carousel.children[0]);
                         Array.from(carousel.children).forEach((child, i) => {
-                            (child as HTMLElement).style.left = `${state.pageWidth * i}px`;
-                            (child as HTMLElement).style.left = `${state.pageWidth * i}px`;
+                            (child as HTMLElement).style.left = `${state.pageWidth * i}${CssUnit.PX}`;
+                            (child as HTMLElement).style.left = `${state.pageWidth * i}${CssUnit.PX}`;
                         });
                         carousel.classList.remove(`qroll-transition-${state.carousel.transitionDuration}`);
-                        carousel.setAttribute("style", `transform: translateX(0)`);
+                        carousel.setAttribute(ElementAttribute.STYLE, `transform: translateX(0)`);
                         if (typeof targetIndex === "number") {
                             state.carousel.currentSlide = targetIndex
                         }
@@ -918,15 +913,15 @@ const Main = (parentName: string, _options: Options = {}) => {
 
                 case direction === Direction.LEFT:
                     firstSlideClone = (carousel.children[carousel.children.length - 1] as HTMLElement).cloneNode(true) as HTMLElement;
-                    firstSlideClone.style.left = `-${state.pageWidth}px`;
+                    firstSlideClone.style.left = `-${state.pageWidth}${CssUnit.PX}`;
                     carousel.prepend(firstSlideClone);
-                    carousel.setAttribute("style", `transform: translateX(${state.pageWidth}px)`);
+                    carousel.setAttribute(ElementAttribute.STYLE, `transform: translateX(${state.pageWidth}${CssUnit.PX})`);
 
                     clearTimeout(state.timeoutTransitionX);
                     state.timeoutTransitionX = setTimeout(() => {
                         carousel.removeChild(carousel.children[carousel.children.length - 1]);
                         Array.from(carousel.children).forEach((child, i) => {
-                            (child as HTMLElement).style.left = `${state.pageWidth * i}px`;
+                            (child as HTMLElement).style.left = `${state.pageWidth * i}${CssUnit.PX}`;
                         });
                         state.isSliding = false;
                         if (typeof targetIndex === "number") {
@@ -934,7 +929,7 @@ const Main = (parentName: string, _options: Options = {}) => {
                         }
                         udpateHorizontalNavPlots();
                     }, 10);
-                    carousel.setAttribute("style", `transform: translateX(0)`);
+                    carousel.setAttribute(ElementAttribute.STYLE, `transform: translateX(0)`);
 
                     break;
                 default:
@@ -942,7 +937,6 @@ const Main = (parentName: string, _options: Options = {}) => {
             }
         }
     }
-
 
     //------------------------------------------------------------------------//
     //////////////////////////|                       |/////////////////////////
@@ -1069,10 +1063,10 @@ const Main = (parentName: string, _options: Options = {}) => {
         const currentSlideId = getCurrentSlideId().replace("#", "");
         const currentSlide = Array.from(children).find(child => child.id === currentSlideId) as HTMLDivElement;
 
-        const nestedCarousel = findClosestAncestorByClassName((event.target as any), "qroll-nested-carousel-wrapper");
+        const nestedCarousel = findClosestAncestorByClassName((event.target as any), CssClass.NESTED_CAROUSEL_WRAPPER);
 
         if (!!nestedCarousel) {
-            // move carousel
+            // TODO: move carousel
             return;
         }
 
