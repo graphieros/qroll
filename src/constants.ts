@@ -37,6 +37,11 @@ export namespace CssClass {
     export const TRANSITION_Y = "qroll-transitionY";
     export const PROGRESS = "qroll-progress";
     export const PROGRESS_BAR = "qroll-progress-bar";
+    export const NESTED_CAROUSEL = "qroll-nested-carousel";
+    export const NESTED_CAROUSEL_WRAPPER = "qroll-nested-carousel-wrapper";
+    export const NESTED_CAROUSEL_CHILD = "qroll-nested-carousel-child";
+    export const NESTED_CAROUSEL_BUTTON_LEFT = "qroll-nested-carousel-nav-left";
+    export const NESTED_CAROUSEL_BUTTON_RIGHT = "qroll-nested-carousel-nav-right";
 }
 
 export namespace Direction {
@@ -60,7 +65,9 @@ export namespace ElementId {
     export const NAV_BUTTON_LEFT = "qroll-nav-button-left";
     export const NAV_BUTTON_RIGHT = "qroll-nav-button-right";
     export const PARENT = "qroll-parent";
-    export const PROGRESS = "qrollProgressVertical"
+    export const PROGRESS = "qrollProgressVertical";
+    export const NESTED_CAROUSEL_NAV_LEFT = "nested_carousel_nav_left";
+    export const NESTED_CAROUSEL_NAV_RIGHT = "nested_carousel_nav_right";
 }
 
 export namespace EventTrigger {

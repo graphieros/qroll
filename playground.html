@@ -157,6 +157,52 @@
             </div>
         </div>
 
+        <div class="test-child test-green">
+            <h2 class="small-h2-title">Nested carousels</h2>
+            <p style="text-align:center;">Nested carousels is as easy as adding a few css classes to any div included in the main parent. You can also use a data attribute to customlize the progress bar style:</p>
+            <div class="sample-code-carousel" style="margin-bottom: 24px;">
+                <br>
+                <br/>
+                <code class="qroll-code">
+                    &lt;div id="<span class="css-light">qroll-parent</span>" class="<span class="css-light">qroll-transition-500 qroll-nav</span>"&gt;
+                    <br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&lt;div class="any-class-you-want"&gt;
+                    <br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;div class="<span class="css-light">qroll-nested-carousel qroll-progress qroll-transition-300 qroll-loop</span>" data-progress-css="<span class="css-blue">background: linear-gradient(to right, transparent, black)</span>"&gt;
+                    <br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;h2&gt; Carousel slide 1 &lt;/h2&gt;
+                    <br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/div&gt;
+                    <br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&lt;/div&gt;
+                    <br>
+                    &lt;/div&gt;
+                    
+                </code>
+            </div>
+            <div class="qroll-nested-carousel qroll-transition-300 qroll-loop qroll-progress test-nested-wrapper" data-progress-css="background: linear-gradient(to right, transparent, black)">
+                <div>
+                    <div class="test-nested">1.1</div>
+                    <div class="test-nested">1.2</div>
+                    <div class="test-nested">1.3</div>
+                </div>
+                <div>
+                    
+                    <div class="test-nested">2.1</div>
+                    <div class="test-nested">2.2</div>
+                    <div class="test-nested">2.3</div>
+                    <div class="test-nested">2.4</div>
+                    <div class="test-nested">2.5</div>
+                </div>
+                <div>
+                    <div class="test-nested">3.1</div>
+                    <div class="test-nested">3.2</div>
+                    <div class="test-nested">3.3</div>
+                </div>
+            </div>
+
+        </div>
+
         <div class="test-child test-orange">
             <h2 class="big-h2-title">Easy <span class="test-title-dark">integration</span></h2>
             <p class="subtitle" style="margin-top:-40px">qroll works out of the box with JS frameworks</p>
@@ -200,7 +246,6 @@
             </div>
             
             </div>
-            
         </div>
     </div>
 </body>
