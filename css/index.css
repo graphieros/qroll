@@ -342,3 +342,116 @@ a[data-current-slide="true"]:focus {
     transition: width 0.1s ease-in-out;
     z-index: 1;
 }
+
+.qroll-nested-carousel-wrapper {
+    width: calc(100% - 72px);
+    margin: 0 auto;
+    height: 150px;
+    overflow: hidden;
+    position: relative;
+}
+
+.qroll-nested-carousel-child {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top:0;
+    display: flex;
+    align-items:center;
+    justify-content:center;
+    gap: 12px;
+    margin: 0 auto;
+}
+
+.qroll-nested-carousel-child.qroll-transition-300 {
+    transition: left 300ms ease-in-out !important;
+}
+.qroll-nested-carousel-child.qroll-transition-400 {
+    transition: left 400ms ease-in-out !important;
+}
+.qroll-nested-carousel-child.qroll-transition-500 {
+    transition: left 500ms ease-in-out !important;
+}
+.qroll-nested-carousel-child.qroll-transition-600 {
+    transition: left 600ms ease-in-out !important;
+}
+.qroll-nested-carousel-child.qroll-transition-700 {
+    transition: left 700ms ease-in-out !important;
+}
+.qroll-nested-carousel-child.qroll-transition-800 {
+    transition: left 800ms ease-in-out !important;
+}
+.qroll-nested-carousel-child.qroll-transition-900 {
+    transition: left 800ms ease-in-out !important;
+}
+.qroll-nested-carousel-child.qroll-transition-1000 {
+    transition: left 1000ms ease-in-out !important;
+}
+
+
+.qroll-nested-carousel-nav-left,
+.qroll-nested-carousel-nav-right {
+    position: absolute;
+    background: transparent;
+    height: 40px;
+    width: 40px;
+    display: flex;
+    align-items:center;
+    justify-content:center;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index:1;
+}
+
+.qroll-nested-carousel-nav-left {
+    left:1px;
+}
+
+.qroll-nested-carousel-nav-right {
+    right:1px;   
+}
+
+.qroll-nested-carousel-nav-right:focus,
+.qroll-nested-carousel-nav-left:focus,
+.qroll-nested-carousel-nav-right:hover,
+.qroll-nested-carousel-nav-left:hover {
+    outline: 1px solid white;
+}
+
+
+.qroll-nested-carousel-progress-bar {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 4px;
+    border-radius: 4px;
+    background: black;
+}
+
+.qroll-transition-300 > .qroll-nested-carousel-progress-bar {
+    transition: width 300ms ease-in-out !important;
+}
+.qroll-transition-400 > .qroll-nested-carousel-progress-bar {
+    transition: width 400ms ease-in-out !important;
+}
+.qroll-transition-500 > .qroll-nested-carousel-progress-bar {
+    transition: width 500ms ease-in-out !important;
+}
+.qroll-transition-600 > .qroll-nested-carousel-progress-bar {
+    transition: width 600ms ease-in-out !important;
+}
+.qroll-transition-700 > .qroll-nested-carousel-progress-bar {
+    transition: width 700ms ease-in-out !important;
+}
+.qroll-transition-800 > .qroll-nested-carousel-progress-bar {
+    transition: width 800ms ease-in-out !important;
+}
+.qroll-transition-900 > .qroll-nested-carousel-progress-bar {
+    transition: width 800ms ease-in-out !important;
+}
+.qroll-transition-1000 > .qroll-nested-carousel-progress-bar {
+    transition: width 1000ms ease-in-out !important;
+}

@@ -1,7 +1,7 @@
 import { EventTriggerListener, MoveEvent, Options, ScrollDirection } from "../types";
 import { CssClass, Direction, ElementId, KeyboardCode, NodeName, EventTrigger, DomElement } from "./constants";
-import { applyEllipsis, createUid, detectTrackPad, grabId, logError, reorderArrayByIndex, reorderArrayByCarouselIndex, setTabIndex, spawn, walkTheDOM } from "./functions";
-import createCarousel from "./carousel";
+import { applyEllipsis, createUid, detectTrackPad, findClosestAncestorByClassName, getNavColorFromParentClasses, grabId, logError, reorderArrayByIndex, reorderArrayByCarouselIndex, setTabIndex, spawn, walkTheDOM } from "./functions";
+import { createCarousel, createNestedCarousels, updateNestedCarousels } from "./carousel";
 
 // TODO: find a way to include css
 
@@ -123,6 +123,7 @@ const Main = (parentName: string, _options: Options = {}) => {
         element.dataset.index = `${i}`;
         Array.from(element.children).forEach(child => walkTheDOM(child, setTabIndex));
         createCarousel(state, element);
+        createNestedCarousels(element, parent);
     }
 
     /** Sets the page height whenever the page is resized
@@ -132,8 +133,10 @@ const Main = (parentName: string, _options: Options = {}) => {
     function resizeEvent(event: Event) {
         state.pageHeight = (event.target as Window).innerHeight;
         state.pageWidth = (event.target as Window).innerWidth;
-        Array.from(children).forEach(child => createCarousel(state, child));
+        Array.from(children).forEach(child => { createCarousel(state, child) });
+
         Array.from(parent.children).forEach(child => {
+            updateNestedCarousels(child as HTMLElement, true);
             if (Array.from(child.classList).includes(CssClass.CAROUSEL)) {
                 Array.from(child.children).forEach((carouselSlide, i) => {
                     (carouselSlide as HTMLElement).style.left = `${state.pageWidth * i}px`;
@@ -184,7 +187,7 @@ const Main = (parentName: string, _options: Options = {}) => {
                 });
                 const span = spawn(DomElement.SPAN);
                 span.innerHTML = "●";
-                span.style.color = getNavColorFromParentClasses();
+                span.style.color = getNavColorFromParentClasses(parent);
 
                 slideLink.appendChild(span);
 
@@ -246,8 +249,8 @@ const Main = (parentName: string, _options: Options = {}) => {
         navRight.setAttribute("tabindex", "1");
         navLeft.setAttribute("tabindex", "1");
         navRight.setAttribute("type", "button");
-        navLeft.innerHTML = `<svg id="${ElementId.NAV_BUTTON_LEFT}" class="qroll-icon-chevron" xmlns="http://www.w3.org/2000/svg" height="100%" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="${getNavColorFromParentClasses()}" ><path id="${ElementId.NAV_BUTTON_LEFT}" stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>`;
-        navRight.innerHTML = `<svg id="${ElementId.NAV_BUTTON_RIGHT}" class="qroll-icon-chevron" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3"><path id="${ElementId.NAV_BUTTON_RIGHT}" stroke-linecap="round" stroke-linejoin="round" stroke="${getNavColorFromParentClasses()}" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>`;
+        navLeft.innerHTML = `<svg id="${ElementId.NAV_BUTTON_LEFT}" class="qroll-icon-chevron" xmlns="http://www.w3.org/2000/svg" height="100%" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="${getNavColorFromParentClasses(parent)}" ><path id="${ElementId.NAV_BUTTON_LEFT}" stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>`;
+        navRight.innerHTML = `<svg id="${ElementId.NAV_BUTTON_RIGHT}" class="qroll-icon-chevron" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3"><path id="${ElementId.NAV_BUTTON_RIGHT}" stroke-linecap="round" stroke-linejoin="round" stroke="${getNavColorFromParentClasses(parent)}" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>`;
         navLeft.classList.add(CssClass.CAROUSEL_NAV_LEFT);
         navRight.classList.add(CssClass.CAROUSEL_NAV_RIGHT);
 
@@ -268,7 +271,7 @@ const Main = (parentName: string, _options: Options = {}) => {
                 const slideLink = spawn(DomElement.DIV);
                 slideLink.setAttribute("tabindex", "1");
                 slideLink.dataset.index = (child as HTMLElement).dataset.carouselIndex;
-                slideLink.style.background = getNavColorFromParentClasses();
+                slideLink.style.background = getNavColorFromParentClasses(parent);
                 slideLink.setAttribute("id", `qroll-plot-${i}`);
                 slideLink.classList.add(CssClass.PLOT);
 
@@ -358,32 +361,6 @@ const Main = (parentName: string, _options: Options = {}) => {
 
     }
     createHorizontalNav();
-
-    //------------------------------------------------------------------------//
-    //////////////////////////|                       |/////////////////////////
-    //////////////////////////|  DEDUCED CSS CLASSES  |/////////////////////////
-    //////////////////////////|                       |/////////////////////////
-    //------------------------------------------------------------------------//
-
-    function getCssColor(cssClass: string) {
-        const regex = /\[([a-zA-Z]+#[a-fA-F\d]{6}|#[a-fA-F\d]{6}|rgba?\([\d, ]+\)|\b(?:aliceblue|antiquewhite|aqua|aquamarine|azure|beige|bisque|black|blanchedalmond|blue|blueviolet|brown|burlywood|cadetblue|chartreuse|chocolate|coral|cornflowerblue|cornsilk|crimson|cyan|darkblue|darkcyan|darkgoldenrod|darkgray|darkgrey|darkgreen|darkkhaki|darkmagenta|darkolivegreen|darkorange|darkorchid|darkred|darksalmon|darkseagreen|darkslateblue|darkslategray|darkslategrey|darkturquoise|darkviolet|deeppink|deepskyblue|dimgray|dimgrey|dodgerblue|firebrick|floralwhite|forestgreen|fuchsia|gainsboro|ghostwhite|gold|goldenrod|gray|grey|green|greenyellow|honeydew|hotpink|indianred|indigo|ivory|khaki|lavender|lavenderblush|lawngreen|lemonchiffon|lightblue|lightcoral|lightcyan|lightgoldenrodyellow|lightgray|lightgrey|lightgreen|lightpink|lightsalmon|lightseagreen|lightskyblue|lightslategray|lightslategrey|lightsteelblue|lightyellow|lime|limegreen|linen|maroon|mediumaquamarine|mediumblue|mediumorchid|mediumpurple|mediumseagreen|mediumslateblue|mediumspringgreen|mediumturquoise|mediumvioletred|midnightblue|mintcream|mistyrose|moccasin|navajowhite|navy|oldlace|olive|olivedrab|orange|orangered|orchid|palegoldenrod|palegreen|paleturquoise|palevioletred|papayawhip|peachpuff|peru|pink|plum|powderblue|purple|rebeccapurple|red|rosybrown|royalblue|saddlebrown|salmon|sandybrown|seagreen|seashell|sienna|silver|skyblue|slateblue|slategray|slategrey|snow|springgreen|steelblue|tan|teal|thistle|tomato|turquoise|violet|wheat|white|whitesmoke|yellow|yellowgreen)\b)]/;
-        const match = regex.exec(cssClass);
-        if (match) {
-            return match[1];
-        } else {
-            return 'white';
-        }
-    }
-
-    function getNavColorFromParentClasses() {
-        // adding a color class to the parent, like 'qroll-nav-[rgb(128,211,135)]' or 'qroll-nav-[#6376DD]' or 'qroll-nav-[red]'
-        const parentClasses = Array.from(parent.classList);
-        const regex = /\bqroll-nav-\[(?:([a-zA-Z]+#[a-fA-F\d]{6}|#[a-fA-F\d]{6}|rgba?\([\d, ]+\)|\b(?:aliceblue|antiquewhite|aqua|aquamarine|azure|beige|bisque|black|blanchedalmond|blue|blueviolet|brown|burlywood|cadetblue|chartreuse|chocolate|coral|cornflowerblue|cornsilk|crimson|cyan|darkblue|darkcyan|darkgoldenrod|darkgray|darkgrey|darkgreen|darkkhaki|darkmagenta|darkolivegreen|darkorange|darkorchid|darkred|darksalmon|darkseagreen|darkslateblue|darkslategray|darkslategrey|darkturquoise|darkviolet|deeppink|deepskyblue|dimgray|dimgrey|dodgerblue|firebrick|floralwhite|forestgreen|fuchsia|gainsboro|ghostwhite|gold|goldenrod|gray|grey|green|greenyellow|honeydew|hotpink|indianred|indigo|ivory|khaki|lavender|lavenderblush|lawngreen|lemonchiffon|lightblue|lightcoral|lightcyan|lightgoldenrodyellow|lightgray|lightgrey|lightgreen|lightpink|lightsalmon|lightseagreen|lightskyblue|lightslategray|lightslategrey|lightsteelblue|lightyellow|lime|limegreen|linen|maroon|mediumaquamarine|mediumblue|mediumorchid|mediumpurple|mediumseagreen|mediumslateblue|mediumspringgreen|mediumturquoise|mediumvioletred|midnightblue|mintcream|mistyrose|moccasin|navajowhite|navy|oldlace|olive|olivedrab|orange|orangered|orchid|palegoldenrod|palegreen|paleturquoise|palevioletred|papayawhip|peachpuff|peru|pink|plum|powderblue|purple|rebeccapurple|red|rosybrown|royalblue|saddlebrown|salmon|sandybrown|seagreen|seashell|sienna|silver|skyblue|slateblue|slategray|slategrey|snow|springgreen|steelblue|tan|teal|thistle|tomato|turquoise|violet|wheat|white|whitesmoke|yellow|yellowgreen)\b)|([a-fA-F\d]{3,4}|[a-fA-F\d]{6}|[a-fA-F\d]{8})]\b)/;
-
-        const colorClass = parentClasses.find(c => regex.test(c));
-        return getCssColor(colorClass || "white");
-    }
-
 
     //------------------------------------------------------------------------//
     //////////////////////////|                       |/////////////////////////
@@ -563,6 +540,7 @@ const Main = (parentName: string, _options: Options = {}) => {
                 setTimeout(() => {
                     parent.classList.add(`qroll-transition-${state.transitionDuration}`);
                     createCarouselIfAny(parent.children[0]);
+                    updateNestedCarousels(parent.children[0] as HTMLElement);
                     updateNav(parent.children[0].id);
                 }, 100)
                 setTimeout(() => {
@@ -589,6 +567,7 @@ const Main = (parentName: string, _options: Options = {}) => {
                     createCarouselIfAny(parent.children[0]);
                     updateNav(parent.children[0].id);
                     removeDuplicatesFromParent();
+                    updateNestedCarousels(parent.children[0] as HTMLElement);
                 }, 20)
             }, 10)
             setTimeout(() => {
@@ -1090,6 +1069,13 @@ const Main = (parentName: string, _options: Options = {}) => {
         const currentSlideId = getCurrentSlideId().replace("#", "");
         const currentSlide = Array.from(children).find(child => child.id === currentSlideId) as HTMLDivElement;
 
+        const nestedCarousel = findClosestAncestorByClassName((event.target as any), "qroll-nested-carousel-wrapper");
+
+        if (!!nestedCarousel) {
+            // move carousel
+            return;
+        }
+
         if (Array.from(currentSlide.classList).includes(CssClass.CAROUSEL)) {
             if (Math.abs(deltaTouchX) > Math.abs(deltaTouchY)) {
                 if (deltaTouchX < 0) {
@@ -1117,16 +1103,28 @@ const Main = (parentName: string, _options: Options = {}) => {
             }
         }
 
+        // TODO: needs some love to make touch scrolling better (especially avoid scrolling up/down when the move is clearly lateral)
+
         if (!state.isLoop && !state.isSliding) {
             state.isSliding = true;
             scrollWithoutLoop(deltaTouchY, positionY);
             return;
         }
 
+        const currentIndex = Number(grabId(getCurrentSlideId().replace("#", "")).dataset.index);
+
         if (deltaTouchY > 0) {
-            scroll(Direction.DOWN);
+            if (currentIndex + 1 <= parent.children.length - 1) {
+                loopVerticallyFromPlotClick(currentIndex + 1);
+            } else {
+                scroll(Direction.DOWN);
+            }
         } else if (deltaTouchY < 0) {
-            scroll(Direction.UP);
+            if (currentIndex - 1 > 0) {
+                loopVerticallyFromPlotClick(currentIndex - 1);
+            } else {
+                scroll(Direction.UP);
+            }
         }
     }
 
@@ -1176,14 +1174,24 @@ const Main = (parentName: string, _options: Options = {}) => {
             return;
         } // fixes a bug that caused a snap to previous slide on trackpad when finger is lift up
 
+        const currentIndex = Number(grabId(getCurrentSlideId().replace("#", "")).dataset.index);
         if (event.deltaY && event.deltaY > 0) {
             if (event.deltaY < state.trackpadSensitivityThreshold) {
                 state.isSliding = false;
                 return;
             }
-            scroll(Direction.DOWN);
+
+            if (currentIndex + 1 <= parent.children.length - 1) {
+                loopVerticallyFromPlotClick(currentIndex + 1);
+            } else {
+                scroll(Direction.DOWN);
+            }
         } else {
-            scroll(Direction.UP);
+            if (currentIndex - 1 > 0) {
+                loopVerticallyFromPlotClick(currentIndex - 1);
+            } else {
+                scroll(Direction.UP);
+            }
         }
     }
 

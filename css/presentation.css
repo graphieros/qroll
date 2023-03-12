@@ -196,6 +196,10 @@ p.subtitle {
     color: rgb(126, 206, 119);
 }
 
+.css-blue {
+    color: cyan;
+}
+
 header.test-header{
     position: fixed;
     top:0;
@@ -343,5 +347,31 @@ small.scroll {
     }
     .test-cheat {
         max-width: calc(100vw - 72px);
+    }
+}
+
+.test-nested-wrapper {
+    background: rgba(255, 255, 255, 0.26);
+    margin-bottom: 24px !important;
+}
+
+.test-nested {
+    background: rgba(255, 255, 255, 0.418);
+    width: 100%;
+    text-align:center;
+    font-size: 24px;
+    height: 100%;
+    display: flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.small-h2-title {
+    font-size: 1em;
+}
+
+@media screen and (max-width: 769px) {
+    .small-h2-title {
+        font-size: 0.4em;
     }
 }
