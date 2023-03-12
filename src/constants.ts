@@ -42,6 +42,21 @@ export namespace CssClass {
     export const NESTED_CAROUSEL_CHILD = "qroll-nested-carousel-child";
     export const NESTED_CAROUSEL_BUTTON_LEFT = "qroll-nested-carousel-nav-left";
     export const NESTED_CAROUSEL_BUTTON_RIGHT = "qroll-nested-carousel-nav-right";
+    export const NESTED_CAROUSEL_PROGRESS_BAR = "qroll-nested-carousel-progress-bar";
+}
+
+export namespace CssDisplay {
+    export const NONE = "none";
+    export const FLEX = "flex";
+}
+
+export namespace CssUnit {
+    export const PX = "px";
+}
+
+export namespace CssPointer {
+    export const DEFAULT = "default";
+    export const POINTER = "pointer";
 }
 
 export namespace Direction {
@@ -57,6 +72,13 @@ export namespace DomElement {
     export const DIV = "DIV";
     export const NAV = "nav";
     export const SPAN = "span";
+}
+
+export namespace ElementAttribute {
+    export const STYLE = "style";
+    export const ID = "id";
+    export const TYPE = "type";
+    export const TABINDEX = "tabindex";
 }
 
 export namespace ElementId {
