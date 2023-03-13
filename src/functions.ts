@@ -163,6 +163,24 @@ export function swapArrayPositions(arr: any, from: number, to: number) {
     return arr;
 }
 
+/** Apply css transform translateX to a carousel slide
+ * 
+ * @param carousel - HTMLElement direct children of the main Parent element
+ * @param pixels - number of pixels to deviate on the X axis
+ */
+export function translateX(carousel: HTMLElement, pixels: number) {
+    carousel.style.transform = `translateX(${pixels}px)`;
+}
+
+/** Apply css transform translateY to the main Parent element
+ * 
+ * @param parent - HTMLElement the main Parent element
+ * @param pixels - number of pixels to deviate on the Y axis
+ */
+export function translateY(parent: HTMLElement, pixels: number) {
+    parent.style.transform = `translateY(${pixels}px)`;
+}
+
 export function updateCssClasses({ element, addedClasses = [], removedClasses = [] }: { element: HTMLElement, addedClasses: string[], removedClasses: string[] }) {
     if (addedClasses.length) {
         addedClasses.forEach(addedClass => {
@@ -207,6 +225,8 @@ const alpra = {
     reorderArrayByCarouselIndex,
     setTabIndex,
     swapArrayPositions,
+    translateX,
+    translateY,
     updateCssClasses,
     walkTheDOM
 };

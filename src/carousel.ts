@@ -25,6 +25,7 @@ export function createCarousel(state: any, carousel: HTMLElement) {
     }
 }
 
+
 /** Creates nested carousels based on the presence of the corresponding css class of any div included in a slide.
  * 
  * @param slide - HTMLElement, must be a direct child of the main Parent element

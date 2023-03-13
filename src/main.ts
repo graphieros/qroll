@@ -1,7 +1,45 @@
-import { EventTriggerListener, MoveEvent, Options, ScrollDirection } from "../types";
-import { CssClass, CssPointer, CssUnit, Direction, ElementAttribute, ElementId, KeyboardCode, NodeName, EventTrigger, DomElement } from "./constants";
-import { applyEllipsis, createUid, detectTrackPad, findClosestAncestorByClassName, getNavColorFromParentClasses, grabId, logError, reorderArrayByIndex, reorderArrayByCarouselIndex, setTabIndex, spawn, walkTheDOM } from "./functions";
-import { createCarousel, createNestedCarousels, updateNestedCarousels } from "./carousel";
+import {
+    EventTriggerListener,
+    MoveEvent,
+    Options,
+    ScrollDirection
+} from "../types";
+
+import {
+    CssClass,
+    CssPointer,
+    CssUnit,
+    Direction,
+    ElementAttribute,
+    ElementId,
+    KeyboardCode,
+    NodeName,
+    EventTrigger,
+    DomElement
+} from "./constants";
+
+import {
+    applyEllipsis,
+    createUid,
+    detectTrackPad,
+    findClosestAncestorByClassName,
+    getNavColorFromParentClasses,
+    grabId,
+    logError,
+    reorderArrayByIndex,
+    reorderArrayByCarouselIndex,
+    setTabIndex,
+    spawn,
+    translateX,
+    translateY,
+    walkTheDOM
+} from "./functions";
+
+import {
+    createCarousel,
+    createNestedCarousels,
+    updateNestedCarousels
+} from "./carousel";
 
 // TODO: find a way to include css
 
@@ -16,6 +54,19 @@ const Main = (parentName: string, _options: Options = {}) => {
     //------------------------------------------------------------------------//
 
     const state = {
+        carousel: {
+            transitionDuration: 500,
+            currentSlide: 0,
+            currentSlideId: null as null | string,
+            hasLoop: false,
+            isVisible: false,
+            slideCount: 0,
+            htmlElement: null as HTMLDivElement | null,
+            clickLeft: () => { },
+            clickRight: () => { },
+            keyLeft: () => { },
+            keyRight: () => { },
+        },
         cssClassTransition: "",
         currentCarousel: null,
         currentNoLoopSlide: 1,
@@ -31,25 +82,12 @@ const Main = (parentName: string, _options: Options = {}) => {
         parentClass: CssClass.PARENT,
         timeoutClassTransition: null as unknown as NodeJS.Timeout | number,
         timeoutDestroySlide: null as unknown as NodeJS.Timeout | number,
-        timeoutTransitionY: null as unknown as NodeJS.Timeout | number,
         timeoutTransitionX: null as unknown as NodeJS.Timeout | number,
+        timeoutTransitionY: null as unknown as NodeJS.Timeout | number,
         tooltipEllipsisLimit: 30,
         trackpadSensitivityThreshold: 30,
         transitionDuration: 500,
         userAgent: navigator.userAgent,
-        carousel: {
-            transitionDuration: 500,
-            currentSlide: 0,
-            currentSlideId: null as null | string,
-            hasLoop: false,
-            isVisible: false,
-            slideCount: 0,
-            htmlElement: null as HTMLDivElement | null,
-            clickLeft: () => { },
-            clickRight: () => { },
-            keyLeft: () => { },
-            keyRight: () => { },
-        },
     }
 
     // this needs extra testing for all browsers to check if wheel event makes the scroll work !
@@ -121,28 +159,6 @@ const Main = (parentName: string, _options: Options = {}) => {
         Array.from(element.children).forEach(child => walkTheDOM(child, setTabIndex));
         createCarousel(state, element);
         createNestedCarousels(element, parent);
-    }
-
-    /** Sets the page height whenever the page is resized
-     * 
-     * @param event - resize event
-     */
-    function resizeEvent(event: Event) {
-        state.pageHeight = (event.target as Window).innerHeight;
-        state.pageWidth = (event.target as Window).innerWidth;
-        Array.from(children).forEach(child => { createCarousel(state, child) });
-
-        Array.from(parent.children).forEach(child => {
-            updateNestedCarousels(child as HTMLElement, true);
-            if (Array.from(child.classList).includes(CssClass.CAROUSEL)) {
-                Array.from(child.children).forEach((carouselSlide, i) => {
-                    (carouselSlide as HTMLElement).style.left = `${state.pageWidth * i}${CssUnit.PX}`;
-                    (carouselSlide as HTMLElement).style.width = `${state.pageWidth}${CssUnit.PX}`;
-                })
-            }
-        });
-
-        setProgressBar(getCurrentSlideId().replace("#", ""));
     }
 
     /** Generate the nav node, injects slide links and applies an event listener to them
@@ -461,18 +477,10 @@ const Main = (parentName: string, _options: Options = {}) => {
         }
     }
 
-    /** Updates the translateY css property of the Parent 
+    /** In Loop mode, compute the difference between the current slide index and the target's, and then call scrollFromTargetIndex
      * 
-     * @param pixels - value in pixels
+     * @param targetIndex - The targeted slide index
      */
-    function translateY(pixels: number) {
-        parent.style.transform = `translateY(${pixels}${CssUnit.PX})`;
-    }
-
-    function translateX(carousel: HTMLElement, pixels: number) {
-        carousel.style.transform = `translateX(${pixels}${CssUnit.PX})`;
-    }
-
     function loopVerticallyFromPlotClick(targetIndex: number) {
         const slidesStep = targetIndex - Number(grabId(getCurrentSlideId().replace("#", "")).dataset.index);
         if (slidesStep === 0) return;
@@ -483,6 +491,11 @@ const Main = (parentName: string, _options: Options = {}) => {
         }
     }
 
+    /** In Loop mode, reorder slides to a state where a slide by 1 is made possible, then call the scroll method
+     * 
+     * @param targetIndex - The targeted slide index
+     * @param direction - down or up
+     */
     function scrollFromTargetIndex(targetIndex: number, direction: ScrollDirection) {
         if (targetIndex > parent.children.length - 1) {
             targetIndex = 0;
@@ -491,14 +504,16 @@ const Main = (parentName: string, _options: Options = {}) => {
         let clones;
 
         if (direction === Direction.DOWN) {
-            clones = reorderArrayByIndex(Array.from(parent.children), targetIndex - 1).map((child: { cloneNode: (arg0: boolean) => any; }) => child.cloneNode(true));
+            clones = reorderArrayByIndex(Array.from(parent.children), targetIndex - 1)
+                .map((child: { cloneNode: (arg0: boolean) => any; }) => child.cloneNode(true));
             parent.innerHTML = "";
             clones.forEach((clone: HTMLElement) => {
                 parent.appendChild(clone);
             });
             scroll(Direction.DOWN)
         } else if (direction === Direction.UP) {
-            clones = reorderArrayByIndex(Array.from(parent.children), targetIndex + 1).map((child: { cloneNode: (arg0: boolean) => any; }) => child.cloneNode(true));
+            clones = reorderArrayByIndex(Array.from(parent.children), targetIndex + 1)
+                .map((child: { cloneNode: (arg0: boolean) => any; }) => child.cloneNode(true));
             parent.innerHTML = "";
             clones.forEach((clone: HTMLElement) => {
                 parent.appendChild(clone);
@@ -506,7 +521,6 @@ const Main = (parentName: string, _options: Options = {}) => {
             scroll(Direction.UP);
         }
     }
-
 
     /** Shuffles the order of slides to create an infinite loop (DOWN & UP directions)
      * 
@@ -601,7 +615,6 @@ const Main = (parentName: string, _options: Options = {}) => {
      * @param slideIndex - int
      */
     function clickVerticalNavLink(slideIndex: number) {
-        // make this work like the carousel
         toggleBrowserNavigation(false);
 
         const targetSlide = Array.from(children).find(child => Number(child.dataset.index) === slideIndex) as HTMLDivElement;
@@ -640,7 +653,7 @@ const Main = (parentName: string, _options: Options = {}) => {
 
     /** Updates the hash from the slideId passed as a parameter; update the data-current-slide attribute to highlight the current selected slide
      * 
-     * @param slideId - slide-v-{slideId}
+     * @param slideId - string
      */
     function updateNav(slideId: string) {
         const nav = grabId(ElementId.NAV);
@@ -660,11 +673,10 @@ const Main = (parentName: string, _options: Options = {}) => {
      * @param slideId - string
      */
     function setProgressBar(slideId: string) {
-        if (Array.from(parent.classList).includes(CssClass.PROGRESS)) {
-            const slideIndex = Number(grabId(slideId).dataset.index);
-            const progress = slideIndex / (parent.children.length - 1);
-            grabId(ElementId.PROGRESS).style.width = `${state.pageWidth * progress}${CssUnit.PX}`
-        }
+        if (!Array.from(parent.classList).includes(CssClass.PROGRESS)) return;
+        const slideIndex = Number(grabId(slideId).dataset.index);
+        const progress = slideIndex / (parent.children.length - 1);
+        grabId(ElementId.PROGRESS).style.width = `${state.pageWidth * progress}${CssUnit.PX}`
     }
 
     /** Finds the current slide id and updates the nav
@@ -677,7 +689,7 @@ const Main = (parentName: string, _options: Options = {}) => {
 
     /** Update location and history
      * 
-     * @param slideId - str
+     * @param slideId - string
      */
     function updateLocation(slideId: string) {
         location.hash = slideId;
@@ -689,17 +701,17 @@ const Main = (parentName: string, _options: Options = {}) => {
      */
     function updateOnHashChange() {
         createVerticalNav();
-        // TODO: find a way to manage nav when !isLoop
+
         let currentSlideId = getCurrentSlideId().replace("#", "");
-        const currentSlideIndex = Array.from(children).find(child => child.id === currentSlideId)?.dataset.index as unknown as string;
+        const currentSlideIndex = Number(Array.from(children).find(child => child.id === currentSlideId)?.dataset.index as unknown as string);
         if (state.isLoop) {
-            children = reorderArrayByIndex(Array.from(children), +currentSlideIndex);
-            nukeChildren(+currentSlideIndex);
+            children = reorderArrayByIndex(Array.from(children), currentSlideIndex);
+            nukeChildren(currentSlideIndex);
             updateNav(currentSlideId);
         } else {
-            translateY(-state.pageHeight * Number(currentSlideIndex));
+            translateY(parent, -state.pageHeight * currentSlideIndex);
             updateNav(currentSlideId);
-            state.currentNoLoopSlide = +currentSlideIndex + 1
+            state.currentNoLoopSlide = currentSlideIndex + 1
         }
     }
 
@@ -724,9 +736,9 @@ const Main = (parentName: string, _options: Options = {}) => {
             const currentSlideId = getCurrentSlideId().replace("#", "");
             const currentSlideIndex = (Array.from(children).find(child => child.id === currentSlideId) as HTMLDivElement).dataset.index as string;
             if (state.isLoop) {
-                nukeChildren(Number(currentSlideIndex));
+                nukeChildren(Number(currentSlideIndex)); // not sure this is useful anymore
             } else {
-                translateY(-state.pageHeight * Number(currentSlideIndex));
+                translateY(parent, -state.pageHeight * Number(currentSlideIndex));
             }
         }
         updateNavFromCurrentSlideId();
@@ -745,25 +757,43 @@ const Main = (parentName: string, _options: Options = {}) => {
         const buttonRight = grabId(ElementId.NAV_BUTTON_RIGHT);
         const buttonLeft = grabId(ElementId.NAV_BUTTON_LEFT);
 
-        if (state.carousel.currentSlide === (state.carousel.htmlElement as HTMLElement).children.length - 1) {
-            // disable right button
+        const disableRightButton = () => {
             buttonRight.style.opacity = "0";
             buttonRight.style.cursor = CssPointer.DEFAULT;
             buttonRight.style.transform = "scale(0,0)";
-        } else {
+        }
+
+        const enableRightButton = () => {
             buttonRight.style.opacity = "1";
             buttonRight.style.cursor = CssPointer.POINTER;
             buttonRight.style.transform = "scale(1,1)"
         }
 
-        if (state.carousel.currentSlide === 0) {
+        const disableLeftButton = () => {
             buttonLeft.style.opacity = "0";
             buttonLeft.style.cursor = CssPointer.DEFAULT;
             buttonLeft.style.transform = "scale(0,0)";
-        } else {
+        }
+
+        const enableLeftButton = () => {
             buttonLeft.style.opacity = "1";
             buttonLeft.style.cursor = CssPointer.POINTER;
             buttonLeft.style.transform = "scale(1,1)";
+        }
+
+        const isEndRight = state.carousel.currentSlide === (state.carousel.htmlElement as HTMLElement).children.length - 1;
+        const isEndLeft = state.carousel.currentSlide === 0;
+
+        if (isEndRight) {
+            disableRightButton();
+        } else {
+            enableRightButton();
+        }
+
+        if (isEndLeft) {
+            disableLeftButton();
+        } else {
+            enableLeftButton();
         }
     }
 
@@ -803,7 +833,8 @@ const Main = (parentName: string, _options: Options = {}) => {
         } else {
             // Regular loop: order array into a state where a slide by 1 is made possible
             if (direction === Direction.RIGHT) {
-                clones = reorderArrayByCarouselIndex(Array.from(carousel.children), targetIndex - 1).map((el: { cloneNode: (arg0: boolean) => Node; }) => el.cloneNode(true));
+                clones = reorderArrayByCarouselIndex(Array.from(carousel.children), targetIndex - 1)
+                    .map((el: { cloneNode: (arg0: boolean) => Node; }) => el.cloneNode(true));
                 carousel.innerHTML = "";
                 clones.forEach((clone: HTMLElement) => {
                     carousel.appendChild(clone);
@@ -811,7 +842,8 @@ const Main = (parentName: string, _options: Options = {}) => {
                 loopCarousel(Direction.RIGHT, targetIndex);
 
             } else if (direction === Direction.LEFT) {
-                clones = reorderArrayByCarouselIndex(Array.from(carousel.children), targetIndex + 1).map((el: { cloneNode: (arg0: boolean) => Node; }) => el.cloneNode(true));
+                clones = reorderArrayByCarouselIndex(Array.from(carousel.children), targetIndex + 1)
+                    .map((el: { cloneNode: (arg0: boolean) => Node; }) => el.cloneNode(true));
                 carousel.innerHTML = "";
                 clones.forEach((clone: HTMLElement) => {
                     carousel.appendChild(clone);
@@ -955,12 +987,12 @@ const Main = (parentName: string, _options: Options = {}) => {
             if (state.currentNoLoopSlide > children.length - 1) {
                 state.currentNoLoopSlide = children.length - 1;
             }
-            translateY(-state.pageHeight * state.currentNoLoopSlide);
+            translateY(parent, -state.pageHeight * state.currentNoLoopSlide);
             state.currentNoLoopSlide += 1;
 
         } else {
             if (positionY <= -state.pageHeight) {
-                translateY(positionY + state.pageHeight * slides);
+                translateY(parent, positionY + state.pageHeight * slides);
                 state.currentNoLoopSlide -= 1;
                 if (state.currentNoLoopSlide < 1) {
                     state.currentNoLoopSlide = 1;
@@ -979,12 +1011,34 @@ const Main = (parentName: string, _options: Options = {}) => {
         }, state.transitionDuration);
     }
 
+    /** Sets the page height whenever the page is resized
+     * 
+     * @param event - resize event
+     */
+    function resizeEvent(event: Event) {
+        state.pageHeight = (event.target as Window).innerHeight;
+        state.pageWidth = (event.target as Window).innerWidth;
+        Array.from(children).forEach(child => { createCarousel(state, child) });
+
+        Array.from(parent.children).forEach(child => {
+            updateNestedCarousels(child as HTMLElement, true);
+            if (Array.from(child.classList).includes(CssClass.CAROUSEL)) {
+                Array.from(child.children).forEach((carouselSlide, i) => {
+                    (carouselSlide as HTMLElement).style.left = `${state.pageWidth * i}${CssUnit.PX}`;
+                    (carouselSlide as HTMLElement).style.width = `${state.pageWidth}${CssUnit.PX}`;
+                })
+            }
+        });
+
+        setProgressBar(getCurrentSlideId().replace("#", ""));
+    }
+
     /** Scrolls to the next slide depending on the computed scroll direction
      * 
      * @param event - KeyboardEvent
      * @returns without executing if the target element is a form field; or if the target is a scrollable island element
      */
-    function keyboardEvent(event: KeyboardEvent) {
+    function navigateWithKeyboard(event: KeyboardEvent) {
         const keyCode = event.code;
         const target = event.target as HTMLElement;
         const hasVerticalScrollBar = target.scrollHeight > target.clientHeight;
@@ -1047,7 +1101,7 @@ const Main = (parentName: string, _options: Options = {}) => {
      * @param event - MoveEvent
      * @returns without executing if the touch occurs inside a scrollable island element
      */
-    function touchMoveEvent(event: MoveEvent) {
+    function navigateWithTouch(event: MoveEvent) {
         // scroll events inside a scrollable element inside a slide must not trigger sliding
         const hasVerticalScrollBar = event.target.scrollHeight > event.target.clientHeight;
         // FOR LATER: const hasHorizontalScrollBar = event.target.scrollWidth > event.target.clientWidth;
@@ -1135,7 +1189,7 @@ const Main = (parentName: string, _options: Options = {}) => {
      * @param event - MoveEvent
      * @returns without executing if the event occurs inside a scrollable island element
      */
-    function wheelEvent(event: MoveEvent) {
+    function navigateWithWheelOrTrackpad(event: MoveEvent) {
 
         state.isTrackpad = detectTrackPad(event);
 
@@ -1190,57 +1244,14 @@ const Main = (parentName: string, _options: Options = {}) => {
     }
 
     function toggleWheelEvent() {
-
         if (state.isSliding) {
-            document.removeEventListener(EventTrigger.WHEEL, wheelEvent as any);
+            document.removeEventListener(EventTrigger.WHEEL, navigateWithWheelOrTrackpad as any);
         } else {
-            document.addEventListener(EventTrigger.WHEEL, wheelEvent as any);
+            document.addEventListener(EventTrigger.WHEEL, navigateWithWheelOrTrackpad as any);
         }
     }
 
-
-    const documentEvents: EventTriggerListener[] = [
-        { target: document, trigger: EventTrigger.KEYUP, method: keyboardEvent },
-        { target: document, trigger: EventTrigger.TOUCHEND, method: touchendEvent },
-        { target: document, trigger: EventTrigger.TOUCHMOVE, method: touchMoveEvent },
-        { target: document, trigger: EventTrigger.TOUCHSTART, method: touchstartEvent },
-        { target: document, trigger: EventTrigger.WHEEL, method: wheelEvent },
-        { target: document, trigger: EventTrigger.WHEEL, method: toggleWheelEvent },
-        { target: window, trigger: EventTrigger.HASHCHANGE, method: hashChangeEvent },
-        { target: window, trigger: EventTrigger.RESIZE, method: resizeEvent },
-    ];
-
-    documentEvents.forEach(docEvent => {
-        docEvent.target.addEventListener(docEvent.trigger, docEvent.method);
-    });
-
-    window.onunload = function () {
-        documentEvents.forEach(docEvent => {
-            docEvent.target.removeEventListener(docEvent.trigger, docEvent.method);
-        });
-    }
-
-    window.onload = () => {
-        updateOnHashChange();
-        const currentSlideId = getCurrentSlideId().replace("#", '');
-        const currentSlide = Array.from(children).find(child => child.id === currentSlideId) as HTMLDivElement;
-        createCarouselIfAny(currentSlide);
-
-        if ((Array.from(currentSlide.classList).includes(CssClass.CAROUSEL))) {
-            state.carousel.htmlElement = currentSlide;
-            state.carousel.isVisible = true;
-            state.carousel.slideCount = currentSlide.children.length;
-            createHorizontalNav();
-        } else {
-            state.carousel.htmlElement = null;
-            state.carousel.isVisible = false;
-            state.carousel.slideCount = 0;
-            createHorizontalNav();
-        }
-        updateCarouselButtonState();
-    }
-
-    document.addEventListener(EventTrigger.CLICK, (event: MouseEvent) => {
+    function detectClickOnCarouselNavItems(event: MouseEvent) {
         const target = event.target as HTMLElement;
         if (!target) {
             return;
@@ -1271,9 +1282,9 @@ const Main = (parentName: string, _options: Options = {}) => {
                 updateCarouselButtonState();
             }
         }
-    });
+    }
 
-    document.addEventListener(EventTrigger.KEYUP, (event: KeyboardEvent) => {
+    function updateCarouselOnKeyboardEvent(event: KeyboardEvent) {
         const currentSlide = grabId(getCurrentSlideId().replace("#", ""));
         const hasCarousel = Array.from(currentSlide.classList).includes(CssClass.CAROUSEL);
         if (event.code === KeyboardCode.ARROW_RIGHT && hasCarousel) {
@@ -1286,8 +1297,50 @@ const Main = (parentName: string, _options: Options = {}) => {
             udpateHorizontalNavPlots();
             updateCarouselButtonState();
         }
+    }
+
+    window.onload = () => {
+        updateOnHashChange();
+        const currentSlideId = getCurrentSlideId().replace("#", '');
+        const currentSlide = Array.from(children).find(child => child.id === currentSlideId) as HTMLDivElement;
+        createCarouselIfAny(currentSlide);
+
+        if ((Array.from(currentSlide.classList).includes(CssClass.CAROUSEL))) {
+            state.carousel.htmlElement = currentSlide;
+            state.carousel.isVisible = true;
+            state.carousel.slideCount = currentSlide.children.length;
+            createHorizontalNav();
+        } else {
+            state.carousel.htmlElement = null;
+            state.carousel.isVisible = false;
+            state.carousel.slideCount = 0;
+            createHorizontalNav();
+        }
+        updateCarouselButtonState();
+    }
+
+    const documentEvents: EventTriggerListener[] = [
+        { target: document, trigger: EventTrigger.CLICK, method: detectClickOnCarouselNavItems },
+        { target: document, trigger: EventTrigger.KEYUP, method: navigateWithKeyboard },
+        { target: document, trigger: EventTrigger.KEYUP, method: updateCarouselOnKeyboardEvent },
+        { target: document, trigger: EventTrigger.TOUCHEND, method: touchendEvent },
+        { target: document, trigger: EventTrigger.TOUCHMOVE, method: navigateWithTouch },
+        { target: document, trigger: EventTrigger.TOUCHSTART, method: touchstartEvent },
+        { target: document, trigger: EventTrigger.WHEEL, method: navigateWithWheelOrTrackpad },
+        { target: document, trigger: EventTrigger.WHEEL, method: toggleWheelEvent },
+        { target: window, trigger: EventTrigger.HASHCHANGE, method: hashChangeEvent },
+        { target: window, trigger: EventTrigger.RESIZE, method: resizeEvent },
+    ];
+
+    documentEvents.forEach(docEvent => {
+        docEvent.target.addEventListener(docEvent.trigger, docEvent.method);
     });
 
+    window.onunload = function () {
+        documentEvents.forEach(docEvent => {
+            docEvent.target.removeEventListener(docEvent.trigger, docEvent.method);
+        });
+    }
 }
 
 export default Main;
