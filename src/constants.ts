@@ -18,13 +18,11 @@ export namespace CssClass {
     export const NAV_ELEMENT_WRAPPER = "qroll-nav-element-wrapper";
     export const NAV_HORIZONTAL = "qroll-nav-horizontal";
     export const NAV_HORIZONTAL_ELEMENT_WRAPPER = "qroll-nav-horizontal-element-wrapper";
-    export const NAV_VERTICAL = "qroll-nav-vertical";
+
     export const PARENT = "qroll-parent";
-    export const PLOT = "qroll-plot";
-    export const PLOT_SELECTED = "qroll-plot--selected";
-    export const SWAP = "qroll-swap";
     export const TOOLTIP_LEFT = "qroll-tooltip-left";
     export const TOOLTIP_TOP = "qroll-tooltip-top";
+
     export const TOP = "qroll-top";
     export const TRANSITION_1000 = "qroll-transition-1000";
     export const TRANSITION_300 = "qroll-transition-300";
@@ -34,7 +32,7 @@ export namespace CssClass {
     export const TRANSITION_700 = "qroll-transition-700";
     export const TRANSITION_800 = "qroll-transition-800";
     export const TRANSITION_900 = "qroll-transition-900";
-    export const TRANSITION_Y = "qroll-transitionY";
+
     export const PROGRESS = "qroll-progress";
     export const PROGRESS_BAR = "qroll-progress-bar";
     export const NESTED_CAROUSEL = "qroll-nested-carousel";
@@ -43,20 +41,31 @@ export namespace CssClass {
     export const NESTED_CAROUSEL_BUTTON_LEFT = "qroll-nested-carousel-nav-left";
     export const NESTED_CAROUSEL_BUTTON_RIGHT = "qroll-nested-carousel-nav-right";
     export const NESTED_CAROUSEL_PROGRESS_BAR = "qroll-nested-carousel-progress-bar";
+
+    export const SLIDE = "qroll-slide";
+    export const NAV_LINK = "qroll-nav-link";
+    export const NAV_LINK_SELECTED = "qroll-nav-link-selected";
+    export const NO_TRANSITION = "qroll-no-transition";
+    export const NAV_VERTICAL = "qroll-nav-vertical";
+    export const CAROUSEL_VERTICAL = "qroll-carousel-vertical";
+    export const NAV_BUTTON_TOP = "qroll-carousel-vertical-button-top";
+    export const NAV_BUTTON_DOWN = "qroll-carousel-vertical-button-down";
 }
 
 export namespace CssDisplay {
     export const NONE = "none";
     export const FLEX = "flex";
 }
-
-export namespace CssUnit {
-    export const PX = "px";
-}
-
 export namespace CssPointer {
     export const DEFAULT = "default";
     export const POINTER = "pointer";
+}
+export namespace CssUnit {
+    export const PX = "px";
+}
+export namespace CssVisibility {
+    export const INITIAL = "initial";
+    export const HIDDEN = "hidden";
 }
 
 export namespace Direction {

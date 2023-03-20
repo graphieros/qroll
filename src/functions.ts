@@ -194,6 +194,16 @@ export function updateCssClasses({ element, addedClasses = [], removedClasses = 
     }
 }
 
+/** Update location and history
+     * 
+     * @param slideId - string
+     */
+export function updateLocation(slideId: string, callback?: () => void) {
+    // this is good stuff
+    (window as Window).location.href = `${(window as Window).location.pathname}#${slideId}`;
+    if (callback) callback()
+}
+
 /** Traverse the dom an apply a callback as long as there is a node
  * 
  * @param node - HTMLElement
@@ -228,6 +238,7 @@ const alpra = {
     translateX,
     translateY,
     updateCssClasses,
+    updateLocation,
     walkTheDOM
 };
 

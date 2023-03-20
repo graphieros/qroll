@@ -11,12 +11,8 @@
     <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
 </head>
 <body>
-    <header class="test-header">
-        <div class="test-header-content test-title-light">
-            <img src="./assets/android-chrome-512x512.png" height="20"><span style="margin-left:-10px">roll</span>
-        </div>
-    </header>
-    <div id="qroll-parent" class="qroll-transition-500 qroll-nav qroll-loop qroll-nav-[white] qroll-progress" data-progress-css="background: linear-gradient(to right, transparent,rgb(83,172,110))">
+
+    <div id="qroll-parent" class="qroll-main qroll-loop qroll-tooltip" data-progress-css="background: linear-gradient(to right, transparent,rgb(83,172,110))">
 
         <div class="test-child test-blue front-page"  data-title="Qroll" data-tooltip-css="font-family:'Satoshi'">
                 <h1 class="test-title-light">
@@ -32,14 +28,16 @@
             </svg>
         </div>
 
-        <div class="test-child test-blue-reversed front-page">
-            <h2 class="test-title-light big-h2-title"><span class="test-light">Smooth</span> page slider</h2>
-            <p style="margin-top:-40px">All you need is one ID, and a dash of css classes</p>
-            <div class="sample-code">
-                <br>
-                <br/>
+        <div class="test-child test-green">
+            <div style="height: 100%; display: flex; align-items:center; justify-content:center; flex-direction: column">
+                <h2 class="test-title-dark">Easy</h2>
+                <p style="font-size: 32px; color: #1a173b; text-align:center">
+                    With a few drops of css classes
+                </p>
+                <div class="sample-code">
+                    <br>
                     <code>
-                        &lt;div id="<span class="css-light">qroll-parent</span>" class="<span class="css-light">qroll-transition-500 qroll-nav</span>"&gt;
+                        &lt;div id="<span class="css-light">qroll-parent</span>" class="<span class="css-light">qroll-main qroll-tooltip</span>"&gt;
                         <br>
                         <br>
                         &nbsp;&nbsp;&nbsp;&nbsp;&lt;div id="anyIdWorks1" class="any-class-you-want"&gt;
@@ -57,217 +55,42 @@
                         <br>
                         <br>
                         &lt;/div&gt;
-                        
-                    </code>
-            </div>
-        
-        </div>
-        <div class="test-child test-blue-carousel qroll-carousel qroll-transition-500">
-            <div style="width:100%; text-align:center;" class="test-blue-carousel" data-title="TEST">
-                <h2 class="big-h2-title">Carousel</h2>
-                <p style="margin-top:-40px; font-size: 30px;">Make a slide an horizontal carousel...</p>
-                <div class="sample-code-carousel">
-                    <br>
-                    <br/>
-                    <code class="qroll-code">
-                        &lt;div id="<span class="css-light">qroll-parent</span>" class="<span class="css-light">qroll-transition-500 qroll-nav</span>"&gt;
-                        <br>
-                        <br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&lt;div class="<span class="css-light">qroll-carousel qroll-transition-500</span>"&gt;
-                        <br>
-                        <br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;div class="any-class-you-want"&gt;
-                        <br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;h2&gt; Carousel slide 1 &lt;/h2&gt;
-                        <br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/div&gt;
-                        <br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;div class="any-class-you-want"&gt;
-                        <br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;h2&gt; Carousel slide 2 &lt;/h2&gt;
-                        <br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/div&gt;
-                        <br>
-                        <br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&lt;/div&gt;
-                        <br>
-                        <br>
-                        &lt;/div&gt;
-                        
                     </code>
                 </div>
             </div>
-            <div style="width:100%; text-align:center;" class="test-blue-carousel">
-                <h2>Slide 2.2</h2>
-            </div>
-            <div style="width:100%; text-align:center;" class="test-blue-carousel">
-                <h2>Slide 2.3</h2>
-            </div>
-            <div style="width:100%; text-align:center;" class="test-blue-carousel">
-                <h2>Slide 2.4</h2>
-            </div>
-            <div style="width:100%; text-align:center;" class="test-blue-carousel">
-                <h2>Slide 2.5</h2>
-            </div>
+
         </div>
 
-        <div class="test-child test-blue-carousel qroll-carousel qroll-transition-500 qroll-loop">
-            <div style="width:100%; text-align:center;" class="test-blue-carousel">
-                <h2 class="big-h2-title">Infinite carousel</h2>
-                <p style="margin-top:-40px; font-size: 30px;">...or make your carousel infinite</p>
-                <div class="sample-code-carousel">
-                    <br>
-                    <br/>
-                    <code class="qroll-code">
-                        &lt;div id="<span class="css-light">qroll-parent</span>" class="<span class="css-light">qroll-transition-500 qroll-nav</span>"&gt;
-                        <br>
-                        <br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&lt;div class="<span class="css-light">qroll-carousel qroll-transition-500 qroll-loop</span>"&gt;
-                        <br>
-                        <br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;div class="any-class-you-want"&gt;
-                        <br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;h2&gt; Carousel slide 1 &lt;/h2&gt;
-                        <br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/div&gt;
-                        <br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;div class="any-class-you-want"&gt;
-                        <br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;h2&gt; Carousel slide 2 &lt;/h2&gt;
-                        <br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/div&gt;
-                        <br>
-                        <br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&lt;/div&gt;
-                        <br>
-                        <br>
-                        &lt;/div&gt;
-                        
-                    </code>
-                </div>
+        <div class="test-child test-green qroll-carousel qroll-tooltip" data-title="This is slide 2">
+            <div class="test-carousel-slide" data-title="custom title">
+                <h2>1.1</h2>
             </div>
-            <div style="width:100%; text-align:center;" class="test-blue">
-                <img src="./testpic2.jpg" style="position: absolute; top:0; left:0; height: 100%; width: 100%;">
+            <div class="test-carousel-slide">
+                <h2>1.2</h2>
             </div>
-            <div style="width:100%; text-align:center;" class="test-blue-carousel">
-                <img src="./testpic.png" style="position: absolute; top:0; left:0; height: 100%; width: 100%;">
+            <div class="test-carousel-slide">
+                <h2>1.3</h2>
             </div>
-            <div style="width:100%; text-align:center;" class="test-blue-carousel">
-                <h2>Slide 2.4</h2>
+            <div class="test-carousel-slide">
+                <h2>1.4</h2>
+            </div>
+            <div class="test-carousel-slide">
+                <h2>1.5</h2>
             </div>
         </div>
 
         <div class="test-child test-green">
-            <h2 class="small-h2-title">Nested carousels</h2>
-            <p style="text-align:center;">Nested carousels is as easy as adding a few css classes to any div included in the main parent. You can also use a data attribute to customlize the progress bar style:</p>
-            <div class="sample-code-carousel" style="margin-bottom: 24px;">
-                <br>
-                <br/>
-                <code class="qroll-code">
-                    &lt;div id="<span class="css-light">qroll-parent</span>" class="<span class="css-light">qroll-transition-500 qroll-nav</span>"&gt;
-                    <br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&lt;div class="any-class-you-want"&gt;
-                    <br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;div class="<span class="css-light">qroll-nested-carousel qroll-progress qroll-transition-300 qroll-loop</span>" data-progress-css="<span class="css-blue">background: linear-gradient(to right, transparent, black)</span>"&gt;
-                    <br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&gt; Nested Carousel slide 1 &lt;/div&gt;
-                    <br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&gt; Nested Carousel slide 2 &lt;/div&gt;
-                    <br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&gt; Nested Carousel slide 3 &lt;/div&gt;
-                    <br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/div&gt;
-                    <br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&lt;/div&gt;
-                    <br>
-                    &lt;/div&gt;
-                    
-                </code>
-            </div>
-            <div class="qroll-nested-carousel qroll-transition-300 qroll-loop qroll-progress test-nested-wrapper" data-progress-css="background: linear-gradient(to right, transparent, black)">
-                <div>
-                    <div class="test-nested">1.1</div>
-                    <div class="test-nested">1.2</div>
-                    <div class="test-nested">1.3</div>
-                </div>
-                <div>
-                    
-                    <div class="test-nested">2.1</div>
-                    <div class="test-nested">2.2</div>
-                    <div class="test-nested">2.3</div>
-                    <div class="test-nested">2.4</div>
-                    <div class="test-nested">2.5</div>
-                </div>
-                <div>
-                    <div class="test-nested">3.1</div>
-                    <div class="test-nested">3.2</div>
-                    <div class="test-nested">3.3</div>
-                </div>
-            </div>
-            <div class="qroll-nested-carousel qroll-transition-1000 qroll-loop qroll-progress test-nested-wrapper" data-progress-css="background: linear-gradient(to right, transparent, red)">
-                <div>
-                    <div class="test-nested">1.1</div>
-                    <div class="test-nested">1.2</div>
-                    <div class="test-nested">1.3</div>
-                </div>
-                <div>
-                    
-                    <div class="test-nested">2.1</div>
-                    <div class="test-nested">2.5</div>
-                </div>
-                <div>
-                    <div class="test-nested">3.1</div>
-                    <div class="test-nested">3.2</div>
-                    <div class="test-nested">3.3</div>
-                </div>
-            </div>
-
+            <h2 style="color: #e7e6f3">slide</h2>
         </div>
 
-        <div class="test-child test-orange">
-            <h2 class="big-h2-title">Easy <span class="test-title-dark">integration</span></h2>
-            <p class="subtitle" style="margin-top:-40px">qroll works out of the box with JS frameworks</p>
-            <div class="showcase">
-                <div class="showcase-wrapper">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="rgb(196, 243, 255)" d="M12,10.11C13.03,10.11 13.87,10.95 13.87,12C13.87,13 13.03,13.85 12,13.85C10.97,13.85 10.13,13 10.13,12C10.13,10.95 10.97,10.11 12,10.11M7.37,20C8,20.38 9.38,19.8 10.97,18.3C10.45,17.71 9.94,17.07 9.46,16.4C8.64,16.32 7.83,16.2 7.06,16.04C6.55,18.18 6.74,19.65 7.37,20M8.08,14.26L7.79,13.75C7.68,14.04 7.57,14.33 7.5,14.61C7.77,14.67 8.07,14.72 8.38,14.77C8.28,14.6 8.18,14.43 8.08,14.26M14.62,13.5L15.43,12L14.62,10.5C14.32,9.97 14,9.5 13.71,9.03C13.17,9 12.6,9 12,9C11.4,9 10.83,9 10.29,9.03C10,9.5 9.68,9.97 9.38,10.5L8.57,12L9.38,13.5C9.68,14.03 10,14.5 10.29,14.97C10.83,15 11.4,15 12,15C12.6,15 13.17,15 13.71,14.97C14,14.5 14.32,14.03 14.62,13.5M12,6.78C11.81,7 11.61,7.23 11.41,7.5C11.61,7.5 11.8,7.5 12,7.5C12.2,7.5 12.39,7.5 12.59,7.5C12.39,7.23 12.19,7 12,6.78M12,17.22C12.19,17 12.39,16.77 12.59,16.5C12.39,16.5 12.2,16.5 12,16.5C11.8,16.5 11.61,16.5 11.41,16.5C11.61,16.77 11.81,17 12,17.22M16.62,4C16,3.62 14.62,4.2 13.03,5.7C13.55,6.29 14.06,6.93 14.54,7.6C15.36,7.68 16.17,7.8 16.94,7.96C17.45,5.82 17.26,4.35 16.62,4M15.92,9.74L16.21,10.25C16.32,9.96 16.43,9.67 16.5,9.39C16.23,9.33 15.93,9.28 15.62,9.23C15.72,9.4 15.82,9.57 15.92,9.74M17.37,2.69C18.84,3.53 19,5.74 18.38,8.32C20.92,9.07 22.75,10.31 22.75,12C22.75,13.69 20.92,14.93 18.38,15.68C19,18.26 18.84,20.47 17.37,21.31C15.91,22.15 13.92,21.19 12,19.36C10.08,21.19 8.09,22.15 6.62,21.31C5.16,20.47 5,18.26 5.62,15.68C3.08,14.93 1.25,13.69 1.25,12C1.25,10.31 3.08,9.07 5.62,8.32C5,5.74 5.16,3.53 6.62,2.69C8.09,1.85 10.08,2.81 12,4.64C13.92,2.81 15.91,1.85 17.37,2.69M17.08,12C17.42,12.75 17.72,13.5 17.97,14.26C20.07,13.63 21.25,12.73 21.25,12C21.25,11.27 20.07,10.37 17.97,9.74C17.72,10.5 17.42,11.25 17.08,12M6.92,12C6.58,11.25 6.28,10.5 6.03,9.74C3.93,10.37 2.75,11.27 2.75,12C2.75,12.73 3.93,13.63 6.03,14.26C6.28,13.5 6.58,12.75 6.92,12M15.92,14.26C15.82,14.43 15.72,14.6 15.62,14.77C15.93,14.72 16.23,14.67 16.5,14.61C16.43,14.33 16.32,14.04 16.21,13.75L15.92,14.26M13.03,18.3C14.62,19.8 16,20.38 16.62,20C17.26,19.65 17.45,18.18 16.94,16.04C16.17,16.2 15.36,16.32 14.54,16.4C14.06,17.07 13.55,17.71 13.03,18.3M8.08,9.74C8.18,9.57 8.28,9.4 8.38,9.23C8.07,9.28 7.77,9.33 7.5,9.39C7.57,9.67 7.68,9.96 7.79,10.25L8.08,9.74M10.97,5.7C9.38,4.2 8,3.62 7.37,4C6.74,4.35 6.55,5.82 7.06,7.96C7.83,7.8 8.64,7.68 9.46,7.6C9.94,6.93 10.45,6.29 10.97,5.7Z" /></svg>
-                </div>
-                <div class="showcase-wrapper">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="rgb(196, 243, 255)" d="M2,3H5.5L12,15L18.5,3H22L12,21L2,3M6.5,3H9.5L12,7.58L14.5,3H17.5L12,13.08L6.5,3Z" /></svg>
-                </div>
-                <div class="showcase-wrapper">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="rgb(196, 243, 255)"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path fill="transparent" d="M395 115c-35-51-106-66-157-34l-89 57a103 103 0 00-46 69 108 108 0 0010 69 103 103 0 00-15 39 109 109 0 0019 82c35 51 106 66 157 34l89-57a103 103 0 0046-69 108 108 0 00-10-69 103 103 0 0015-39 109 109 0 00-19-82"></path><path fill="rgb(196, 243, 255)" d="M230 402a71 71 0 01-77-28 66 66 0 01-11-50 62 62 0 012-8l2-5 5 3a115 115 0 0035 17l3 1v4a20 20 0 003 13 21 21 0 0023 9 20 20 0 006-3l89-57a19 19 0 008-12 20 20 0 00-3-15 21 21 0 00-23-9 20 20 0 00-5 3l-34 21a65 65 0 01-19 8 71 71 0 01-76-28 66 66 0 01-11-50 62 62 0 0128-41l89-57a65 65 0 0118-8 71 71 0 0177 28 66 66 0 0111 50 63 63 0 01-2 8l-2 5-5-3a115 115 0 00-35-17l-3-1v-4a20 20 0 00-3-13 21 21 0 00-23-9 20 20 0 00-6 3l-89 57a19 19 0 00-8 12 20 20 0 003 15 21 21 0 0023 9 20 20 0 005-3l34-21a65 65 0 0119-8 71 71 0 0176 28 66 66 0 0111 50 62 62 0 01-28 41l-89 57a65 65 0 01-18 8"></path></g></svg>
-                </div>
-            </div>
-            
-        </div>
         <div class="test-child test-green">
-            <h2 class="big-h2-title">Native behaviors</h2>
-            <div class="test-cheat">
-                <div class="test-cheat-item">
-                  <form>
-                <label for="testInput">
-                    When in focus, the fields of a form take precedence over the vent listeners used to slide. Using arrow keys inside an input or a textarea will keep the native behavior.
-                </label>
-                <input id="testInput" type="text">
-                <textarea></textarea>
-            </form>  
-                </div>
-                
-            <div class="test-cheat">
-                <div class="test-cheat-item">
-
-                    <div style="font-size: 14px; font-weight:500; margin-bottom: 24px">
-                        When in focus or when mouse is inside, a scrollable div captures scroll events.
-                    </div>
-                    <div id="scrollableDiv" class="test-scrollable-div">
-                    <b>Scrolling inside this div must not trigger page sliding.</b><br>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis iusto consequatur odit, minus maxime beatae facere vitae quia, laboriosam eum rerum provident. Soluta, voluptatem nesciunt exercitationem quia molestias esse enim ab atque, voluptate expedita doloremque sed vitae maxime. Nobis ullam vel molestiae odit dolorem deserunt autem, officia asperiores esse accusamus, voluptates neque nulla repellat unde magni excepturi totam! Tempore perspiciatis porro praesentium. Velit at consequatur cumque quidem odit saepe vel a vero, doloribus rem, repellat, assumenda autem fuga architecto exercitationem reiciendis numquam. Nihil quam ratione a, quo eaque labore laudantium? Voluptas distinctio, libero qui dolorem necessitatibus cum autem tempore veniam numquam doloribus quasi, harum quam. Aliquid ducimus ratione fuga molestias dicta aspernatur qui cumque fugiat exercitationem saepe? Architecto incidunt, possimus magni, molestiae nemo dicta corrupti ipsum doloribus modi eum exercitationem harum enim saepe? Doloremque neque facilis natus illum modi eligendi repudiandae enim architecto tenetur optio maiores id sed sint itaque debitis harum explicabo ullam, veritatis asperiores ex praesentium inventore recusandae. Explicabo asperiores voluptas aliquam expedita voluptate sit maxime ipsa distinctio deleniti. Eveniet impedit et optio ut, ducimus unde possimus hic officiis error, fuga sapiente adipisci ullam necessitatibus deserunt corporis! Cum reiciendis earum officiis eligendi dolores sapiente alias quia. Totam, sed!
-                </div>
-                </div>
-            </div>
-            
-            </div>
+            <h2 style="color: #e7e6f3">slide</h2>
         </div>
+
+        <div class="test-child test-green">
+            <h2 style="color: #e7e6f3">slide</h2>
+        </div>
+
     </div>
 </body>
 </html>
