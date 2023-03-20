@@ -60,11 +60,11 @@ html body {
 }
 
 .qroll-carousel-vertical-button-top {
-    top: 6px;
+    top: 28px;
 }
 
 .qroll-carousel-vertical-button-down {
-    bottom: 6px;
+    bottom: 28px;
 }
 
 .qroll-carousel-vertical-button-top svg path,
@@ -150,36 +150,175 @@ html body {
 }
 
 .qroll-main.qroll-transition-100 .qroll-slide {
-    transition: top 100ms ease, visibility 100ms ease-in-out;
+    transition: transform 100ms ease, visibility 100ms ease;
 }
 .qroll-main.qroll-transition-200 .qroll-slide {
-    transition: top 200ms ease, visibility 200ms ease-in-out;
+    transition: transform 200ms ease, visibility 200ms ease;
 }
 .qroll-main.qroll-transition-300 .qroll-slide {
-    transition: top 300ms ease, visibility 300ms ease-in-out;
+    transition: transform 300ms ease, visibility 300ms ease;
 }
 .qroll-main.qroll-transition-400 .qroll-slide {
-    transition: top 400ms ease, visibility 400ms ease-in-out;
+    transition: transform 400ms ease, visibility 400ms ease;
 }
 .qroll-main.qroll-transition-500 .qroll-slide {
-    transition: top 500ms ease, visibility 500ms ease-in-out;
+    transition: transform 500ms ease, visibility 500ms ease;
 }
 .qroll-main.qroll-transition-600 .qroll-slide {
-    transition: top 600ms ease, visibility 600ms ease-in-out;
+    transition: transform 600ms ease, visibility 600ms ease;
 }
 .qroll-main.qroll-transition-700 .qroll-slide {
-    transition: top 700ms ease, visibility 700ms ease-in-out;
+    transition: transform 700ms ease, visibility 700ms ease;
 }
 .qroll-main.qroll-transition-800 .qroll-slide {
-    transition: top 800ms ease, visibility 800ms ease-in-out;
+    transition: transform 800ms ease, visibility 800ms ease;
 }
 .qroll-main.qroll-transition-900 .qroll-slide {
-    transition: top 900ms ease, visibility 900ms ease-in-out;
+    transition: transform 900ms ease, visibility 900ms ease;
 }
 .qroll-main.qroll-transition-1000 .qroll-slide {
-    transition: top 1000ms ease, visibility 1000ms ease-in-out;
+    transition: transform 1000ms ease, visibility 1000ms ease;
+}
+
+/* slide carousels */
+
+.qroll-slide-carousel-wrapper {
+    position: relative;
+    height: 100%;
+    width:100%;
+}
+
+.qroll-carousel-slide {
+    position: absolute;
+}
+
+.qroll-main.qroll-transition-100 .qroll-carousel-slide {
+    transition: transform 100ms ease, visibility 100ms ease;
+}
+.qroll-main.qroll-transition-200 .qroll-carousel-slide {
+    transition: transform 200ms ease, visibility 200ms ease;
+}
+.qroll-main.qroll-transition-300 .qroll-carousel-slide {
+    transition: transform 300ms ease, visibility 300ms ease;
+}
+.qroll-main.qroll-transition-400 .qroll-carousel-slide {
+    transition: transform 400ms ease, visibility 400ms ease;
+}
+.qroll-main.qroll-transition-500 .qroll-carousel-slide {
+    transition: transform 500ms ease, visibility 500ms ease;
+}
+.qroll-main.qroll-transition-600 .qroll-carousel-slide {
+    transition: transform 600ms ease, visibility 600ms ease;
+}
+.qroll-main.qroll-transition-700 .qroll-carousel-slide {
+    transition: transform 700ms ease, visibility 700ms ease;
+}
+.qroll-main.qroll-transition-800 .qroll-carousel-slide {
+    transition: transform 800ms ease, visibility 800ms ease;
+}
+.qroll-main.qroll-transition-900 .qroll-carousel-slide {
+    transition: transform 900ms ease, visibility 900ms ease;
+}
+.qroll-main.qroll-transition-1000 .qroll-carousel-slide {
+    transition: transform 1000ms ease, visibility 1000ms ease;
+}
+
+.qroll-horizontal-nav {
+    position: absolute;
+    bottom: 16px;
+    display: flex;
+    flex-direction: row;
+    width: 100vw;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.qroll-carousel-horizontal-button-right,
+.qroll-carousel-horizontal-button-left {
+    position: absolute;
+    bottom: 6px;
+}
+
+.qroll-carousel-horizontal-button-right {
+    right:36px;
+}
+
+.qroll-carousel-horizontal-button-left {
+    left: 36px;
+}
+
+@media screen and (max-width:769px) {
+    .qroll-carousel-horizontal-button-right {
+        right:6px;
+    }
+    
+    .qroll-carousel-horizontal-button-left {
+        left: 6px;
+    }
+}
+
+
+.qroll-carousel-horizontal-button-right svg path,
+.qroll-carousel-horizontal-button-left  svg path {
+    filter: drop-shadow(0px 0px 2px black);
+}
+
+.qroll-carousel-horizontal-button-right,
+.qroll-carousel-horizontal-button-left  {
+    outline: none;
+    border:none;
+}
+
+.qroll-carousel-horizontal-button-right,
+.qroll-carousel-horizontal-button-left {
+    height: 30px;
+    width: 30px;
+    padding: 2px;
+    cursor: pointer;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    z-index: 1000;
 }
 
 .qroll-no-transition {
-    transition:unset !important;
+    transition:none !important;
+}
+
+.qroll-tooltip-top {
+    background: white;
+    border-radius: 4px !important;
+    box-shadow: 0px 5px 5px rgba(0,0,0,0.1) !important;
+    display:none !important;
+    font-size: 11px;
+    font-weight:400;
+    height: 22px !important;
+    left: 50%;
+    padding: 0 12px;
+    position: absolute;
+    text-align:center !important;
+    top: calc(-100% - 28px);
+    transform: translateX(-50%);
+    user-select: none !important;
+    white-space: nowrap !important;
+    width: fit-content !important;
+}
+
+.qroll-tooltip-top::after {
+    color: white;
+    content: "⏷";
+    position: absolute;
+    bottom:-10px;
+    z-index:1;
+    font-size: 16px;
+}
+
+.qroll-nav-link:hover .qroll-tooltip-top {
+    display: inline-block !important;
+    display: flex !important;
+    align-items:center !important;
+    justify-content:center !important;
 }

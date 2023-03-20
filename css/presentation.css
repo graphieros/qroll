@@ -36,6 +36,16 @@ h1 {
     animation: background-pan 3s linear infinite;
 }
 
+h2.test-title-dark {
+    background: radial-gradient(at top, rgb(181, 177, 238), rgb(61, 93, 143));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200%;
+    animation: background-pan 3s linear infinite;
+    padding: 0 !important;
+    margin: 0!important;
+}
+
 @keyframes background-pan {
     from {
         background-position: 0% center;
@@ -164,7 +174,7 @@ p.subtitle {
 
 .sample-code {
     padding: 0 24px 24px 24px;
-    background: rgba(0,0,0,0.2);
+    background: rgba(7, 6, 29, 0.719);
     border-radius: 12px;
     font-size: 1rem;
     color: rgb(212, 196, 196);
@@ -189,11 +199,11 @@ p.subtitle {
 }
 
 .css {
-    color: rgb(83, 172, 110);
+    color: rgb(188, 226, 238);
 }
 
 .css-light {
-    color: rgb(126, 206, 119);
+    color: rgb(135, 241, 167);
 }
 
 .css-blue {
@@ -374,4 +384,11 @@ small.scroll {
     .small-h2-title {
         font-size: 0.4em;
     }
+}
+
+.test-carousel-slide {
+    display: flex;
+    align-items:center;
+    justify-content:center;
+    height: 100%;
 }

@@ -21,6 +21,7 @@ export namespace CssClass {
 
     export const PARENT = "qroll-parent";
     export const TOOLTIP_LEFT = "qroll-tooltip-left";
+    export const TOOLTIP_TOP = "qroll-tooltip-top";
 
     export const TOP = "qroll-top";
     export const TRANSITION_1000 = "qroll-transition-1000";

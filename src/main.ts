@@ -10,7 +10,6 @@ import {
 } from "./constants";
 
 import {
-    createUid,
     grabId,
     logError,
     setTabIndex,
@@ -18,7 +17,8 @@ import {
 } from "./functions";
 
 import {
-    createMainLayout,
+    createCarousel,
+    createMainLayout
 } from "./carousel";
 
 // TODO: find a way to include css
@@ -70,6 +70,7 @@ const Main = (parentName: string, _options: Options = {}) => {
         trackpadSensitivityThreshold: 30,
         transitionDuration: 1000,
         userAgent: navigator.userAgent,
+        wheelCount: 0,
     }
 
     // this needs extra testing for all browsers to check if wheel event makes the scroll work !
@@ -134,15 +135,12 @@ const Main = (parentName: string, _options: Options = {}) => {
 
     let children = parent.children as unknown as HTMLElement[];
     for (let i = 0; i < children.length; i += 1) {
-        const uid = createUid();
         const element = children[i];
         element.classList.add(CssClass.CHILD);
-        element.dataset.slide = uid;
         element.setAttribute(ElementAttribute.ID, element.id || `slide-v-${i}`);
         element.dataset.index = `${i}`;
         Array.from(element.children).forEach(child => walkTheDOM(child, setTabIndex));
-        // createCarousel(state, element);
-        // createNestedCarousels(element, parent);
+        createCarousel(state, element);
     }
     createMainLayout(state, parent);
 

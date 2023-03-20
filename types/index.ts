@@ -73,4 +73,5 @@ export type State = {
     trackpadSensitivityThreshold: number;
     transitionDuration: number;
     userAgent: string;
+    wheelCount: number;
 }
