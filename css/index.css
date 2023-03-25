@@ -68,6 +68,11 @@ html body {
     bottom: 28px;
 }
 
+.qroll-carousel-vertical-button-top:focus,
+.qroll-carousel-vertical-button-down:focus {
+    outline: 3px solid black;
+}
+
 .qroll-carousel-vertical-button-top svg path,
 .qroll-carousel-vertical-button-down svg path {
     filter: drop-shadow(0px 0px 2px black);
@@ -102,9 +107,10 @@ html body {
     z-index:10;
 }
 
-.qroll-nav-link {
-    height: 8px;
-    width: 8px;
+button.qroll-nav-link {
+    all:unset;
+    height: 8px !important;
+    width: 8px !important;
     border-radius: 50%;
     background: white;
     cursor: pointer;
@@ -112,11 +118,17 @@ html body {
     position: relative;
 }
 .qroll-nav-link:hover {
-    transform: scale(1.5,1.5);
+    transform: scale(1.5,1.5) !important;
 }
 
 .qroll-nav-link-selected {
-    transform: scale(1.5,1.5);
+    transform: scale(1.5,1.5) !important;
+}
+
+.qroll-nav-link:focus {
+    outline:3px solid rgba(0, 0, 0, 0.418) !important;
+    transform: scale(1.5,1.5) !important;
+
 }
 
 .qroll-tooltip-left {
@@ -134,7 +146,7 @@ html body {
     text-align:center;
     user-select: none;
     white-space: nowrap;
-    margin-top:-5.5px;
+    margin-top:-10px;
 }
 .qroll-tooltip-left::after {
     color: white;
@@ -248,6 +260,11 @@ html body {
 
 .qroll-carousel-horizontal-button-left {
     left: 36px;
+}
+
+.qroll-carousel-horizontal-button-right:focus,
+.qroll-carousel-horizontal-button-left:focus {
+    outline: 3px solid black;
 }
 
 @media screen and (max-width:769px) {

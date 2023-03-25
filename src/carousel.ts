@@ -101,7 +101,8 @@ export function createCarousel(state: State, carousel: HTMLElement) {
     const slides = Array.from(carousel.getElementsByClassName("qroll-slide-carousel-wrapper")[0].children);
 
     slides.filter(child => Array.from(child.classList).includes(CssClass.CAROUSEL_SLIDE)).forEach((slide, i) => {
-        const link = spawn(DomElement.DIV);
+        const link = spawn(DomElement.BUTTON);
+        link.setAttribute("tabindex", "1");
         link.classList.add("qroll-nav-link");
         if (i === Number((carouselWrapper as HTMLElement).dataset.carouselIndex)) {
             link.classList.add("qroll-nav-link-selected");
@@ -318,6 +319,8 @@ export function createMainLayout(state: State, parent: HTMLElement) {
 
     const buttonTop = spawn(DomElement.BUTTON);
     const buttonBottom = spawn(DomElement.BUTTON);
+    buttonTop.setAttribute("tabindex", "1");
+    buttonBottom.setAttribute("tabindex", "1");
     buttonTop.setAttribute(ElementAttribute.TYPE, DomElement.BUTTON);
     buttonBottom.setAttribute(ElementAttribute.TYPE, DomElement.BUTTON);
     buttonTop.classList.add(CssClass.NAV_BUTTON_TOP);
@@ -486,7 +489,7 @@ export function createMainLayout(state: State, parent: HTMLElement) {
     nav.classList.add(CssClass.NAV_VERTICAL);
 
     Array.from(slides).forEach((slide, i) => {
-        const link = spawn(DomElement.DIV);
+        const link = spawn(DomElement.BUTTON);
         link.setAttribute(ElementAttribute.TABINDEX, "1");
         link.classList.add(CssClass.NAV_LINK);
         link.classList.add(CssClass.NO_TRANSITION);
@@ -713,6 +716,7 @@ export function createMainLayout(state: State, parent: HTMLElement) {
                 break;
 
             default:
+                state.isSliding = false;
                 return;
         }
     });
