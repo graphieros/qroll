@@ -1,5 +1,5 @@
 import { State } from "../types";
-import { CssClass, CssDisplay, CssUnit, CssVisibility, Direction, DomElement, ElementAttribute, ElementId, EventTrigger, KeyboardCode, NodeName } from "./constants";
+import { CssClass, CssDisplay, CssUnit, CssVisibility, Direction, DomElement, ElementAttribute, EventTrigger, KeyboardCode, NodeName } from "./constants";
 import { detectTrackPad, grabId, walkTheDOM, setTabIndex, spawn, updateLocation, applyEllipsis } from "./functions";
 
 export function setUpCarousels(state: State, carousel: HTMLElement) {
@@ -37,6 +37,21 @@ export function updateCarouselNav(carousel: HTMLElement) {
             link.classList.remove("qroll-nav-link-selected");
         }
     });
+    const buttonLeft = carousel.getElementsByClassName("qroll-carousel-horizontal-button-left")[0];
+    const buttonRight = carousel.getElementsByClassName("qroll-carousel-horizontal-button-right")[0];
+
+    if (!Array.from((carousel as HTMLElement).classList).includes(CssClass.LOOP)) {
+        if (currentIndex === 0 && buttonLeft) {
+            (buttonLeft as HTMLElement).style.display = CssDisplay.NONE;
+        } else {
+            (buttonLeft as HTMLElement).style.display = CssDisplay.FLEX;
+        }
+        if (currentIndex === links.length - 1 && buttonRight) {
+            (buttonRight as HTMLElement).style.display = CssDisplay.NONE;
+        } else {
+            (buttonRight as HTMLElement).style.display = CssDisplay.FLEX;
+        }
+    }
 }
 
 /** Change a slide into a carousel
@@ -205,6 +220,7 @@ export function createCarousel(state: State, carousel: HTMLElement) {
 
         const currentIndex = Number((carouselWrapper as HTMLElement).dataset.carouselIndex);
         const nextIndex = currentIndex + 1 > slides.length - 1 ? 0 : currentIndex + 1;
+
         slides.forEach((slide, i) => {
             if (i === nextIndex) {
                 (slide as HTMLElement).style.transform = "translateX(0)";
@@ -269,115 +285,6 @@ export function createCarousel(state: State, carousel: HTMLElement) {
     carousel.appendChild(buttonLeft);
     carousel.appendChild(nav);
 
-}
-
-/** Update the state and event listeners of existing nested carousels
- * 
- * @param slide - HTMLElement, must be a direct child of the main Parent element
- * @param isResize - boolean, if true will not recreate event listeners
- */
-export function updateNestedCarousels(slide: HTMLElement, isResize: boolean = false) {
-    const carousels = Array.from(slide.getElementsByClassName(CssClass.NESTED_CAROUSEL)).filter(el => !!el);
-    if (!carousels || !carousels.length) return;
-
-    Array.from(carousels).forEach((carousel, index) => {
-        if (!Array.from(carousel.classList).includes(CssClass.NESTED_CAROUSEL)) return;
-
-        const currentIndex = Number((carousel as HTMLElement).dataset.nestedCarouselIndex);
-
-        const childrenCount = Array.from(carousel.children).filter(child => Array.from(child.classList).includes(CssClass.NESTED_CAROUSEL_CHILD)).length;
-        const carouselBox = (carousel as HTMLElement).getBoundingClientRect();
-
-        Array.from(carousel.children)
-            .filter(child => Array.from(child.classList).includes(CssClass.NESTED_CAROUSEL_CHILD))
-            .forEach((child, i) => {
-                const diff = i - currentIndex;
-                (child as HTMLElement).style.left = `${carouselBox.width * diff}${CssUnit.PX}`;
-            });
-
-        const navLeft = grabId(`${ElementId.NESTED_CAROUSEL_NAV_LEFT}${slide.id}_${index}`);
-        const navRight = grabId(`${ElementId.NESTED_CAROUSEL_NAV_RIGHT}${slide.id}_${index}`);
-
-        const isEndRight = () => Number((carousel as HTMLElement).dataset.nestedCarouselIndex) >= childrenCount - 1;
-        const isEndLeft = () => Number((carousel as HTMLElement).dataset.nestedCarouselIndex) <= 0;
-
-        const updateNav = () => {
-            if (isEndRight() && !Array.from(carousel.classList).includes(CssClass.LOOP)) {
-                navRight.style.display = CssDisplay.NONE;
-            } else {
-                navRight.style.display = CssDisplay.FLEX;
-            }
-
-            if (isEndLeft() && !Array.from(carousel.classList).includes(CssClass.LOOP)) {
-                navLeft.style.display = CssDisplay.NONE;
-            } else {
-                navLeft.style.display = CssDisplay.FLEX;
-            }
-
-            if (Array.from(carousel.classList).includes(CssClass.PROGRESS)) {
-                const progressBar = carousel.getElementsByClassName(CssClass.NESTED_CAROUSEL_PROGRESS_BAR)[0];
-                progressBar.setAttribute(ElementAttribute.STYLE, `width:${Number((carousel as HTMLElement).dataset.nestedCarouselIndex) / (childrenCount - 1) * 100}%;${(carousel as HTMLElement).dataset.progressCss}`);
-            }
-        }
-
-        function clickRight() {
-            const wrapperBox = (carousel as HTMLElement).getBoundingClientRect();
-            if (Number((carousel as HTMLElement).dataset.nestedCarouselIndex) >= childrenCount - 1) {
-                if (Array.from(carousel.classList).includes(CssClass.LOOP)) {
-                    Array.from(carousel.children)
-                        .filter(child => Array.from(child.classList).includes(CssClass.NESTED_CAROUSEL_CHILD))
-                        .forEach((child, i) => {
-                            (child as HTMLElement).style.left = `${wrapperBox.width * i}${CssUnit.PX}`;
-                        });
-                    (carousel as HTMLElement).dataset.nestedCarouselIndex = "0";
-                    updateNav();
-                }
-                return;
-            } else {
-                (carousel as HTMLElement).dataset.nestedCarouselIndex = `${Number((carousel as HTMLElement).dataset.nestedCarouselIndex) + 1}`;
-                Array.from(carousel.children).forEach((child, i) => {
-                    if (!Array.from(child.classList).includes(CssClass.NESTED_CAROUSEL_CHILD)) return;
-                    (child as HTMLElement).style.left = Number((child as HTMLElement).style.left.replace(CssUnit.PX, "")) - wrapperBox.width + CssUnit.PX;
-                });
-
-                updateNav();
-            }
-        }
-
-        function clickLeft() {
-            const wrapperBox = (carousel as HTMLElement).getBoundingClientRect();
-            if (Number((carousel as HTMLElement).dataset.nestedCarouselIndex) <= 0) {
-                if (Array.from(carousel.classList).includes(CssClass.LOOP)) {
-                    Array.from(carousel.children)
-                        .filter(child => Array.from(child.classList).includes(CssClass.NESTED_CAROUSEL_CHILD))
-                        .reverse()
-                        .forEach((child, i) => {
-                            (child as HTMLElement).style.left = `-${wrapperBox.width * i}${CssUnit.PX}`;
-                        });
-                    (carousel as HTMLElement).dataset.nestedCarouselIndex = `${Array.from(carousel.children).filter(child => Array.from(child.classList).includes(CssClass.NESTED_CAROUSEL_CHILD)).length - 1}`;
-                    updateNav();
-                }
-                return;
-            } else {
-                (carousel as HTMLElement).dataset.nestedCarouselIndex = `${Number((carousel as HTMLElement).dataset.nestedCarouselIndex) - 1}`;
-                Array.from(carousel.children)
-                    .filter(child => Array.from(child.classList).includes(CssClass.NESTED_CAROUSEL_CHILD))
-                    .forEach((child) => {
-                        (child as HTMLElement).style.left = Number((child as HTMLElement).style.left.replace(CssUnit.PX, "")) + wrapperBox.width + CssUnit.PX;
-                    });
-
-                updateNav();
-            }
-        }
-
-        if (!isResize) {
-            // Resizing does not need to regester already existing eventListeners
-            navRight.removeEventListener(EventTrigger.CLICK, clickRight);
-            navLeft.removeEventListener(EventTrigger.CLICK, clickLeft);
-            navRight.addEventListener(EventTrigger.CLICK, clickRight);
-            navLeft.addEventListener(EventTrigger.CLICK, clickLeft);
-        }
-    });
 }
 
 export function setUpSlides(state: State, parent: HTMLElement) {
@@ -518,6 +425,7 @@ export function createMainLayout(state: State, parent: HTMLElement) {
             (parent as HTMLElement).dataset.currentVIndex = `${nextIndex}`;
 
             updateNav();
+            updateCarouselNav(nextSlide as HTMLElement);
             setTimeout(() => {
                 const id = nextSlide ? nextSlide.id : "";
                 if (!skipHistory) {
@@ -561,6 +469,7 @@ export function createMainLayout(state: State, parent: HTMLElement) {
             (nextSlide as HTMLElement).style.transform = "translateY(0)";
             (parent as HTMLElement).dataset.currentVIndex = `${nextIndex}`;
             updateNav();
+            updateCarouselNav(nextSlide as HTMLElement);
             setTimeout(() => {
                 const id = nextSlide ? nextSlide.id : "";
                 if (!skipHistory) {
@@ -704,6 +613,15 @@ export function createMainLayout(state: State, parent: HTMLElement) {
                     state.isSliding = true;
                     const currentIndex = Number((carouselWrapper as HTMLElement).dataset.carouselIndex);
                     const nextIndex = currentIndex + 1 > carouselSlides.length - 1 ? 0 : currentIndex + 1;
+
+                    if (!Array.from((thisCarousel as HTMLElement).classList).includes(CssClass.LOOP)) {
+                        if ([carouselSlides.length - 1].includes(currentIndex)) {
+                            state.isSliding = false;
+                            state.wheelCount = 0;
+                            return;
+                        }
+                    }
+
                     carouselSlides.forEach((slide, i) => {
                         if (i === nextIndex) {
                             (slide as HTMLElement).style.transform = "translateX(0)";
@@ -735,6 +653,14 @@ export function createMainLayout(state: State, parent: HTMLElement) {
                     const currentIndex = Number((carouselWrapper as HTMLElement).dataset.carouselIndex);
                     const nextIndex = currentIndex - 1 < 0 ? carouselSlides.length - 1 : currentIndex - 1;
 
+                    if (!Array.from((thisCarousel as HTMLElement).classList).includes(CssClass.LOOP)) {
+                        if ([0].includes(currentIndex)) {
+                            state.isSliding = false;
+                            state.wheelCount = 0;
+                            return;
+                        }
+                    }
+
                     carouselSlides.forEach((slide, i) => {
                         if (i === nextIndex) {
                             (slide as HTMLElement).style.transform = "translateX(0)";
@@ -765,7 +691,6 @@ export function createMainLayout(state: State, parent: HTMLElement) {
 
         if (state.isSliding) return;
         state.isSliding = true;
-        let direction;
 
         const isntLoopAndIsLastSlide = !state.isLoop && Number((parent as HTMLElement).dataset.currentVIndex) === slides.length - 1;
         const isntLoopAndFirstSlide = !state.isLoop && Number((parent as HTMLElement).dataset.currentVIndex) === 0;
@@ -780,12 +705,10 @@ export function createMainLayout(state: State, parent: HTMLElement) {
                 break;
 
             case [KeyboardCode.ARROW_DOWN, KeyboardCode.SPACE].includes(keyCode):
-                direction = Direction.DOWN;
                 slideTo({ targetIndex: Number((parent as HTMLElement).dataset.currentVIndex) + 1 > slides.length - 1 ? 0 : Number((parent as HTMLElement).dataset.currentVIndex) + 1 })
                 break;
 
             case [KeyboardCode.ARROW_UP].includes(keyCode):
-                direction = Direction.UP;
                 slideTo({ targetIndex: Number((parent as HTMLElement).dataset.currentVIndex) - 1 < 0 ? slides.length - 1 : Number((parent as HTMLElement).dataset.currentVIndex) - 1 })
                 break;
 
@@ -832,6 +755,15 @@ export function createMainLayout(state: State, parent: HTMLElement) {
                     state.isSliding = true;
                     const currentIndex = Number((carouselWrapper as HTMLElement).dataset.carouselIndex);
                     const nextIndex = currentIndex + 1 > carouselSlides.length - 1 ? 0 : currentIndex + 1;
+
+                    if (!Array.from((thisCarousel as HTMLElement).classList).includes(CssClass.LOOP)) {
+                        if ([carouselSlides.length - 1].includes(currentIndex)) {
+                            state.isSliding = false;
+                            state.wheelCount = 0;
+                            return;
+                        }
+                    }
+
                     carouselSlides.forEach((slide, i) => {
                         if (i === nextIndex) {
                             (slide as HTMLElement).style.transform = "translateX(0)";
@@ -861,6 +793,14 @@ export function createMainLayout(state: State, parent: HTMLElement) {
 
                     const currentIndex = Number((carouselWrapper as HTMLElement).dataset.carouselIndex);
                     const nextIndex = currentIndex - 1 < 0 ? carouselSlides.length - 1 : currentIndex - 1;
+
+                    if (!Array.from((thisCarousel as HTMLElement).classList).includes(CssClass.LOOP)) {
+                        if ([0].includes(currentIndex)) {
+                            state.isSliding = false;
+                            state.wheelCount = 0;
+                            return;
+                        }
+                    }
 
                     carouselSlides.forEach((slide, i) => {
                         if (i === nextIndex) {
@@ -926,8 +866,8 @@ export function createMainLayout(state: State, parent: HTMLElement) {
             child.classList.add(CssClass.NO_TRANSITION);
         });
         setUpSlides(state, parent);
-
         updateNav();
+        updateCarouselNav(grabId(currentSlideId));
         setTimeout(() => {
             Array.from(children).filter(child => (Array.from(child.classList).includes(CssClass.SLIDE))).forEach((child) => {
                 child.classList.remove(CssClass.NO_TRANSITION);
@@ -944,13 +884,13 @@ export function createMainLayout(state: State, parent: HTMLElement) {
 
     }
 
-
     window.addEventListener(EventTrigger.HASHCHANGE, () => {
         if (state.isRouting) return;
         state.isRouting = true;
         const currentSlideId = getCurrentSlideId().replace("#", "");
         const targetIndex = Number(grabId(currentSlideId).dataset.index);
         slideTo({ targetIndex, skipHistory: true });
+        updateCarouselNav(grabId(currentSlideId));
         updateNav();
         clearRoutingTimeout();
     })
@@ -963,7 +903,6 @@ export function createMainLayout(state: State, parent: HTMLElement) {
 const carousel = {
     createCarousel,
     createMainLayout,
-    updateNestedCarousels
 }
 
 export default carousel;
