@@ -765,7 +765,6 @@ export function createMainLayout(state: State, parent: HTMLElement) {
 
         if (state.isSliding) return;
         state.isSliding = true;
-        let direction;
 
         const isntLoopAndIsLastSlide = !state.isLoop && Number((parent as HTMLElement).dataset.currentVIndex) === slides.length - 1;
         const isntLoopAndFirstSlide = !state.isLoop && Number((parent as HTMLElement).dataset.currentVIndex) === 0;
@@ -780,12 +779,10 @@ export function createMainLayout(state: State, parent: HTMLElement) {
                 break;
 
             case [KeyboardCode.ARROW_DOWN, KeyboardCode.SPACE].includes(keyCode):
-                direction = Direction.DOWN;
                 slideTo({ targetIndex: Number((parent as HTMLElement).dataset.currentVIndex) + 1 > slides.length - 1 ? 0 : Number((parent as HTMLElement).dataset.currentVIndex) + 1 })
                 break;
 
             case [KeyboardCode.ARROW_UP].includes(keyCode):
-                direction = Direction.UP;
                 slideTo({ targetIndex: Number((parent as HTMLElement).dataset.currentVIndex) - 1 < 0 ? slides.length - 1 : Number((parent as HTMLElement).dataset.currentVIndex) - 1 })
                 break;
 
