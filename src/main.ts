@@ -102,6 +102,14 @@ const Main: any = (parentName: string, _options: Options = {}) => {
         state.trackpadSensitivityThreshold = 10;
     }
 
+    // reset sliding blockers if mouse leaves window
+    document.addEventListener("mouseleave", function (event) {
+        if (event.clientY <= 0 || event.clientX <= 0 || (event.clientX >= window.innerWidth || event.clientY >= window.innerHeight)) {
+            state.isSliding = false;
+            state.wheelCount = 0;
+        }
+    });
+
     //------------------------------------------------------------------------//
     //////////////////////////|                       |/////////////////////////
     //////////////////////////|      DOM CREATION     |/////////////////////////
