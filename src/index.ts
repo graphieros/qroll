@@ -4,7 +4,7 @@ import { CssClass, ElementId } from "./constants";
 // import "./css";
 
 if (typeof window !== 'undefined') {
-    (window as unknown as OurWindow).mainFunc = Main;
+    (window as unknown as OurWindow).qroll = Main;
 }
 
 Main(ElementId.PARENT, {
