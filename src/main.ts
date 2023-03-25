@@ -41,6 +41,13 @@ const Main: any = (parentName: string, _options: Options = {}) => {
     Main.slideUp = slideUp;
     Main.slideToIndex = slideToIndex;
 
+    // const cssLink = document.createElement("link");
+    // cssLink.rel = "stylesheet";
+    // cssLink.type = "text/css";
+    // cssLink.href = "css/index.css"
+
+    // document.head.appendChild(cssLink);
+
     //------------------------------------------------------------------------//
     //\/\/\/\/\/\/\/\/\/\/\/\/|                       |\/\/\/\/\/\/\/\/\/\/\/\//
     //\/\/\/\/\/\/\/\/\/\/\/\/|          STATE        |\/\/\/\/\/\/\/\/\/\/\/\//
