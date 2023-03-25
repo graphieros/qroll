@@ -385,9 +385,11 @@ export function setUpSlides(state: State, parent: HTMLElement) {
 
     Array.from(children).forEach((child, i) => {
         if (i === Number((parent as HTMLElement).dataset.currentVIndex)) {
-            (child as HTMLElement).setAttribute(ElementAttribute.STYLE, `transform:translateY(0);`)
+            (child as HTMLElement).setAttribute(ElementAttribute.STYLE, `transform:translateY(0);`);
+            (child as HTMLElement).style.zIndex = "1";
         } else {
             (child as HTMLElement).setAttribute(ElementAttribute.STYLE, `transform:translateY(${i < Number((parent as HTMLElement).dataset.currentVIndex) ? "-" : ""}${state.pageHeight}px)`);
+            (child as HTMLElement).style.zIndex = "0";
             (child as HTMLElement).style.visibility = CssVisibility.HIDDEN;
         }
     });
@@ -415,10 +417,12 @@ export function createMainLayout(state: State, parent: HTMLElement) {
     buttonBottom.classList.add(CssClass.NAV_BUTTON_DOWN);
 
     function slideTo({
+        isWheel = false,
         direction = undefined,
         targetIndex = undefined,
         skipHistory = false }:
         {
+            isWheel?: boolean,
             direction?: String | undefined,
             targetIndex?: number | undefined,
             skipHistory?: boolean
@@ -434,6 +438,17 @@ export function createMainLayout(state: State, parent: HTMLElement) {
         if (targetIndex !== undefined) {
             isOverflowNext = targetIndex + 1 > slides.length - 1;
             isOverflowPrevious = targetIndex - 1 < 0;
+        }
+
+        if (!state.isLoop && isWheel) {
+            if (currentVIndex === 0 && isOverflowNext) {
+                state.isSliding = false;
+                return;
+            }
+            if (currentVIndex === slides.length - 1 && isOverflowPrevious) {
+                state.isSliding = false;
+                return;
+            }
         }
 
         if (targetIndex !== undefined) {
@@ -471,6 +486,7 @@ export function createMainLayout(state: State, parent: HTMLElement) {
 
         if (direction === Direction.UP) {
             const nextIndex = currentVIndex - 1 < 0 ? slides.length - 1 : currentVIndex - 1;
+            const previousIndex = currentVIndex + 1 > slides.length - 1 ? 0 : currentVIndex + 1;
             const currentSlide = Array.from(slides).find((_slide, i) => i === currentVIndex);
             const nextSlide = Array.from(slides).find((_slide, i) => i === nextIndex);
 
@@ -482,8 +498,16 @@ export function createMainLayout(state: State, parent: HTMLElement) {
                         (child as HTMLElement).setAttribute(ElementAttribute.STYLE, `transform:translateY(${i < nextIndex ? "-" : ""}${state.pageHeight}px)`);
                     }
                     (child as HTMLElement).style.visibility = CssVisibility.HIDDEN;
+                    (child as HTMLElement).style.zIndex = "-1";
+
+                    if ([nextIndex, previousIndex].includes(i)) {
+                        (child as HTMLElement).style.zIndex = "1";
+                    } else {
+                        (child as HTMLElement).style.zIndex = "0";
+                    }
                 } else {
                     (child as HTMLElement).setAttribute(ElementAttribute.STYLE, `transform:translateY(0)`);
+                    (child as HTMLElement).style.zIndex = "1";
                 }
             });
 
@@ -507,6 +531,7 @@ export function createMainLayout(state: State, parent: HTMLElement) {
 
         if (direction === Direction.DOWN) {
             const nextIndex = currentVIndex + 1 >= slides.length ? 0 : currentVIndex + 1;
+            const previousIndex = currentVIndex - 1 < 0 ? slides.length - 1 : currentVIndex - 1;
             const currentSlide = Array.from(slides).find((_slide, i) => i === currentVIndex);
             const nextSlide = Array.from(slides).find((_slide, i) => i === nextIndex);
 
@@ -518,8 +543,15 @@ export function createMainLayout(state: State, parent: HTMLElement) {
                         (child as HTMLElement).setAttribute(ElementAttribute.STYLE, `transform:translateY(${i < nextIndex ? "-" : ""}${state.pageHeight}px)`);
                     }
                     (child as HTMLElement).style.visibility = CssVisibility.HIDDEN;
+                    (child as HTMLElement).style.zIndex = "-1";
+                    if ([nextIndex, previousIndex].includes(i)) {
+                        (child as HTMLElement).style.zIndex = "1";
+                    } else {
+                        (child as HTMLElement).style.zIndex = "0";
+                    }
                 } else {
                     (child as HTMLElement).setAttribute(ElementAttribute.STYLE, `transform:translateY(0)`);
+                    (child as HTMLElement).style.zIndex = "1";
                 }
             });
 
@@ -625,6 +657,7 @@ export function createMainLayout(state: State, parent: HTMLElement) {
     });
 
     document.addEventListener(EventTrigger.WHEEL, (event: WheelEvent) => {
+        const direction = event.deltaY > 0 ? Direction.DOWN : Direction.UP;
         if (state.wheelCount > 1) {
             return;
         }
@@ -632,29 +665,12 @@ export function createMainLayout(state: State, parent: HTMLElement) {
         const isTrackpad = detectTrackPad(event);
         if (state.isSliding || isTrackpad || !event.deltaY) return;
         state.isSliding = true;
-        const direction = event.deltaY > 0 ? Direction.DOWN : Direction.UP;
-
-        if (!state.isLoop) {
-            if (direction === Direction.DOWN) {
-                if (Number((parent as HTMLElement).dataset.currentVIndex) === slides.length - 1) {
-                    state.isSliding = false;
-                    return;
-                };
-                slideTo({ targetIndex: Number((parent as HTMLElement).dataset.currentVIndex) + 1 > slides.length - 1 ? 0 : Number((parent as HTMLElement).dataset.currentVIndex) + 1 })
-            }
-            if (direction === Direction.UP) {
-                if (Number((parent as HTMLElement).dataset.currentVIndex) === 0) {
-                    state.isSliding = false;
-                    return;
-                }
-            }
-        }
 
         if (direction === Direction.DOWN) {
-            slideTo({ targetIndex: Number((parent as HTMLElement).dataset.currentVIndex) + 1 > slides.length - 1 ? 0 : Number((parent as HTMLElement).dataset.currentVIndex) + 1 });
+            slideTo({ isWheel: true, targetIndex: Number((parent as HTMLElement).dataset.currentVIndex) + 1 > slides.length - 1 ? 0 : Number((parent as HTMLElement).dataset.currentVIndex) + 1 });
         }
         if (direction === Direction.UP) {
-            slideTo({ targetIndex: Number((parent as HTMLElement).dataset.currentVIndex) - 1 < 0 ? slides.length - 1 : Number((parent as HTMLElement).dataset.currentVIndex) - 1 });
+            slideTo({ isWheel: true, targetIndex: Number((parent as HTMLElement).dataset.currentVIndex) - 1 < 0 ? slides.length - 1 : Number((parent as HTMLElement).dataset.currentVIndex) - 1 });
         }
 
 
@@ -751,22 +767,18 @@ export function createMainLayout(state: State, parent: HTMLElement) {
         state.isSliding = true;
         let direction;
 
-        if (!state.isLoop) {
-            if (direction === Direction.DOWN) {
-                if (Number((parent as HTMLElement).dataset.currentVIndex) === slides.length - 1) {
-                    state.isSliding = false;
-                    return;
-                };
-            }
-            if (direction === Direction.UP) {
-                if (Number((parent as HTMLElement).dataset.currentVIndex) === 0) {
-                    state.isSliding = false;
-                    return;
-                }
-            }
-        }
+        const isntLoopAndIsLastSlide = !state.isLoop && Number((parent as HTMLElement).dataset.currentVIndex) === slides.length - 1;
+        const isntLoopAndFirstSlide = !state.isLoop && Number((parent as HTMLElement).dataset.currentVIndex) === 0;
 
         switch (true) {
+            case [KeyboardCode.ARROW_DOWN, KeyboardCode.SPACE].includes(keyCode) && isntLoopAndIsLastSlide:
+                state.isSliding = false;
+                break;
+
+            case [KeyboardCode.ARROW_UP].includes(keyCode) && isntLoopAndFirstSlide:
+                state.isSliding = false;
+                break;
+
             case [KeyboardCode.ARROW_DOWN, KeyboardCode.SPACE].includes(keyCode):
                 direction = Direction.DOWN;
                 slideTo({ targetIndex: Number((parent as HTMLElement).dataset.currentVIndex) + 1 > slides.length - 1 ? 0 : Number((parent as HTMLElement).dataset.currentVIndex) + 1 })
@@ -875,23 +887,17 @@ export function createMainLayout(state: State, parent: HTMLElement) {
                 }
             } else {
                 const direction = deltaTouchY > 0 ? Direction.DOWN : Direction.UP;
-
+                const parent = document.getElementsByClassName("qroll-parent")[0];
+                const currentSlideIndex = Number((parent as HTMLElement).dataset.currentVIndex);
                 if (!state.isLoop) {
-                    if (direction === Direction.DOWN) {
-                        if (Number((parent as HTMLElement).dataset.currentVIndex) === slides.length - 1) {
-                            state.isSliding = false;
-                            return;
-                        };
-                    }
                     if (direction === Direction.UP) {
-                        if (Number((parent as HTMLElement).dataset.currentVIndex) === 0) {
-                            state.isSliding = false;
-                            return;
-                        }
+                        slideTo({ isWheel: true, targetIndex: currentSlideIndex - 1 })
+                    } else {
+                        slideTo({ isWheel: true, targetIndex: currentSlideIndex + 1 })
                     }
+                } else {
+                    slideTo({ direction });
                 }
-
-                slideTo({ direction });
             }
         }
     });

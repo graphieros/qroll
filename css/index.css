@@ -57,6 +57,7 @@ html body {
     align-items: center;
     justify-content: center;
     background: transparent;
+    z-index: 10;
 }
 
 .qroll-carousel-vertical-button-top {
@@ -98,6 +99,7 @@ html body {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    z-index:10;
 }
 
 .qroll-nav-link {

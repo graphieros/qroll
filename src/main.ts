@@ -13,7 +13,7 @@ import {
     grabId,
     logError,
     setTabIndex,
-    walkTheDOM
+    walkTheDOM,
 } from "./functions";
 
 import {
@@ -21,11 +21,25 @@ import {
     createMainLayout
 } from "./carousel";
 
+import {
+    getCurrentSlideIndex,
+    getSlides,
+    slideDown,
+    slideUp,
+    slideToIndex
+} from "./interface";
+
 // TODO: find a way to include css
 
 // ISSUE: using the browser's history previous|next buttons does not update routing to slide in Chrome, Edge, Brave (but does in Firefox)
 
-const Main = (parentName: string, _options: Options = {}) => {
+// TODO: type Main
+const Main: any = (parentName: string, _options: Options = {}) => {
+    Main.getCurrentSlideIndex = getCurrentSlideIndex;
+    Main.getSlides = getSlides;
+    Main.slideDown = slideDown;
+    Main.slideUp = slideUp;
+    Main.slideToIndex = slideToIndex;
 
     //------------------------------------------------------------------------//
     //\/\/\/\/\/\/\/\/\/\/\/\/|                       |\/\/\/\/\/\/\/\/\/\/\/\//

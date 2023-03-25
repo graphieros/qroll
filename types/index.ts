@@ -1,5 +1,5 @@
 export interface OurWindow extends Window {
-    mainFunc: (name: string, options: Options) => void
+    qroll: (name: string, options: Options) => void,
 }
 export interface Config {
     parentName: "string",

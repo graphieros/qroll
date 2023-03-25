@@ -42,6 +42,7 @@ export namespace CssClass {
     export const NESTED_CAROUSEL_BUTTON_RIGHT = "qroll-nested-carousel-nav-right";
     export const NESTED_CAROUSEL_PROGRESS_BAR = "qroll-nested-carousel-progress-bar";
 
+    export const MAIN = "qroll-main";
     export const SLIDE = "qroll-slide";
     export const NAV_LINK = "qroll-nav-link";
     export const NAV_LINK_SELECTED = "qroll-nav-link-selected";
