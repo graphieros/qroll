@@ -201,6 +201,7 @@ export function updateCssClasses({ element, addedClasses = [], removedClasses = 
 export function updateLocation(slideId: string, callback?: () => void) {
     // this is good stuff
     (window as Window).location.href = `${(window as Window).location.pathname}#${slideId}`;
+
     if (callback) callback()
 }
 
