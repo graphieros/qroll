@@ -11,6 +11,7 @@ export function setUpCarousels(state: State, carousel: HTMLElement) {
         (slide as HTMLElement).style.width = `${state.pageWidth}px`;
         if (i === currentHIndex) {
             (slide as HTMLElement).style.transform = "translateX(0)";
+            (slide as HTMLElement).style.visibility = CssVisibility.INITIAL;
         } else if (i === (currentHIndex - 1 < 0 ? slides.length - 1 : currentHIndex - 1)) {
             (slide as HTMLElement).style.transform = `translateX(-${state.pageWidth}px)`;
         } else if (i === (currentHIndex + 1 > slides.length - 1 ? 0 : currentHIndex + 1)) {
@@ -19,8 +20,13 @@ export function setUpCarousels(state: State, carousel: HTMLElement) {
             (slide as HTMLElement).style.transform = `translateX(${state.pageWidth}px)`;
         } else if (i < currentHIndex) {
             (slide as HTMLElement).style.transform = `translateX(-${state.pageWidth}px)`;
-
         }
+    });
+
+    setTimeout(() => {
+        slides.forEach(slide => {
+            (slide as HTMLElement).classList.remove(CssClass.NO_TRANSITION);
+        });
     });
 }
 
@@ -151,9 +157,14 @@ export function createCarousel(state: State, carousel: HTMLElement) {
     function slideTo(index: number) {
         const currentIndex = Number((carouselWrapper as HTMLElement).dataset.carouselIndex);
         const nextIndex = index;
-        if (currentIndex === nextIndex) return;
+
         if (state.isSliding) return;
         state.isSliding = true;
+
+        if (currentIndex === nextIndex) {
+            state.isSliding = false;
+            return;
+        };
 
         if (nextIndex > currentIndex) {
             // slide right
@@ -179,6 +190,7 @@ export function createCarousel(state: State, carousel: HTMLElement) {
             (slides[nextIndex] as HTMLElement).style.visibility = CssVisibility.INITIAL;
             carouselWrapper.dataset.carouselIndex = String(nextIndex);
             updateCarouselNav(carousel);
+            updateLocation(`${carousel.id}/${nextIndex}`);
 
             setTimeout(() => {
                 state.isSliding = false;
@@ -207,6 +219,7 @@ export function createCarousel(state: State, carousel: HTMLElement) {
             (slides[nextIndex] as HTMLElement).style.visibility = CssVisibility.INITIAL;
             carouselWrapper.dataset.carouselIndex = String(nextIndex);
             updateCarouselNav(carousel);
+            updateLocation(`${carousel.id}/${nextIndex}`);
 
             setTimeout(() => {
                 state.isSliding = false;
@@ -239,6 +252,7 @@ export function createCarousel(state: State, carousel: HTMLElement) {
         (slides[nextIndex] as HTMLElement).style.visibility = CssVisibility.INITIAL
         carouselWrapper.dataset.carouselIndex = String(nextIndex);
         updateCarouselNav(carousel);
+        updateLocation(`${carousel.id}/${nextIndex}`);
 
         setTimeout(() => {
             state.isSliding = false;
@@ -270,6 +284,7 @@ export function createCarousel(state: State, carousel: HTMLElement) {
         (slides[nextIndex] as HTMLElement).style.visibility = CssVisibility.INITIAL;
         carouselWrapper.dataset.carouselIndex = String(nextIndex);
         updateCarouselNav(carousel);
+        updateLocation(`${carousel.id}/${nextIndex}`);
 
         setTimeout(() => {
             state.isSliding = false;
@@ -364,7 +379,10 @@ export function createMainLayout(state: State, parent: HTMLElement) {
         if (targetIndex !== undefined) {
             differenceToTarget = currentVIndex - targetIndex;
 
-            if (differenceToTarget === 0) return;
+            if (differenceToTarget === 0) {
+                state.isSliding = false;
+                return;
+            };
             targetDirection = differenceToTarget > 0 ? Direction.DOWN : Direction.UP;
 
             switch (true) {
@@ -427,12 +445,18 @@ export function createMainLayout(state: State, parent: HTMLElement) {
             (nextSlide as HTMLElement).style.transform = "translateY(0)";
             (parent as HTMLElement).dataset.currentVIndex = `${nextIndex}`;
 
+            let id = nextSlide ? nextSlide.id : "";
+            const nextSlideHasCarousel = Array.from((nextSlide as HTMLElement).classList).includes(CssClass.CAROUSEL);
+            let currentCarouselIndex = getCurrentCarouselIndex(nextSlide as HTMLElement, true);
+            if (nextSlideHasCarousel && currentCarouselIndex) {
+                id += `/${currentCarouselIndex || 0}`;
+            }
+
             updateNav();
             updateCarouselNav(nextSlide as HTMLElement);
             setTimeout(() => {
-                const id = nextSlide ? nextSlide.id : "";
+                state.isRouting = true;
                 if (!skipHistory) {
-                    state.isRouting = true;
                     updateLocation(id, clearRoutingTimeout);
                     state.wheelCount = 0;
                 }
@@ -471,10 +495,17 @@ export function createMainLayout(state: State, parent: HTMLElement) {
             (currentSlide as HTMLElement).style.transform = `translateY(-${state.pageHeight}px)`;
             (nextSlide as HTMLElement).style.transform = "translateY(0)";
             (parent as HTMLElement).dataset.currentVIndex = `${nextIndex}`;
+
+            let id = nextSlide ? nextSlide.id : "";
+            const nextSlideHasCarousel = Array.from((nextSlide as HTMLElement).classList).includes(CssClass.CAROUSEL);
+            let currentCarouselIndex = getCurrentCarouselIndex(nextSlide as HTMLElement, true);
+            if (nextSlideHasCarousel && currentCarouselIndex) {
+                id += `/${currentCarouselIndex || 0}`;
+            }
+
             updateNav();
             updateCarouselNav(nextSlide as HTMLElement);
             setTimeout(() => {
-                const id = nextSlide ? nextSlide.id : "";
                 if (!skipHistory) {
                     state.isRouting = true;
                     updateLocation(id, clearRoutingTimeout);
@@ -568,7 +599,7 @@ export function createMainLayout(state: State, parent: HTMLElement) {
         slideTo({ direction: Direction.DOWN })
     });
 
-    document.addEventListener(EventTrigger.WHEEL, (event: WheelEvent) => {
+    window.addEventListener(EventTrigger.WHEEL, (event: WheelEvent) => {
         const direction = event.deltaY > 0 ? Direction.DOWN : Direction.UP;
         if (state.wheelCount > 1) {
             return;
@@ -585,11 +616,10 @@ export function createMainLayout(state: State, parent: HTMLElement) {
             slideTo({ isWheel: true, targetIndex: Number((parent as HTMLElement).dataset.currentVIndex) - 1 < 0 ? slides.length - 1 : Number((parent as HTMLElement).dataset.currentVIndex) - 1 });
         }
 
-
         setTimeout(() => {
             state.isSliding = false;
             state.wheelCount = 0;
-        }, state.transitionDuration < 800 ? 800 : state.transitionDuration);
+        }, state.transitionDuration);
     });
 
     document.addEventListener(EventTrigger.KEYUP, (event: KeyboardEvent) => {
@@ -607,15 +637,15 @@ export function createMainLayout(state: State, parent: HTMLElement) {
         const currentSlideIndex = Number((parent as HTMLElement).dataset.currentVIndex);
         const thisCarousel = parent.children[currentSlideIndex];
         const carouselWrapper = thisCarousel.getElementsByClassName("qroll-slide-carousel-wrapper")[0];
+        const buttonRight = thisCarousel.getElementsByClassName("qroll-carousel-horizontal-button-right")[0];
+        const buttonLeft = thisCarousel.getElementsByClassName("qroll-carousel-horizontal-button-left")[0];
 
         if (carouselWrapper && ["ArrowRight", "ArrowLeft"].includes(keyCode)) {
             const carouselSlides = Array.from(carouselWrapper.children).filter(el => Array.from(el.classList).includes("qroll-carousel-slide"));
             if (Array.from((thisCarousel as HTMLElement).classList).includes("qroll-carousel") && carouselWrapper) {
                 if (keyCode === "ArrowRight") {
-                    if (state.isSliding) return;
-                    state.isSliding = true;
+
                     const currentIndex = Number((carouselWrapper as HTMLElement).dataset.carouselIndex);
-                    const nextIndex = currentIndex + 1 > carouselSlides.length - 1 ? 0 : currentIndex + 1;
 
                     if (!Array.from((thisCarousel as HTMLElement).classList).includes(CssClass.LOOP)) {
                         if ([carouselSlides.length - 1].includes(currentIndex)) {
@@ -624,24 +654,7 @@ export function createMainLayout(state: State, parent: HTMLElement) {
                             return;
                         }
                     }
-
-                    carouselSlides.forEach((slide, i) => {
-                        if (i === nextIndex) {
-                            (slide as HTMLElement).style.transform = "translateX(0)";
-                        }
-                        if (i === currentIndex) {
-                            (slide as HTMLElement).style.transform = `translateX(-${state.pageWidth}px)`;
-                            (slide as HTMLElement).style.visibility = CssVisibility.HIDDEN;
-                        }
-                        if (i === (nextIndex + 1 > carouselSlides.length - 1 ? 0 : nextIndex + 1)) {
-                            (slide as HTMLElement).style.transform = `translateX(${state.pageWidth}px)`;
-                            (slide as HTMLElement).style.visibility = CssVisibility.HIDDEN;
-                        }
-                    });
-
-                    (carouselSlides[nextIndex] as HTMLElement).style.visibility = CssVisibility.INITIAL;
-                    (carouselWrapper as HTMLElement).dataset.carouselIndex = String(nextIndex);
-                    updateCarouselNav(thisCarousel as HTMLElement);
+                    (buttonRight as HTMLElement).click();
 
                     setTimeout(() => {
                         state.isSliding = false;
@@ -650,11 +663,7 @@ export function createMainLayout(state: State, parent: HTMLElement) {
                     return;
                 }
                 if (keyCode === "ArrowLeft") {
-                    if (state.isSliding) return;
-                    state.isSliding = true;
-
                     const currentIndex = Number((carouselWrapper as HTMLElement).dataset.carouselIndex);
-                    const nextIndex = currentIndex - 1 < 0 ? carouselSlides.length - 1 : currentIndex - 1;
 
                     if (!Array.from((thisCarousel as HTMLElement).classList).includes(CssClass.LOOP)) {
                         if ([0].includes(currentIndex)) {
@@ -664,23 +673,7 @@ export function createMainLayout(state: State, parent: HTMLElement) {
                         }
                     }
 
-                    carouselSlides.forEach((slide, i) => {
-                        if (i === nextIndex) {
-                            (slide as HTMLElement).style.transform = "translateX(0)";
-                        }
-                        if (i === currentIndex) {
-                            (slide as HTMLElement).style.transform = `translateX(${state.pageWidth}px)`;
-                            (slide as HTMLElement).style.visibility = CssVisibility.HIDDEN;
-                        }
-                        if (i === (nextIndex - 1 < 0 ? carouselSlides.length - 1 : nextIndex - 1)) {
-                            (slide as HTMLElement).style.transform = `translateX(-${state.pageWidth}px)`;
-                            (slide as HTMLElement).style.visibility = CssVisibility.HIDDEN;
-                        }
-                    });
-
-                    (carouselSlides[nextIndex] as HTMLElement).style.visibility = CssVisibility.INITIAL;
-                    (carouselWrapper as HTMLElement).dataset.carouselIndex = String(nextIndex);
-                    updateCarouselNav(thisCarousel as HTMLElement);
+                    (buttonLeft as HTMLElement).click();
 
                     setTimeout(() => {
                         state.isSliding = false;
@@ -785,6 +778,7 @@ export function createMainLayout(state: State, parent: HTMLElement) {
                     (carouselSlides[nextIndex] as HTMLElement).style.visibility = CssVisibility.INITIAL;
                     (carouselWrapper as HTMLElement).dataset.carouselIndex = String(nextIndex);
                     updateCarouselNav(thisCarousel as HTMLElement);
+                    updateLocation(`${thisCarousel.id}/${nextIndex}`);
 
                     setTimeout(() => {
                         state.isSliding = false;
@@ -823,6 +817,7 @@ export function createMainLayout(state: State, parent: HTMLElement) {
                     (carouselSlides[nextIndex] as HTMLElement).style.visibility = CssVisibility.INITIAL;
                     (carouselWrapper as HTMLElement).dataset.carouselIndex = String(nextIndex);
                     updateCarouselNav(thisCarousel as HTMLElement);
+                    updateLocation(`${thisCarousel.id}/${nextIndex}`);
 
                     setTimeout(() => {
                         state.isSliding = false;
@@ -857,9 +852,25 @@ export function createMainLayout(state: State, parent: HTMLElement) {
     function getCurrentSlideId() {
         const location = window?.location;
         if (location?.hash) {
-            return location?.hash;
+            return location?.hash.split("/")[0];
         }
         return slides[0].id || slides[1].id;
+    }
+
+    function getCurrentCarouselIndex(slide: HTMLElement, isSliding: boolean = false) {
+        let carouselIndex = "";
+
+        const carouselWrapper = slide.getElementsByClassName("qroll-slide-carousel-wrapper")[0];
+
+        if (slide && carouselWrapper) {
+            carouselIndex = (carouselWrapper as HTMLElement).dataset.carouselIndex || "";
+        }
+
+        const location = window?.location;
+        if (location?.hash && !isSliding) {
+            return location?.hash.split("/")[1] || carouselIndex;
+        }
+        return carouselIndex;
     }
 
     window.onload = () => {
@@ -871,6 +882,7 @@ export function createMainLayout(state: State, parent: HTMLElement) {
         });
         setUpSlides(state, parent);
         updateNav();
+        restoreCarousel();
         updateCarouselNav(grabId(currentSlideId));
         setTimeout(() => {
             Array.from(children).filter(child => (Array.from(child.classList).includes(CssClass.SLIDE))).forEach((child) => {
@@ -884,8 +896,25 @@ export function createMainLayout(state: State, parent: HTMLElement) {
         state.timeoutRouter = setTimeout(() => {
             state.isRouting = false;
             state.isSliding = false;
-        }, state.transitionDuration + 10);
+            state.wheelCount = 0;
+        }, 10); // RA likes 10 because it's a "proper" digit
 
+    }
+
+    function restoreCarousel() {
+        const currentSlideId = getCurrentSlideId().replace("#", "");
+        // if has carousel position to slide in url
+        if (Array.from(grabId(currentSlideId).classList).includes(CssClass.CAROUSEL)) {
+            const currentCarouselIndex = Number(getCurrentCarouselIndex(grabId(currentSlideId)));
+            const carouselWrapper = grabId(currentSlideId).getElementsByClassName("qroll-slide-carousel-wrapper")[0];
+            const carouselSlides = Array.from(carouselWrapper.children).filter(el => Array.from(el.classList).includes("qroll-carousel-slide"));
+            (carouselWrapper as HTMLElement).dataset.carouselIndex = String(currentCarouselIndex);
+
+            carouselSlides.forEach((slide) => {
+                (slide as HTMLElement).classList.add(CssClass.NO_TRANSITION);
+            });
+            setUpCarousels(state, grabId(currentSlideId));
+        }
     }
 
     window.addEventListener(EventTrigger.HASHCHANGE, () => {
@@ -894,6 +923,7 @@ export function createMainLayout(state: State, parent: HTMLElement) {
         const currentSlideId = getCurrentSlideId().replace("#", "");
         const targetIndex = Number(grabId(currentSlideId).dataset.index);
         slideTo({ targetIndex, skipHistory: true });
+        restoreCarousel();
         updateCarouselNav(grabId(currentSlideId));
         updateNav();
         clearRoutingTimeout();

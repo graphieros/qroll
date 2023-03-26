@@ -29,6 +29,8 @@ import {
     slideToIndex
 } from "./interface";
 
+
+
 // TODO: find a way to include css
 
 // ISSUE: using the browser's history previous|next buttons does not update routing to slide in Chrome, Edge, Brave (but does in Firefox)
@@ -41,11 +43,17 @@ const Main: any = (parentName: string, _options: Options = {}) => {
     Main.slideUp = slideUp;
     Main.slideToIndex = slideToIndex;
 
+    // TODO loading page
+
     // const cssLink = document.createElement("link");
     // cssLink.rel = "stylesheet";
     // cssLink.type = "text/css";
-    // cssLink.href = "css/index.css"
-
+    // if ((import.meta as any).env.VITE_TARGET === 'production') {
+    //     cssLink.href = "./styles.css"
+    // } else {
+    //     cssLink.href = "./css/index.css" // dev only
+    // }
+    // console.log((import.meta as any).env)
     // document.head.appendChild(cssLink);
 
     //------------------------------------------------------------------------//
@@ -92,7 +100,7 @@ const Main: any = (parentName: string, _options: Options = {}) => {
         transitionDuration: 1000,
         userAgent: navigator.userAgent,
         wheelCount: 0,
-    }
+    };
 
     // this needs extra testing for all browsers to check if wheel event makes the scroll work !
 
