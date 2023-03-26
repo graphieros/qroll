@@ -180,7 +180,6 @@ const Main: any = (parentName: string, _options: Options = {}) => {
         createCarousel(state, element);
     }
     createMainLayout(state, parent);
-
 }
 
 export default Main;

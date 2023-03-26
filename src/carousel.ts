@@ -1,9 +1,14 @@
 import { State } from "../types";
-import { CssClass, CssDisplay, CssUnit, CssVisibility, Direction, DomElement, ElementAttribute, EventTrigger, KeyboardCode, NodeName } from "./constants";
+import { CssClass, CssDisplay, CssUnit, CssVisibility, Direction, DomElement, ElementAttribute, EventTrigger, KeyboardCode, NodeName, Svg } from "./constants";
 import { detectTrackPad, grabId, walkTheDOM, setTabIndex, spawn, updateLocation, applyEllipsis } from "./functions";
 
-export function setUpCarousels(state: State, carousel: HTMLElement) {
-    const parent = carousel.getElementsByClassName("qroll-slide-carousel-wrapper")[0];
+/** Set up horizontal slides' translateX and visibility propreties based on the current horizontal index
+ * 
+ * @param state - the main state object
+ * @param carousel - A direct child of the main parent Element
+ */
+export function setupHorizontalSlides(state: State, carousel: HTMLElement) {
+    const parent = carousel.getElementsByClassName(CssClass.CAROUSEL_WRAPPER)[0];
     const slides = Array.from(parent.children).filter(slide => (Array.from(slide.classList).includes(CssClass.CAROUSEL_SLIDE)));
     const currentHIndex = Number((parent as HTMLElement).dataset.carouselIndex);
 
@@ -30,21 +35,25 @@ export function setUpCarousels(state: State, carousel: HTMLElement) {
     });
 }
 
+/** Update states of links & nav buttons on a carousel
+ * 
+ * @param carousel - A direct child of the main parent Element
+ */
 export function updateCarouselNav(carousel: HTMLElement) {
-    const carouselWrapper = carousel.getElementsByClassName("qroll-slide-carousel-wrapper")[0];
+    const carouselWrapper = carousel.getElementsByClassName(CssClass.CAROUSEL_WRAPPER)[0];
     if (!carouselWrapper) return;
     const currentIndex = Number((carouselWrapper as HTMLElement).dataset.carouselIndex);
-    const nav = carousel.getElementsByClassName("qroll-horizontal-nav")[0];
+    const nav = carousel.getElementsByClassName(CssClass.NAV_HORIZONTAL)[0];
     const links = nav.children;
     Array.from(links).forEach((link, i) => {
         if (i === currentIndex) {
-            link.classList.add("qroll-nav-link-selected");
+            link.classList.add(CssClass.NAV_LINK_SELECTED);
         } else {
-            link.classList.remove("qroll-nav-link-selected");
+            link.classList.remove(CssClass.NAV_LINK_SELECTED);
         }
     });
-    const buttonLeft = carousel.getElementsByClassName("qroll-carousel-horizontal-button-left")[0];
-    const buttonRight = carousel.getElementsByClassName("qroll-carousel-horizontal-button-right")[0];
+    const buttonLeft = carousel.getElementsByClassName(CssClass.NAV_BUTTON_LEFT)[0];
+    const buttonRight = carousel.getElementsByClassName(CssClass.NAV_BUTTON_RIGHT)[0];
 
     if (!Array.from((carousel as HTMLElement).classList).includes(CssClass.LOOP)) {
         if (currentIndex === 0 && buttonLeft) {
@@ -73,7 +82,7 @@ export function createCarousel(state: State, carousel: HTMLElement) {
     const slideCount = carouselSlides.length - 1;
 
     const carouselWrapper = spawn(DomElement.DIV);
-    carouselWrapper.classList.add("qroll-slide-carousel-wrapper");
+    carouselWrapper.classList.add(CssClass.CAROUSEL_WRAPPER);
     (carouselWrapper as HTMLElement).dataset.carouselIndex = "0";
 
     Array.from(carouselSlides).forEach((element, i) => {
@@ -101,19 +110,19 @@ export function createCarousel(state: State, carousel: HTMLElement) {
 
     // NAV
     const nav = spawn(DomElement.DIV);
-    nav.classList.add("qroll-horizontal-nav");
+    nav.classList.add(CssClass.NAV_HORIZONTAL);
     nav.dataset.slideIndex = carousel.dataset.index;
 
-    const slides = Array.from(carousel.getElementsByClassName("qroll-slide-carousel-wrapper")[0].children);
+    const slides = Array.from(carousel.getElementsByClassName(CssClass.CAROUSEL_WRAPPER)[0].children);
 
     slides.filter(child => Array.from(child.classList).includes(CssClass.CAROUSEL_SLIDE)).forEach((slide, i) => {
         const link = spawn(DomElement.BUTTON);
-        link.setAttribute("tabindex", "1");
-        link.classList.add("qroll-nav-link");
+        link.setAttribute(ElementAttribute.TABINDEX, "1");
+        link.classList.add(CssClass.NAV_LINK);
         if (i === Number((carouselWrapper as HTMLElement).dataset.carouselIndex)) {
-            link.classList.add("qroll-nav-link-selected");
+            link.classList.add(CssClass.NAV_LINK_SELECTED);
         } else {
-            link.classList.remove("qroll-nav-link-selected");
+            link.classList.remove(CssClass.NAV_LINK_SELECTED);
         }
         link.dataset.linkIndex = `${i}`;
         link.addEventListener(EventTrigger.CLICK, () => slideTo(i));
@@ -138,7 +147,7 @@ export function createCarousel(state: State, carousel: HTMLElement) {
             tooltip.setAttribute(ElementAttribute.STYLE, (slide as HTMLElement).dataset.tooltipCss || "");
         }
 
-        if (Array.from(carousel.classList).includes("qroll-tooltip")) {
+        if (Array.from(carousel.classList).includes(CssClass.TOOLTIP)) {
             link.appendChild(tooltip);
         }
 
@@ -147,12 +156,10 @@ export function createCarousel(state: State, carousel: HTMLElement) {
 
     const buttonRight = spawn(DomElement.BUTTON);
     const buttonLeft = spawn(DomElement.BUTTON);
-
-    buttonRight.classList.add("qroll-carousel-horizontal-button-right");
-    buttonLeft.classList.add("qroll-carousel-horizontal-button-left");
-
-    buttonRight.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="white"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>`;
-    buttonLeft.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="white"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>`;
+    buttonRight.classList.add(CssClass.NAV_BUTTON_RIGHT);
+    buttonLeft.classList.add(CssClass.NAV_BUTTON_LEFT);
+    buttonRight.innerHTML = Svg.CHEVRON_RIGHT;
+    buttonLeft.innerHTML = Svg.CHEVRON_LEFT;
 
     function slideTo(index: number) {
         const currentIndex = Number((carouselWrapper as HTMLElement).dataset.carouselIndex);
@@ -295,15 +302,18 @@ export function createCarousel(state: State, carousel: HTMLElement) {
     buttonRight.addEventListener(EventTrigger.CLICK, slideRight);
     buttonLeft.addEventListener(EventTrigger.CLICK, slideLeft);
 
-    // TODO touch event
-
     carousel.appendChild(buttonRight);
     carousel.appendChild(buttonLeft);
     carousel.appendChild(nav);
 
 }
 
-export function setUpSlides(state: State, parent: HTMLElement) {
+/** Set up slides' translateY & zIndex properties based on the current vertical index 
+ * 
+ * @param state - main state object
+ * @param parent - The main parent element
+ */
+export function setupVerticalSlides(state: State, parent: HTMLElement) {
     const children = Array.from(parent.children).filter(child => Array.from(child.classList).includes(CssClass.SLIDE));
 
     Array.from(children).forEach((child, i) => {
@@ -318,6 +328,11 @@ export function setUpSlides(state: State, parent: HTMLElement) {
     });
 }
 
+/** Generate slide layout and event listeners
+ * 
+ * @param state - main state object
+ * @param parent - The main parent element
+ */
 export function createMainLayout(state: State, parent: HTMLElement) {
     (parent as HTMLElement).dataset.currentVIndex = "0";
     (parent as HTMLElement).classList.add(CssClass.CAROUSEL_VERTICAL);
@@ -334,8 +349,8 @@ export function createMainLayout(state: State, parent: HTMLElement) {
 
     const buttonTop = spawn(DomElement.BUTTON);
     const buttonBottom = spawn(DomElement.BUTTON);
-    buttonTop.setAttribute("tabindex", "1");
-    buttonBottom.setAttribute("tabindex", "1");
+    buttonTop.setAttribute(ElementAttribute.TABINDEX, "1");
+    buttonBottom.setAttribute(ElementAttribute.TABINDEX, "1");
     buttonTop.setAttribute(ElementAttribute.TYPE, DomElement.BUTTON);
     buttonBottom.setAttribute(ElementAttribute.TYPE, DomElement.BUTTON);
     buttonTop.classList.add(CssClass.NAV_BUTTON_TOP);
@@ -553,7 +568,7 @@ export function createMainLayout(state: State, parent: HTMLElement) {
             tooltip.setAttribute(ElementAttribute.STYLE, (slide as HTMLElement).dataset.tooltipCss || "")
         }
 
-        if (Array.from(parent.classList).includes("qroll-tooltip")) {
+        if (Array.from(parent.classList).includes(CssClass.TOOLTIP)) {
             link.appendChild(tooltip);
         }
         nav.appendChild(link);
@@ -584,8 +599,8 @@ export function createMainLayout(state: State, parent: HTMLElement) {
         }
     }
 
-    buttonBottom.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" height="30px" width="30px"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>`;
-    buttonTop.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" height="30px" width="30px"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg>`;
+    buttonBottom.innerHTML = Svg.CHEVRON_DOWN;
+    buttonTop.innerHTML = Svg.CHEVRON_TOP;
 
     // EVENTS
     buttonTop.addEventListener(EventTrigger.CLICK, () => {
@@ -631,19 +646,17 @@ export function createMainLayout(state: State, parent: HTMLElement) {
         const isScrollableIsland = hasVerticalScrollBar && target.nodeName !== NodeName.BODY;
         if ([isInputField, isScrollableIsland].includes(true)) return;
 
-        // carousel management
-
-        const parent = document.getElementsByClassName("qroll-parent")[0];
+        const parent = document.getElementsByClassName(CssClass.PARENT)[0];
         const currentSlideIndex = Number((parent as HTMLElement).dataset.currentVIndex);
         const thisCarousel = parent.children[currentSlideIndex];
-        const carouselWrapper = thisCarousel.getElementsByClassName("qroll-slide-carousel-wrapper")[0];
-        const buttonRight = thisCarousel.getElementsByClassName("qroll-carousel-horizontal-button-right")[0];
-        const buttonLeft = thisCarousel.getElementsByClassName("qroll-carousel-horizontal-button-left")[0];
+        const carouselWrapper = thisCarousel.getElementsByClassName(CssClass.CAROUSEL_WRAPPER)[0];
+        const buttonRight = thisCarousel.getElementsByClassName(CssClass.NAV_BUTTON_RIGHT)[0];
+        const buttonLeft = thisCarousel.getElementsByClassName(CssClass.NAV_BUTTON_LEFT)[0];
 
-        if (carouselWrapper && ["ArrowRight", "ArrowLeft"].includes(keyCode)) {
-            const carouselSlides = Array.from(carouselWrapper.children).filter(el => Array.from(el.classList).includes("qroll-carousel-slide"));
-            if (Array.from((thisCarousel as HTMLElement).classList).includes("qroll-carousel") && carouselWrapper) {
-                if (keyCode === "ArrowRight") {
+        if (carouselWrapper && [KeyboardCode.ARROW_RIGHT, KeyboardCode.ARROW_LEFT].includes(keyCode)) {
+            const carouselSlides = Array.from(carouselWrapper.children).filter(el => Array.from(el.classList).includes(CssClass.CAROUSEL_SLIDE));
+            if (Array.from((thisCarousel as HTMLElement).classList).includes(CssClass.CAROUSEL) && carouselWrapper) {
+                if (keyCode === KeyboardCode.ARROW_RIGHT) {
 
                     const currentIndex = Number((carouselWrapper as HTMLElement).dataset.carouselIndex);
 
@@ -662,7 +675,7 @@ export function createMainLayout(state: State, parent: HTMLElement) {
                     }, state.transitionDuration);
                     return;
                 }
-                if (keyCode === "ArrowLeft") {
+                if (keyCode === KeyboardCode.ARROW_LEFT) {
                     const currentIndex = Number((carouselWrapper as HTMLElement).dataset.carouselIndex);
 
                     if (!Array.from((thisCarousel as HTMLElement).classList).includes(CssClass.LOOP)) {
@@ -739,13 +752,13 @@ export function createMainLayout(state: State, parent: HTMLElement) {
             if (Math.abs(deltaTouchY) < 5 || Math.abs(deltaTouchX) < 5) return;
 
             if (Math.abs(deltaTouchX) > Math.abs(deltaTouchY)) {
-                const parent = document.getElementsByClassName("qroll-parent")[0];
+                const parent = document.getElementsByClassName(CssClass.PARENT)[0];
                 const currentSlideIndex = Number((parent as HTMLElement).dataset.currentVIndex);
                 const thisCarousel = parent.children[currentSlideIndex];
-                const carouselWrapper = thisCarousel.getElementsByClassName("qroll-slide-carousel-wrapper")[0];
+                const carouselWrapper = thisCarousel.getElementsByClassName(CssClass.CAROUSEL_WRAPPER)[0];
                 if (!carouselWrapper) return;
 
-                const carouselSlides = Array.from(carouselWrapper.children).filter(el => Array.from(el.classList).includes("qroll-carousel-slide"));
+                const carouselSlides = Array.from(carouselWrapper.children).filter(el => Array.from(el.classList).includes(CssClass.CAROUSEL_SLIDE));
                 if (deltaTouchX > 0) {
                     // right
                     if (state.isSliding) return;
@@ -826,7 +839,7 @@ export function createMainLayout(state: State, parent: HTMLElement) {
                 }
             } else {
                 const direction = deltaTouchY > 0 ? Direction.DOWN : Direction.UP;
-                const parent = document.getElementsByClassName("qroll-parent")[0];
+                const parent = document.getElementsByClassName(CssClass.PARENT)[0];
                 const currentSlideIndex = Number((parent as HTMLElement).dataset.currentVIndex);
                 if (!state.isLoop) {
                     if (direction === Direction.UP) {
@@ -844,9 +857,9 @@ export function createMainLayout(state: State, parent: HTMLElement) {
     window.addEventListener(EventTrigger.RESIZE, () => {
         state.pageHeight = window.innerHeight;
         state.pageWidth = window.innerWidth;
-        setUpSlides(state, parent);
+        setupVerticalSlides(state, parent);
         const carousels = document.getElementsByClassName(CssClass.CAROUSEL);
-        Array.from(carousels).forEach(carousel => setUpCarousels(state, (carousel as HTMLElement)))
+        Array.from(carousels).forEach(carousel => setupHorizontalSlides(state, (carousel as HTMLElement)))
     });
 
     function getCurrentSlideId() {
@@ -860,7 +873,7 @@ export function createMainLayout(state: State, parent: HTMLElement) {
     function getCurrentCarouselIndex(slide: HTMLElement, isSliding: boolean = false) {
         let carouselIndex = "";
 
-        const carouselWrapper = slide.getElementsByClassName("qroll-slide-carousel-wrapper")[0];
+        const carouselWrapper = slide.getElementsByClassName(CssClass.CAROUSEL_WRAPPER)[0];
 
         if (slide && carouselWrapper) {
             carouselIndex = (carouselWrapper as HTMLElement).dataset.carouselIndex || "";
@@ -880,7 +893,7 @@ export function createMainLayout(state: State, parent: HTMLElement) {
         Array.from(children).filter(child => (Array.from(child.classList).includes(CssClass.SLIDE))).forEach((child) => {
             child.classList.add(CssClass.NO_TRANSITION);
         });
-        setUpSlides(state, parent);
+        setupVerticalSlides(state, parent);
         updateNav();
         restoreCarousel();
         updateCarouselNav(grabId(currentSlideId));
@@ -906,14 +919,14 @@ export function createMainLayout(state: State, parent: HTMLElement) {
         // if has carousel position to slide in url
         if (Array.from(grabId(currentSlideId).classList).includes(CssClass.CAROUSEL)) {
             const currentCarouselIndex = Number(getCurrentCarouselIndex(grabId(currentSlideId)));
-            const carouselWrapper = grabId(currentSlideId).getElementsByClassName("qroll-slide-carousel-wrapper")[0];
-            const carouselSlides = Array.from(carouselWrapper.children).filter(el => Array.from(el.classList).includes("qroll-carousel-slide"));
+            const carouselWrapper = grabId(currentSlideId).getElementsByClassName(CssClass.CAROUSEL_WRAPPER)[0];
+            const carouselSlides = Array.from(carouselWrapper.children).filter(el => Array.from(el.classList).includes(CssClass.CAROUSEL_SLIDE));
             (carouselWrapper as HTMLElement).dataset.carouselIndex = String(currentCarouselIndex);
 
             carouselSlides.forEach((slide) => {
                 (slide as HTMLElement).classList.add(CssClass.NO_TRANSITION);
             });
-            setUpCarousels(state, grabId(currentSlideId));
+            setupHorizontalSlides(state, grabId(currentSlideId));
         }
     }
 

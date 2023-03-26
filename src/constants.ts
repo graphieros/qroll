@@ -1,29 +1,30 @@
 import { ScrollDirection } from "../types";
 
 export namespace CssClass {
-    export const BOTTOM = "qroll-bottom";
-    export const BOTTOM_INVISIBLE = "qroll-bottom-invisible";
     export const CAROUSEL = "qroll-carousel";
-    export const CAROUSEL_NAV_LEFT = "qroll-carousel-nav-left";
-    export const CAROUSEL_NAV_RIGHT = "qroll-carousel-nav-right";
     export const CAROUSEL_SLIDE = "qroll-carousel-slide";
+    export const CAROUSEL_VERTICAL = "qroll-carousel-vertical";
+    export const CAROUSEL_WRAPPER = "qroll-slide-carousel-wrapper";
     export const CHILD = "qroll-child";
-    export const CHILDREN_WRAPPER = "qroll-children-wrapper";
-    export const CHILD_VISIBLE = "qroll-child-visible";
-    export const HAS_CAROUSEL = "qroll-has-carousel";
     export const HAS_HORIZONTAL_NAV = "qroll-has-horizontal-nav";
     export const HAS_NAV = "qroll-nav";
-    export const HIDDEN = "qroll-hidden";
     export const LOOP = "qroll-loop";
-    export const NAV_ELEMENT_WRAPPER = "qroll-nav-element-wrapper";
-    export const NAV_HORIZONTAL = "qroll-nav-horizontal";
+    export const MAIN = "qroll-main";
+    export const NAV_BUTTON_DOWN = "qroll-carousel-vertical-button-down";
+    export const NAV_BUTTON_LEFT = "qroll-carousel-horizontal-button-left";
+    export const NAV_BUTTON_RIGHT = "qroll-carousel-horizontal-button-right";
+    export const NAV_BUTTON_TOP = "qroll-carousel-vertical-button-top";
+    export const NAV_HORIZONTAL = "qroll-horizontal-nav";
     export const NAV_HORIZONTAL_ELEMENT_WRAPPER = "qroll-nav-horizontal-element-wrapper";
-
+    export const NAV_LINK = "qroll-nav-link";
+    export const NAV_LINK_SELECTED = "qroll-nav-link-selected";
+    export const NAV_VERTICAL = "qroll-nav-vertical";
+    export const NO_TRANSITION = "qroll-no-transition";
     export const PARENT = "qroll-parent";
+    export const SLIDE = "qroll-slide";
+    export const TOOLTIP = "qroll-tooltip";
     export const TOOLTIP_LEFT = "qroll-tooltip-left";
     export const TOOLTIP_TOP = "qroll-tooltip-top";
-
-    export const TOP = "qroll-top";
     export const TRANSITION_1000 = "qroll-transition-1000";
     export const TRANSITION_300 = "qroll-transition-300";
     export const TRANSITION_400 = "qroll-transition-400";
@@ -32,25 +33,6 @@ export namespace CssClass {
     export const TRANSITION_700 = "qroll-transition-700";
     export const TRANSITION_800 = "qroll-transition-800";
     export const TRANSITION_900 = "qroll-transition-900";
-
-    export const PROGRESS = "qroll-progress";
-    export const PROGRESS_BAR = "qroll-progress-bar";
-    export const NESTED_CAROUSEL = "qroll-nested-carousel";
-    export const NESTED_CAROUSEL_WRAPPER = "qroll-nested-carousel-wrapper";
-    export const NESTED_CAROUSEL_CHILD = "qroll-nested-carousel-child";
-    export const NESTED_CAROUSEL_BUTTON_LEFT = "qroll-nested-carousel-nav-left";
-    export const NESTED_CAROUSEL_BUTTON_RIGHT = "qroll-nested-carousel-nav-right";
-    export const NESTED_CAROUSEL_PROGRESS_BAR = "qroll-nested-carousel-progress-bar";
-
-    export const MAIN = "qroll-main";
-    export const SLIDE = "qroll-slide";
-    export const NAV_LINK = "qroll-nav-link";
-    export const NAV_LINK_SELECTED = "qroll-nav-link-selected";
-    export const NO_TRANSITION = "qroll-no-transition";
-    export const NAV_VERTICAL = "qroll-nav-vertical";
-    export const CAROUSEL_VERTICAL = "qroll-carousel-vertical";
-    export const NAV_BUTTON_TOP = "qroll-carousel-vertical-button-top";
-    export const NAV_BUTTON_DOWN = "qroll-carousel-vertical-button-down";
 }
 
 export namespace CssDisplay {
@@ -92,14 +74,7 @@ export namespace ElementAttribute {
 }
 
 export namespace ElementId {
-    export const HORIZONTAL_NAV = "qrollHorizontalNav";
-    export const NAV = "qrollNav";
-    export const NAV_BUTTON_LEFT = "qroll-nav-button-left";
-    export const NAV_BUTTON_RIGHT = "qroll-nav-button-right";
     export const PARENT = "qroll-parent";
-    export const PROGRESS = "qrollProgressVertical";
-    export const NESTED_CAROUSEL_NAV_LEFT = "nested_carousel_nav_left";
-    export const NESTED_CAROUSEL_NAV_RIGHT = "nested_carousel_nav_right";
 }
 
 export namespace EventTrigger {
@@ -126,4 +101,11 @@ export namespace NodeName {
     export const BODY = "BODY";
     export const INPUT = "INPUT";
     export const TEXTAREA = "TEXTAREA";
+}
+
+export namespace Svg {
+    export const CHEVRON_RIGHT = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="white"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>`;
+    export const CHEVRON_LEFT = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="white"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>`;
+    export const CHEVRON_TOP = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" height="30px" width="30px"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg>`;
+    export const CHEVRON_DOWN = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" height="30px" width="30px"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>`;
 }
