@@ -18,6 +18,7 @@ import {
 
 import {
     createCarousel,
+    createCarouselComponents,
     createMainLayout
 } from "./carousel";
 
@@ -179,6 +180,7 @@ const Main: any = (parentName: string, _options: Options = {}) => {
         Array.from(element.children).forEach(child => walkTheDOM(child, setTabIndex));
         createCarousel(state, element);
     }
+    createCarouselComponents(state);
     createMainLayout(state, parent);
 }
 

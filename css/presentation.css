@@ -128,7 +128,7 @@ code.npm {
 }
 
 .test-blue-carousel {
-    background: linear-gradient(to top, #837fb1, #8ab2ca, rgb(210, 245, 210));
+    background: linear-gradient(to top right, #837fb1, #8ab2ca, rgb(210, 245, 210));
 }
 
 .test-blue-reversed {
@@ -141,11 +141,11 @@ code.npm {
 
 .test-orange {
     background: radial-gradient(at top right, rgb(102, 191, 202), rgba(66, 100, 133, 0.589), rgb(123, 131, 207));
-    /* background: rgb(236, 222, 195); */
 }
 
 .test-red {
     background: rgb(238, 198, 198);
+    background: radial-gradient(at bottom right, rgb(238, 198, 198), rgba(66, 100, 133, 0.589), rgb(123, 131, 207));
 }
 
 .test-purple {

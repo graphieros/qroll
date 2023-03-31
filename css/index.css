@@ -91,10 +91,6 @@ html body {
     }
 }
 
-.no-transition .qroll-vertical-slide {
-    transition: unset !important;
-}
-
 .qroll-nav-vertical {
     position: fixed;
     right: 12px;
@@ -303,10 +299,6 @@ button.qroll-nav-link {
     z-index: 1000;
 }
 
-.qroll-no-transition {
-    transition:none !important;
-}
-
 .qroll-tooltip-top {
     background: white;
     border-radius: 4px !important;
@@ -340,4 +332,205 @@ button.qroll-nav-link {
     display: flex !important;
     align-items:center !important;
     justify-content:center !important;
+}
+
+/* Inner carousel components */
+
+.qroll-carousel-component-horizontal {
+    width: calc(100vw - 96px);
+    height: fit-content;
+}
+
+.qroll-carousel-component-vertical {
+    width: fit-content;
+}
+
+.qroll-main.qroll-transition-100 .qroll-carousel-component-vertical,
+.qroll-main.qroll-transition-100 .qroll-carousel-component-horizontal {
+    transition: opacity 100ms ease-in-out;
+}
+.qroll-main.qroll-transition-200 .qroll-carousel-component-vertical,
+.qroll-main.qroll-transition-200 .qroll-carousel-component-horizontal {
+    transition: opacity 200ms ease-in-out;
+}
+.qroll-main.qroll-transition-300 .qroll-carousel-component-vertical,
+.qroll-main.qroll-transition-300 .qroll-carousel-component-horizontal {
+    transition: opacity 300ms ease-in-out;
+}
+.qroll-main.qroll-transition-400 .qroll-carousel-component-vertical,
+.qroll-main.qroll-transition-400 .qroll-carousel-component-horizontal {
+    transition: opacity 400ms ease-in-out;
+}
+.qroll-main.qroll-transition-500 .qroll-carousel-component-vertical,
+.qroll-main.qroll-transition-500 .qroll-carousel-component-horizontal {
+    transition: opacity 500ms ease-in-out;
+}
+.qroll-main.qroll-transition-600 .qroll-carousel-component-vertical,
+.qroll-main.qroll-transition-600 .qroll-carousel-component-horizontal {
+    transition: opacity 600ms ease-in-out;
+}
+.qroll-main.qroll-transition-700 .qroll-carousel-component-vertical,
+.qroll-main.qroll-transition-700 .qroll-carousel-component-horizontal {
+    transition: opacity 700ms ease-in-out;
+}
+.qroll-main.qroll-transition-800 .qroll-carousel-component-vertical,
+.qroll-main.qroll-transition-800 .qroll-carousel-component-horizontal {
+    transition: opacity 800ms ease-in-out;
+}
+.qroll-main.qroll-transition-900 .qroll-carousel-component-vertical,
+.qroll-main.qroll-transition-900 .qroll-carousel-component-horizontal {
+    transition: opacity 900ms ease-in-out;
+}
+.qroll-main.qroll-transition-1000 .qroll-carousel-component-vertical,
+.qroll-main.qroll-transition-1000 .qroll-carousel-component-horizontal {
+    transition: opacity 1000ms ease-in-out;
+}
+
+.qroll-carousel-component-horizontal,
+.qroll-carousel-component-vertical {
+    position:relative;
+    overflow: hidden;
+}
+
+.qroll-carousel-component-horizontal-slide {
+    width: 100%;
+    top: 0;
+}
+
+.qroll-carousel-component-vertical-slide {
+    height: 100%;
+    min-height: 100px;
+    left:0;
+    width: 100%;
+    min-width: 200px;
+}
+
+.qroll-carousel-component-horizontal-slide,
+.qroll-carousel-component-vertical-slide {
+    position: absolute;
+    display: flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.qroll-component-button-left,
+.qroll-component-button-right {
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.qroll-component-button-top,
+.qroll-component-button-down {
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.qroll-component-button-left,
+.qroll-component-button-right,
+.qroll-component-button-top,
+.qroll-component-button-down {
+    position: absolute;
+    height: 30px;
+    width: 30px;
+}
+
+.qroll-component-button-left {
+    left: 3px;
+}
+.qroll-component-button-right {
+    right:3px;
+}
+.qroll-component-button-top {
+    top: 3px;
+}
+.qroll-component-button-down {
+    bottom: 3px;
+}
+
+.qroll-component-button-left svg path,
+.qroll-component-button-right  svg path,
+.qroll-component-button-top svg path,
+.qroll-component-button-down svg path {
+    filter: drop-shadow(0px 0px 2px black);
+}
+
+.qroll-component-button-left,
+.qroll-component-button-right,
+.qroll-component-button-top,
+.qroll-component-button-down  {
+    outline: none;
+    border:none;
+}
+
+.qroll-component-button-left,
+.qroll-component-button-right,
+.qroll-component-button-top,
+.qroll-component-button-down {
+    height: 30px;
+    width: 30px;
+    padding: 2px;
+    cursor: pointer;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    z-index: 1000;
+}
+
+.qroll-component-button-left:focus,
+.qroll-component-button-right:focus,
+.qroll-component-button-top:focus,
+.qroll-component-button-down:focus {
+    outline: 3px solid black;
+}
+
+.qroll-main.qroll-transition-100 .qroll-carousel-component-horizontal-slide,
+.qroll-main.qroll-transition-100 .qroll-carousel-component-vertical-slide {
+    transition: transform 100ms ease, visibility 100ms ease;
+}
+.qroll-main.qroll-transition-200 .qroll-carousel-component-horizontal-slide,
+.qroll-main.qroll-transition-200 .qroll-carousel-component-vertical-slide{
+    transition: transform 200ms ease, visibility 200ms ease;
+}
+.qroll-main.qroll-transition-300 .qroll-carousel-component-horizontal-slide,
+.qroll-main.qroll-transition-300 .qroll-carousel-component-vertical-slide {
+    transition: transform 300ms ease, visibility 300ms ease;
+}
+.qroll-main.qroll-transition-400 .qroll-carousel-component-horizontal-slide,
+.qroll-main.qroll-transition-400 .qroll-carousel-component-vertical-slide {
+    transition: transform 400ms ease, visibility 400ms ease;
+}
+.qroll-main.qroll-transition-500 .qroll-carousel-component-horizontal-slide,
+.qroll-main.qroll-transition-500 .qroll-carousel-component-vertical-slide {
+    transition: transform 500ms ease, visibility 500ms ease;
+}
+.qroll-main.qroll-transition-600 .qroll-carousel-component-horizontal-slide, 
+.qroll-main.qroll-transition-600 .qroll-carousel-component-vertical-slide {
+    transition: transform 600ms ease, visibility 600ms ease;
+}
+.qroll-main.qroll-transition-700 .qroll-carousel-component-horizontal-slide,
+.qroll-main.qroll-transition-700 .qroll-carousel-component-vertical-slide {
+    transition: transform 700ms ease, visibility 700ms ease;
+}
+.qroll-main.qroll-transition-800 .qroll-carousel-component-horizontal-slide,
+.qroll-main.qroll-transition-800 .qroll-carousel-component-vertical-slide {
+    transition: transform 800ms ease, visibility 800ms ease;
+}
+.qroll-main.qroll-transition-900 .qroll-carousel-component-horizontal-slide,
+.qroll-main.qroll-transition-900 .qroll-carousel-component-vertical-slide {
+    transition: transform 900ms ease, visibility 900ms ease;
+}
+.qroll-main.qroll-transition-1000 .qroll-carousel-component-horizontal-slide,
+.qroll-main.qroll-transition-1000 .qroll-carousel-component-vertical-slide {
+    transition: transform 1000ms ease, visibility 1000ms ease;
+}
+
+/* leave last */
+.no-transition .qroll-vertical-slide {
+    transition: unset !important;
+}
+
+.qroll-no-transition {
+    transition: unset !important;
 }

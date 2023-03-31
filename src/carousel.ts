@@ -1,6 +1,187 @@
-import { State } from "../types";
+import { ScrollDirection, State } from "../types";
 import { CssClass, CssDisplay, CssUnit, CssVisibility, Direction, DomElement, ElementAttribute, EventTrigger, KeyboardCode, NodeName, Svg } from "./constants";
 import { detectTrackPad, grabId, walkTheDOM, setTabIndex, spawn, updateLocation, applyEllipsis } from "./functions";
+
+export function slideComponentToDirection(state: State, direction: ScrollDirection, component: HTMLElement) {
+    if (state.isSliding) {
+        return;
+    }
+    state.isSliding = true;
+    const hSlides = component.getElementsByClassName("qroll-carousel-component-horizontal-slide");
+    const vSlides = component.getElementsByClassName("qroll-carousel-component-vertical-slide");
+    const currentIndex = Number(component.dataset.carouselIndex);
+    let nextIndex = 0;
+
+    if ([Direction.RIGHT, Direction.LEFT].includes(direction)) {
+        Array.from(hSlides).forEach((slide, i) => {
+            (slide as HTMLElement).style.visibility = CssVisibility.HIDDEN;
+            if (direction === Direction.RIGHT) {
+                nextIndex = currentIndex + 1 > hSlides.length - 1 ? 0 : currentIndex + 1;
+                if (i === nextIndex) {
+                    (slide as HTMLElement).classList.remove(CssClass.NO_TRANSITION);
+                    (slide as HTMLElement).style.transform = `translateX(0)`;
+                    (slide as HTMLElement).style.visibility = CssVisibility.INITIAL;
+                } else if (i === currentIndex) {
+                    (slide as HTMLElement).classList.remove(CssClass.NO_TRANSITION);
+                    (slide as HTMLElement).style.transform = `translateX(-100%)`;
+                    (slide as HTMLElement).style.visibility = CssVisibility.HIDDEN;
+                } else {
+                    (slide as HTMLElement).style.transform = `translateX(100%)`;
+                    (slide as HTMLElement).style.visibility = CssVisibility.HIDDEN;
+                }
+
+            } else if (direction === Direction.LEFT) {
+                nextIndex = currentIndex - 1 < 0 ? hSlides.length - 1 : currentIndex - 1;
+                if (i === nextIndex) {
+                    (slide as HTMLElement).classList.remove(CssClass.NO_TRANSITION);
+                    (slide as HTMLElement).style.transform = `translateX(0)`;
+                    (slide as HTMLElement).style.visibility = CssVisibility.INITIAL;
+                } else if (i === currentIndex) {
+                    (slide as HTMLElement).classList.remove(CssClass.NO_TRANSITION);
+                    (slide as HTMLElement).style.transform = `translateX(100%)`;
+                    (slide as HTMLElement).style.visibility = CssVisibility.HIDDEN;
+                } else {
+                    (slide as HTMLElement).style.transform = `translateX(-100%)`;
+                    (slide as HTMLElement).style.visibility = CssVisibility.HIDDEN;
+                }
+            }
+
+            component.dataset.carouselIndex = String(nextIndex);
+            setTimeout(() => {
+                state.isSliding = false;
+            }, state.transitionDuration);
+        });
+    } else if ([Direction.UP, Direction.DOWN].includes(direction)) {
+
+        Array.from(vSlides).forEach((slide, i) => {
+            (slide as HTMLElement).style.visibility = CssVisibility.HIDDEN;
+            if (direction === Direction.DOWN) {
+                nextIndex = currentIndex + 1 > vSlides.length - 1 ? 0 : currentIndex + 1;
+                if (i === nextIndex) {
+                    (slide as HTMLElement).classList.remove(CssClass.NO_TRANSITION);
+                    (slide as HTMLElement).style.transform = `translateY(0)`;
+                    (slide as HTMLElement).style.visibility = CssVisibility.INITIAL;
+                } else if (i === currentIndex) {
+                    (slide as HTMLElement).classList.remove(CssClass.NO_TRANSITION);
+                    (slide as HTMLElement).style.transform = `translateY(-100%)`;
+                    (slide as HTMLElement).style.visibility = CssVisibility.HIDDEN;
+                } else {
+                    (slide as HTMLElement).style.transform = `translateY(100%)`;
+                    (slide as HTMLElement).style.visibility = CssVisibility.HIDDEN;
+                }
+            } else if (direction === Direction.UP) {
+                nextIndex = currentIndex - 1 < 0 ? vSlides.length - 1 : currentIndex - 1;
+                if (i === nextIndex) {
+                    (slide as HTMLElement).classList.remove(CssClass.NO_TRANSITION);
+                    (slide as HTMLElement).style.transform = `translateY(0)`;
+                    (slide as HTMLElement).style.visibility = CssVisibility.INITIAL;
+                } else if (i === currentIndex) {
+                    (slide as HTMLElement).classList.remove(CssClass.NO_TRANSITION);
+                    (slide as HTMLElement).style.transform = `translateY(100%)`;
+                    (slide as HTMLElement).style.visibility = CssVisibility.HIDDEN;
+                } else {
+                    (slide as HTMLElement).style.transform = `translateY(-100%)`;
+                    (slide as HTMLElement).style.visibility = CssVisibility.HIDDEN;
+                }
+            }
+            component.dataset.carouselIndex = String(nextIndex);
+            setTimeout(() => {
+                state.isSliding = false;
+            }, state.transitionDuration);
+        })
+    }
+
+}
+
+export function createCarouselComponents(state: State) {
+    // use parent instead of slide ?
+    // add an auto slide prop ?
+    // horizontal
+    const horizontalCarousels = document.getElementsByClassName("qroll-carousel-component-horizontal");
+    const verticalCarousels = document.getElementsByClassName("qroll-carousel-component-vertical");
+
+    Array.from(verticalCarousels).forEach((vCarousel, _i) => {
+        (vCarousel as HTMLElement).dataset.carouselIndex = "0";
+        const children = vCarousel.children;
+
+        Array.from(children).forEach((child, j) => {
+            (child as HTMLElement).dataset.index = String(j);
+            (child as HTMLElement).classList.add(CssClass.NO_TRANSITION);
+            (child as HTMLElement).classList.add("qroll-carousel-component-vertical-slide");
+            if (j === children.length - 1) {
+                (child as HTMLElement).style.transform = `translateY(-100%)`;
+            } else if (j === 0) {
+                (child as HTMLElement).style.transform = `translateY(0)`;
+            } else {
+                (child as HTMLElement).style.transform = `translateY(100%)`;
+            }
+        });
+
+        const slides = Array.from(vCarousel.children).filter((child) => Array.from((child as HTMLElement).classList).includes("qroll-carousel-component-vertical-slide"));
+        const widths = Array.from(slides).map(child => {
+            return Number(window.getComputedStyle(child as HTMLElement).width.replace("px", ""));
+        });
+        const heights = Array.from(slides).map(child => {
+            return Number(window.getComputedStyle(child as HTMLElement).height.replace("px", ""));
+        });
+        const maxContentWidth = Math.max(...widths);
+        const maxContentHeight = Math.max(...heights);
+        (vCarousel as HTMLElement).style.width = `${maxContentWidth}px`;
+        (vCarousel as HTMLElement).style.height = `${maxContentHeight}px`;
+
+        const buttonTop = spawn(DomElement.BUTTON);
+        const buttonDown = spawn(DomElement.BUTTON);
+        buttonTop.classList.add("qroll-component-button-top");
+        buttonDown.classList.add("qroll-component-button-down");
+        buttonTop.innerHTML = Svg.CHEVRON_TOP;
+        buttonDown.innerHTML = Svg.CHEVRON_DOWN;
+
+        buttonTop.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection(state, Direction.UP, vCarousel as HTMLElement));
+        buttonDown.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection(state, Direction.DOWN, vCarousel as HTMLElement));
+
+        [buttonTop, buttonDown].forEach(el => vCarousel.appendChild(el));
+
+    });
+
+    Array.from(horizontalCarousels).forEach((hCarousel, _i) => {
+        (hCarousel as HTMLElement).dataset.carouselIndex = "0";
+        const children = hCarousel.children;
+
+        Array.from(children).forEach((child, j) => {
+            (child as HTMLElement).dataset.index = String(j);
+            (child as HTMLElement).classList.add(CssClass.NO_TRANSITION);
+            (child as HTMLElement).classList.add("qroll-carousel-component-horizontal-slide");
+            if (j === children.length - 1) {
+                (child as HTMLElement).style.transform = `translateX(-100%)`;
+            } else if (j === 0) {
+                (child as HTMLElement).style.transform = "translateX(0)";
+            } else {
+                (child as HTMLElement).style.transform = `translateX(100%)`;
+            }
+        });
+
+        const slides = Array.from(hCarousel.children).filter((child) => Array.from((child as HTMLElement).classList).includes("qroll-carousel-component-horizontal-slide"));
+
+        const heights = Array.from(slides).map(child => {
+            return Number(window.getComputedStyle(child as HTMLElement).height.replace("px", ""));
+        });
+        const maxContentHeight = Math.max(...heights);
+        (hCarousel as HTMLElement).style.height = `${maxContentHeight}px`;
+
+
+        const buttonLeft = spawn(DomElement.BUTTON);
+        const buttonRight = spawn(DomElement.BUTTON);
+        buttonLeft.classList.add("qroll-component-button-left");
+        buttonRight.classList.add("qroll-component-button-right");
+        buttonLeft.innerHTML = Svg.CHEVRON_LEFT;
+        buttonRight.innerHTML = Svg.CHEVRON_RIGHT;
+
+        buttonRight.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection(state, Direction.RIGHT, hCarousel as HTMLElement));
+        buttonLeft.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection(state, Direction.LEFT, hCarousel as HTMLElement));
+
+        [buttonLeft, buttonRight].forEach(el => hCarousel.appendChild(el));
+    })
+}
 
 /** Set up horizontal slides' translateX and visibility propreties based on the current horizontal index
  * 
@@ -433,6 +614,21 @@ export function createMainLayout(state: State, parent: HTMLElement) {
             const currentSlide = Array.from(slides).find((_slide, i) => i === currentVIndex);
             const nextSlide = Array.from(slides).find((_slide, i) => i === nextIndex);
 
+            const verticalCarouselComponents = document.getElementsByClassName("qroll-carousel-component-vertical");
+            const horizontalCarouselComponents = document.getElementsByClassName("qroll-carousel-component-horizontal");
+
+            Array.from(verticalCarouselComponents).forEach(el => (el as HTMLElement).style.opacity = "0");
+            const theseVerticalCarouselComponents = (nextSlide as HTMLElement).getElementsByClassName("qroll-carousel-component-vertical");
+            if (theseVerticalCarouselComponents.length) {
+                Array.from(theseVerticalCarouselComponents).forEach(el => (el as HTMLElement).style.opacity = `1`);
+            }
+            Array.from(horizontalCarouselComponents).forEach(el => (el as HTMLElement).style.opacity = "0");
+            const theseHorizontalCarouselComponents = (nextSlide as HTMLElement).getElementsByClassName("qroll-carousel-component-horizontal");
+            if (theseHorizontalCarouselComponents.length) {
+                Array.from(theseHorizontalCarouselComponents).forEach(el => (el as HTMLElement).style.opacity = `1`);
+            }
+
+
             Array.from(children).filter(child => Array.from(child.classList).includes(CssClass.SLIDE)).forEach((child, i) => {
                 if (i !== currentVIndex) {
                     if (nextIndex === 0) {
@@ -484,6 +680,21 @@ export function createMainLayout(state: State, parent: HTMLElement) {
             const previousIndex = currentVIndex - 1 < 0 ? slides.length - 1 : currentVIndex - 1;
             const currentSlide = Array.from(slides).find((_slide, i) => i === currentVIndex);
             const nextSlide = Array.from(slides).find((_slide, i) => i === nextIndex);
+
+            const verticalCarouselComponents = document.getElementsByClassName("qroll-carousel-component-vertical");
+            const horizontalCarouselComponents = document.getElementsByClassName("qroll-carousel-component-horizontal");
+
+            Array.from(verticalCarouselComponents).forEach(el => (el as HTMLElement).style.opacity = "0");
+            const theseVerticalCarouselComponents = (nextSlide as HTMLElement).getElementsByClassName("qroll-carousel-component-vertical");
+            if (theseVerticalCarouselComponents.length) {
+                Array.from(theseVerticalCarouselComponents).forEach(el => (el as HTMLElement).style.opacity = `1`);
+            }
+            Array.from(horizontalCarouselComponents).forEach(el => (el as HTMLElement).style.opacity = "0");
+            const theseHorizontalCarouselComponents = (nextSlide as HTMLElement).getElementsByClassName("qroll-carousel-component-horizontal");
+            if (theseHorizontalCarouselComponents.length) {
+                Array.from(theseHorizontalCarouselComponents).forEach(el => (el as HTMLElement).style.opacity = `1`);
+            }
+
 
             Array.from(children).filter(child => Array.from(child.classList).includes(CssClass.SLIDE)).forEach((child, i) => {
                 if (i !== currentVIndex) {
@@ -949,6 +1160,7 @@ export function createMainLayout(state: State, parent: HTMLElement) {
 
 const carousel = {
     createCarousel,
+    createCarouselComponents,
     createMainLayout,
 }
 
