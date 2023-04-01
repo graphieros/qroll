@@ -2,6 +2,10 @@ import { ScrollDirection, State } from "../types";
 import { CssClass, CssDisplay, CssUnit, CssVisibility, Direction, DomElement, ElementAttribute, EventTrigger, KeyboardCode, NodeName, Svg } from "./constants";
 import { detectTrackPad, grabId, walkTheDOM, setTabIndex, spawn, updateLocation, applyEllipsis, createUid } from "./functions";
 
+/** Play | Pause manager for auto sliding carousel components
+ * 
+ * @param param0 - config object
+ */
 export function togglePlayState({
     state,
     carousel,
@@ -21,6 +25,10 @@ export function togglePlayState({
     playPause({ carousel, buttonNext, buttonPrevious, uid, state });
 }
 
+/** Interval manager for auto sliding carousel components
+ * 
+ * @param param0 - config object
+ */
 export function playPause({ carousel, buttonNext, buttonPrevious, uid, state }: { carousel: HTMLElement, buttonNext: HTMLElement, buttonPrevious: HTMLElement, uid: string, state: State }) {
     const direction = carousel.dataset.direction as ScrollDirection || Direction.RIGHT;
     const duration = Number(carousel.dataset.timer) || 5000;
@@ -41,6 +49,12 @@ export function playPause({ carousel, buttonNext, buttonPrevious, uid, state }: 
     }
 }
 
+/** Sliding manager for auto slidin carousel components
+ * 
+ * @param state - global state object
+ * @param direction - UP | RIGHT | DOWN | LEFT
+ * @param component - auto sliding carousel component
+ */
 export function slideComponentToDirection(state: State, direction: ScrollDirection, component: HTMLElement) {
     if (state.isSliding && component.dataset.autoSlide !== "true") {
         return;
@@ -134,10 +148,11 @@ export function slideComponentToDirection(state: State, direction: ScrollDirecti
 
 }
 
+/** Set up carousel components, and auto sliding features
+ * 
+ * @param state - global state object
+ */
 export function createCarouselComponents(state: State) {
-    // use parent instead of slide ?
-    // add an auto slide prop ?
-    // horizontal
     const horizontalCarousels = document.getElementsByClassName("qroll-carousel-component-horizontal");
     const verticalCarousels = document.getElementsByClassName("qroll-carousel-component-vertical");
 
