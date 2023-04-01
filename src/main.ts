@@ -19,7 +19,10 @@ import {
 import {
     createCarousel,
     createCarouselComponents,
-    createMainLayout
+    createDialogs,
+    createMainLayout,
+    openDialog,
+    closeDialog
 } from "./carousel";
 
 import {
@@ -30,7 +33,7 @@ import {
     slideToIndex
 } from "./interface";
 
-
+// IDEA: SEO provide url links, change meta tags programatically on slide change
 
 // TODO: find a way to include css
 
@@ -43,8 +46,12 @@ const Main: any = (parentName: string, _options: Options = {}) => {
     Main.slideDown = slideDown;
     Main.slideUp = slideUp;
     Main.slideToIndex = slideToIndex;
+    Main.openDialog = openDialog;
+    Main.closeDialog = closeDialog;
 
-    // TODO loading page
+    // TODO: update slideToIndex with second param to slide to horizontal slide 
+
+    // TODO loading page (how to detect isLoading ? => state.isLoading)
 
     // const cssLink = document.createElement("link");
     // cssLink.rel = "stylesheet";
@@ -102,6 +109,7 @@ const Main: any = (parentName: string, _options: Options = {}) => {
         transitionDuration: 1000,
         userAgent: navigator.userAgent,
         wheelCount: 0,
+        modalIds: []
     };
 
     // this needs extra testing for all browsers to check if wheel event makes the scroll work !
@@ -172,7 +180,7 @@ const Main: any = (parentName: string, _options: Options = {}) => {
 
     parent.classList.add(state.parentClass);
 
-    let children = parent.children as unknown as HTMLElement[];
+    let children = Array.from(parent.children).filter(child => !Array.from(child.classList).includes("qroll-dialog")) as unknown as HTMLElement[];
     for (let i = 0; i < children.length; i += 1) {
         const element = children[i];
         element.classList.add(CssClass.CHILD);
@@ -183,6 +191,7 @@ const Main: any = (parentName: string, _options: Options = {}) => {
     }
     createCarouselComponents(state);
     createMainLayout(state, parent);
+    createDialogs(state);
 }
 
 export default Main;

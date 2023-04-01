@@ -75,4 +75,5 @@ export type State = {
     transitionDuration: number;
     userAgent: string;
     wheelCount: number;
+    modalIds: string[];
 }

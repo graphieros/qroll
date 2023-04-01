@@ -221,6 +221,50 @@
             </div>
         </div>
 
+        <div class="test-child test-blue">
+            <h2 style="color:white">UI components</h2>
+            <button class="test-button" onclick="qroll.openDialog('myId')">
+                Open menu
+            </button>
+        </div>
+        
+        <div class="qroll-dialog" data-id="myId" data-title="Dialog menu" data-close-button="true" data-css-classes="test-dialog test-dialog-2">
+            <div>
+                <p>
+                    Qroll handles dialog elements for you. You just have to provide an id, a class, and optional data attributes. Place your dialog div at the same level as your slides, and we'll do the rest.
+                </p>
+                <div class="sample-code" style="width:calc(100% - 48px)">
+                    <br>
+                        <code>
+                            &lt;div id="<span class="css-light">qroll-parent</span>" class="<span class="css-light">qroll-main qroll-loop qroll-tooltip</span>"&gt;
+                            <br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&lt;div&gt;&lt;h1&gt; Slide 1 &lt;/h1&gt;&lt;/div&gt;
+                            <br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&lt;div&gt;
+                            <br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;h1&gt; Slide 2 &lt;/h1&gt;
+                            <br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;button onclick="<span class="css-light">qroll.openDialog('myId')</span>"&gt; Say hi &lt;/button&gt;
+                            <br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&lt;/div&gt;
+                            <br>
+                            <br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&lt;div id="<span class="css-light">myId</span>" class="<span class="css-light">qroll-dialog</span>" data-title="<span class="css-light">My Title</span>" data-css-classes="<span class="css-light">my-dialog-class-1 my-dialog-class-2</span>"&gt; 
+                            <br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Hello, World!
+                            <br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&lt;/div&gt;
+                            <br>
+                            &lt;/div&gt;
+                        </code>
+                </div>
+                <br>
+                <div style="width: 100%; display: flex; align-items:center;justify-content:center">
+                    <button class="test-button" onclick="qroll.closeDialog('myId')">CLOSE</button>
+                </div>
+            </div>
+        </div>
+
     </div>
 </body>
 </html>

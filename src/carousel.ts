@@ -2,6 +2,94 @@ import { ScrollDirection, State } from "../types";
 import { CssClass, CssDisplay, CssUnit, CssVisibility, Direction, DomElement, ElementAttribute, EventTrigger, KeyboardCode, NodeName, Svg } from "./constants";
 import { detectTrackPad, grabId, walkTheDOM, setTabIndex, spawn, updateLocation, applyEllipsis, createUid } from "./functions";
 
+/** Set up dialog elements from client DIV elements that must be direct children of the main Parent element
+ * 
+ * @param state - the global State object
+ */
+export function createDialogs(state: State) {
+    const dialogs = document.getElementsByClassName("qroll-dialog");
+
+    Array.from(dialogs).forEach((dialog, i) => {
+        const modal = spawn(DomElement.DIALOG);
+        const id = (dialog as HTMLElement).dataset.id || `qroll_dialog_${i}`;
+        modal.setAttribute(ElementAttribute.ID, id);
+        const content = spawn(DomElement.DIV);
+        content.classList.add("qroll-dialog-content");
+        content.innerHTML = dialog.innerHTML;
+        dialog.innerHTML = "";
+
+        if ((dialog as HTMLElement).dataset.closeButton === "true") {
+            const closeButton = spawn(DomElement.BUTTON);
+            closeButton.classList.add("qroll-dialog-button-close");
+            closeButton.innerHTML = Svg.CLOSE;
+            closeButton.addEventListener(EventTrigger.CLICK, () => closeDialog(id));
+            modal.appendChild(closeButton);
+        }
+
+        if ((dialog as HTMLElement).dataset.title) {
+            const title = spawn(DomElement.DIV);
+            const text = (dialog as HTMLElement).dataset.title;
+            title.classList.add("qroll-dialog-title");
+            title.innerHTML = text || "";
+            if (text) {
+                modal.appendChild(title);
+            }
+        }
+        modal.appendChild(content);
+        modal.classList.add("qroll-dialog-body");
+        if ((dialog as HTMLElement).dataset.cssClasses) {
+            const cssClasses = (dialog as HTMLElement).dataset.cssClasses?.split(" ") as any;
+            if (cssClasses.length) {
+                cssClasses.forEach((cssClass: string) => {
+                    modal.classList.add(cssClass);
+                });
+            }
+        }
+        dialog.appendChild(modal);
+        state.modalIds.push(id);
+    });
+}
+
+/** Open a dialog element by id
+ * 
+ * @param id - dialog element id
+ */
+export function openDialog(id: string) {
+    const modal = document.getElementById(id) as HTMLDialogElement;
+    if (modal) {
+        modal.showModal();
+    }
+}
+
+/** Close a dialog element by id
+ * 
+ * @param id - dialog element id
+ */
+export function closeDialog(id: string) {
+    const modal = document.getElementById(id) as HTMLDialogElement;
+    if (modal) {
+        modal.close();
+    }
+}
+
+/** Check if any dialog element is currently open
+ * 
+ * @param state - global State object
+ * @returns true if any dialog is currently open
+ */
+export function isDialogOpen(state: State): boolean {
+    const dialogs = state.modalIds.map((id) => {
+        const dialog = document.getElementById(id) as HTMLDialogElement;
+        return dialog.open
+    });
+    if (dialogs.includes(true)) {
+        state.isSliding = true;
+    } else {
+        state.isSliding = false;
+    }
+    return state.isSliding;
+}
+
 /** Play | Pause manager for auto sliding carousel components
  * 
  * @param param0 - config object
@@ -49,7 +137,7 @@ export function playPause({ carousel, buttonNext, buttonPrevious, uid, state }: 
     }
 }
 
-/** Sliding manager for auto slidin carousel components
+/** Sliding manager for auto sliding carousel components
  * 
  * @param state - global state object
  * @param direction - UP | RIGHT | DOWN | LEFT
@@ -646,7 +734,9 @@ export function createMainLayout(state: State, parent: HTMLElement) {
     (parent as HTMLElement).dataset.currentVIndex = "0";
     (parent as HTMLElement).classList.add(CssClass.CAROUSEL_VERTICAL);
 
-    const children = parent.children;
+    // TODO: better management of excluded classes
+    const children = Array.from(parent.children).filter(child => !Array.from(child.classList).includes("qroll-dialog"));
+
     state.pageHeight = window.innerHeight;
 
     Array.from(children).forEach((child, i) => {
@@ -954,12 +1044,19 @@ export function createMainLayout(state: State, parent: HTMLElement) {
     });
 
     window.addEventListener(EventTrigger.WHEEL, (event: WheelEvent) => {
-        const direction = event.deltaY > 0 ? Direction.DOWN : Direction.UP;
-        if (state.wheelCount > 1) {
+
+        if (isDialogOpen(state)) {
             return;
         }
+
+        if (state.wheelCount > 0) {
+            return;
+        }
+
         state.wheelCount += 1;
+        const direction = event.deltaY > 0 ? Direction.DOWN : Direction.UP;
         const isTrackpad = detectTrackPad(event);
+
         if (state.isSliding || isTrackpad || !event.deltaY) return;
         state.isSliding = true;
 
@@ -977,6 +1074,16 @@ export function createMainLayout(state: State, parent: HTMLElement) {
     });
 
     document.addEventListener(EventTrigger.KEYUP, (event: KeyboardEvent) => {
+
+        if (isDialogOpen(state)) {
+            return;
+        }
+
+        if (state.wheelCount > 0) {
+            return;
+        }
+
+        state.wheelCount += 1;
 
         const keyCode = event.code;
         const target = event.target as HTMLElement;
@@ -1062,6 +1169,7 @@ export function createMainLayout(state: State, parent: HTMLElement) {
 
             default:
                 state.isSliding = false;
+                state.wheelCount = 0;
                 return;
         }
     });
@@ -1075,6 +1183,10 @@ export function createMainLayout(state: State, parent: HTMLElement) {
         state.isSliding = false;
         state.eventTouchEnd = event.changedTouches?.[0] || state.eventTouchEnd;
         const hasVerticalScrollBar = event.target.scrollHeight > event.target.clientHeight;
+
+        if (isDialogOpen(state)) {
+            return;
+        }
 
         // exclusion cases
         const isScrollableIsland = !Array.from(event.target.classList).includes(CssClass.CHILD) && hasVerticalScrollBar;
@@ -1289,7 +1401,10 @@ export function createMainLayout(state: State, parent: HTMLElement) {
 const carousel = {
     createCarousel,
     createCarouselComponents,
+    createDialogs,
     createMainLayout,
+    closeDialog,
+    openDialog
 }
 
 export default carousel;
