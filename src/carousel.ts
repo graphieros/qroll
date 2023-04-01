@@ -358,21 +358,21 @@ export function updateCarouselNav(carousel: HTMLElement) {
     if (!Array.from((carousel as HTMLElement).classList).includes(CssClass.LOOP)) {
         if (currentIndex === 0 && buttonLeft) {
             (buttonLeft as HTMLElement).style.opacity = '0';
-            (buttonLeft as HTMLElement).style.transform = 'translateX(-50%) scale(0,0)';
+            (buttonLeft as HTMLElement).style.transform = 'scale(0,0)';
             (buttonLeft as HTMLElement).style.cursor = 'default';
         } else {
             (buttonLeft as HTMLElement).style.opacity = '1';
-            (buttonLeft as HTMLElement).style.transform = 'translateX(-50%) scale(1,1)';
+            (buttonLeft as HTMLElement).style.transform = 'scale(1,1)';
             (buttonLeft as HTMLElement).style.cursor = 'pointer';
         }
         if (currentIndex === links.length - 1 && buttonRight) {
             (buttonRight as HTMLElement).style.opacity = '0';
-            (buttonRight as HTMLElement).style.transform = 'translateX(-50%) scale(0,0)';
+            (buttonRight as HTMLElement).style.transform = 'scale(0,0)';
             (buttonRight as HTMLElement).style.cursor = 'default';
 
         } else {
             (buttonRight as HTMLElement).style.opacity = '1';
-            (buttonRight as HTMLElement).style.transform = 'translateX(-50%) scale(1,1)';
+            (buttonRight as HTMLElement).style.transform = 'scale(1,1)';
             (buttonRight as HTMLElement).style.cursor = 'pointer';
         }
     }
