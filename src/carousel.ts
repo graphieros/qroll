@@ -4,25 +4,25 @@ import { detectTrackPad, grabId, walkTheDOM, setTabIndex, spawn, updateLocation,
 
 export function togglePlayState({
     state,
-    hCarousel,
+    carousel,
     buttonPlayPause,
-    buttonRight,
-    buttonLeft,
+    buttonNext,
+    buttonPrevious,
     uid
-}: { state: State, hCarousel: any, buttonPlayPause: HTMLElement, buttonRight: HTMLElement, buttonLeft: HTMLElement, uid: string }) {
-    const status = hCarousel.dataset.autoSlide;
+}: { state: State, carousel: any, buttonPlayPause: HTMLElement, buttonNext: HTMLElement, buttonPrevious: HTMLElement, uid: string }) {
+    const status = carousel.dataset.autoSlide;
     if (status === "true") {
-        hCarousel.dataset.autoSlide = "false";
+        carousel.dataset.autoSlide = "false";
         buttonPlayPause.innerHTML = Svg.PLAY;
     } else {
-        hCarousel.dataset.autoSlide = "true";
+        carousel.dataset.autoSlide = "true";
         buttonPlayPause.innerHTML = Svg.PAUSE;
     }
-    playPause({ carousel: hCarousel, buttonRight, buttonLeft, uid, state });
+    playPause({ carousel, buttonNext, buttonPrevious, uid, state });
 }
 
-export function playPause({ carousel, buttonRight, buttonLeft, uid, state }: { carousel: HTMLElement, buttonRight: HTMLElement, buttonLeft: HTMLElement, uid: string, state: State }) {
-    const direction = carousel.dataset.direction || Direction.RIGHT;
+export function playPause({ carousel, buttonNext, buttonPrevious, uid, state }: { carousel: HTMLElement, buttonNext: HTMLElement, buttonPrevious: HTMLElement, uid: string, state: State }) {
+    const direction = carousel.dataset.direction as ScrollDirection || Direction.RIGHT;
     const duration = Number(carousel.dataset.timer) || 5000;
     const thisInterval = state.intervals.find(i => i.id === uid);
 
@@ -31,10 +31,10 @@ export function playPause({ carousel, buttonRight, buttonLeft, uid, state }: { c
         thisInterval.interval = null;
     } else {
         const interval = setInterval(() => {
-            if (direction === Direction.RIGHT) {
-                buttonRight.click();
+            if ([Direction.RIGHT, Direction.DOWN].includes(direction)) {
+                buttonNext.click();
             } else {
-                buttonLeft.click();
+                buttonPrevious.click();
             }
         }, duration);
         thisInterval.interval = interval;
@@ -180,22 +180,39 @@ export function createCarouselComponents(state: State) {
         buttonTop.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection(state, Direction.UP, vCarousel as HTMLElement));
         buttonDown.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection(state, Direction.DOWN, vCarousel as HTMLElement));
 
-        [buttonTop, buttonDown].forEach(el => vCarousel.appendChild(el));
+        const buttonPlayPause = spawn(DomElement.BUTTON);
+        buttonPlayPause.classList.add("qroll-component-button-play");
+        buttonPlayPause.innerHTML = Svg.PAUSE;
+        if (!(vCarousel as HTMLElement).dataset.autoSlide) {
+            buttonPlayPause.style.display = "none";
+        }
 
-        // TODO: click to pause or pause/play button
-        // refactor togglePlayState & playPause methods to make it work with both V & H
+        const uid = createUid();
+        state.intervals.push({
+            id: uid,
+            interval: null
+        });
 
         if ((vCarousel as HTMLElement).dataset.autoSlide === "true") {
-            const autoDirection = (vCarousel as HTMLElement).dataset.direction || Direction.DOWN;
-            const duration = Number((vCarousel as HTMLElement).dataset.timer) || 5000;
-            setInterval(() => {
-                if (autoDirection === Direction.DOWN) {
-                    buttonDown.click();
-                } else {
-                    buttonTop.click();
-                }
-            }, duration)
+            playPause({
+                carousel: vCarousel as HTMLElement,
+                buttonNext: buttonDown,
+                buttonPrevious: buttonTop,
+                uid,
+                state
+            });
         }
+
+        buttonPlayPause.addEventListener(EventTrigger.CLICK, () => togglePlayState({
+            carousel: vCarousel,
+            buttonPlayPause,
+            buttonNext: buttonDown,
+            buttonPrevious: buttonTop,
+            uid,
+            state
+        }));
+
+        [buttonTop, buttonDown, buttonPlayPause].forEach(el => vCarousel.appendChild(el));
     });
 
     Array.from(horizontalCarousels).forEach((hCarousel, _i) => {
@@ -250,18 +267,18 @@ export function createCarouselComponents(state: State) {
         if ((hCarousel as HTMLElement).dataset.autoSlide === "true") {
             playPause({
                 carousel: hCarousel as HTMLElement,
-                buttonRight,
-                buttonLeft,
+                buttonNext: buttonRight,
+                buttonPrevious: buttonLeft,
                 uid,
                 state
             });
         }
 
         buttonPlayPause.addEventListener(EventTrigger.CLICK, () => togglePlayState({
-            hCarousel,
+            carousel: hCarousel,
             buttonPlayPause,
-            buttonRight,
-            buttonLeft,
+            buttonNext: buttonRight,
+            buttonPrevious: buttonLeft,
             uid,
             state
         }));
