@@ -56,6 +56,7 @@ export type State = {
     eventTouchEnd: Touch;
     eventTouchStart: Touch;
     isBrowserNavigation: boolean;
+    intervals: any[];
     isLoop: boolean;
     isRouting: boolean;
     isSliding: boolean;

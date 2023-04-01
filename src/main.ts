@@ -82,6 +82,7 @@ const Main: any = (parentName: string, _options: Options = {}) => {
         currentNoLoopSlide: 1,
         eventTouchEnd: null as unknown as Touch,
         eventTouchStart: null as unknown as Touch,
+        intervals: [],
         isBrowserNavigation: false,
         isLoop: Array.from(grabId(ElementId.PARENT).classList).includes(CssClass.LOOP),
         isRouting: false,

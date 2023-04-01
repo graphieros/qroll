@@ -1,12 +1,53 @@
 import { ScrollDirection, State } from "../types";
 import { CssClass, CssDisplay, CssUnit, CssVisibility, Direction, DomElement, ElementAttribute, EventTrigger, KeyboardCode, NodeName, Svg } from "./constants";
-import { detectTrackPad, grabId, walkTheDOM, setTabIndex, spawn, updateLocation, applyEllipsis } from "./functions";
+import { detectTrackPad, grabId, walkTheDOM, setTabIndex, spawn, updateLocation, applyEllipsis, createUid } from "./functions";
+
+export function togglePlayState({
+    state,
+    carousel,
+    buttonPlayPause,
+    buttonNext,
+    buttonPrevious,
+    uid
+}: { state: State, carousel: any, buttonPlayPause: HTMLElement, buttonNext: HTMLElement, buttonPrevious: HTMLElement, uid: string }) {
+    const status = carousel.dataset.autoSlide;
+    if (status === "true") {
+        carousel.dataset.autoSlide = "false";
+        buttonPlayPause.innerHTML = Svg.PLAY;
+    } else {
+        carousel.dataset.autoSlide = "true";
+        buttonPlayPause.innerHTML = Svg.PAUSE;
+    }
+    playPause({ carousel, buttonNext, buttonPrevious, uid, state });
+}
+
+export function playPause({ carousel, buttonNext, buttonPrevious, uid, state }: { carousel: HTMLElement, buttonNext: HTMLElement, buttonPrevious: HTMLElement, uid: string, state: State }) {
+    const direction = carousel.dataset.direction as ScrollDirection || Direction.RIGHT;
+    const duration = Number(carousel.dataset.timer) || 5000;
+    const thisInterval = state.intervals.find(i => i.id === uid);
+
+    if (carousel.dataset.autoSlide === "false") {
+        clearInterval(thisInterval.interval);
+        thisInterval.interval = null;
+    } else {
+        const interval = setInterval(() => {
+            if ([Direction.RIGHT, Direction.DOWN].includes(direction)) {
+                buttonNext.click();
+            } else {
+                buttonPrevious.click();
+            }
+        }, duration);
+        thisInterval.interval = interval;
+    }
+}
 
 export function slideComponentToDirection(state: State, direction: ScrollDirection, component: HTMLElement) {
-    if (state.isSliding) {
+    if (state.isSliding && component.dataset.autoSlide !== "true") {
         return;
     }
-    state.isSliding = true;
+    if (component.dataset.autoSlide !== "true") {
+        state.isSliding = true;
+    }
     const hSlides = component.getElementsByClassName("qroll-carousel-component-horizontal-slide");
     const vSlides = component.getElementsByClassName("qroll-carousel-component-vertical-slide");
     const currentIndex = Number(component.dataset.carouselIndex);
@@ -139,8 +180,39 @@ export function createCarouselComponents(state: State) {
         buttonTop.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection(state, Direction.UP, vCarousel as HTMLElement));
         buttonDown.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection(state, Direction.DOWN, vCarousel as HTMLElement));
 
-        [buttonTop, buttonDown].forEach(el => vCarousel.appendChild(el));
+        const buttonPlayPause = spawn(DomElement.BUTTON);
+        buttonPlayPause.classList.add("qroll-component-button-play");
+        buttonPlayPause.innerHTML = Svg.PAUSE;
+        if (!(vCarousel as HTMLElement).dataset.autoSlide) {
+            buttonPlayPause.style.display = "none";
+        }
 
+        const uid = createUid();
+        state.intervals.push({
+            id: uid,
+            interval: null
+        });
+
+        if ((vCarousel as HTMLElement).dataset.autoSlide === "true") {
+            playPause({
+                carousel: vCarousel as HTMLElement,
+                buttonNext: buttonDown,
+                buttonPrevious: buttonTop,
+                uid,
+                state
+            });
+        }
+
+        buttonPlayPause.addEventListener(EventTrigger.CLICK, () => togglePlayState({
+            carousel: vCarousel,
+            buttonPlayPause,
+            buttonNext: buttonDown,
+            buttonPrevious: buttonTop,
+            uid,
+            state
+        }));
+
+        [buttonTop, buttonDown, buttonPlayPause].forEach(el => vCarousel.appendChild(el));
     });
 
     Array.from(horizontalCarousels).forEach((hCarousel, _i) => {
@@ -179,7 +251,39 @@ export function createCarouselComponents(state: State) {
         buttonRight.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection(state, Direction.RIGHT, hCarousel as HTMLElement));
         buttonLeft.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection(state, Direction.LEFT, hCarousel as HTMLElement));
 
-        [buttonLeft, buttonRight].forEach(el => hCarousel.appendChild(el));
+        const buttonPlayPause = spawn(DomElement.BUTTON);
+        buttonPlayPause.classList.add("qroll-component-button-play");
+        buttonPlayPause.innerHTML = Svg.PAUSE;
+        if (!(hCarousel as HTMLElement).dataset.autoSlide) {
+            buttonPlayPause.style.display = "none";
+        }
+
+        const uid = createUid();
+        state.intervals.push({
+            id: uid,
+            interval: null
+        });
+
+        if ((hCarousel as HTMLElement).dataset.autoSlide === "true") {
+            playPause({
+                carousel: hCarousel as HTMLElement,
+                buttonNext: buttonRight,
+                buttonPrevious: buttonLeft,
+                uid,
+                state
+            });
+        }
+
+        buttonPlayPause.addEventListener(EventTrigger.CLICK, () => togglePlayState({
+            carousel: hCarousel,
+            buttonPlayPause,
+            buttonNext: buttonRight,
+            buttonPrevious: buttonLeft,
+            uid,
+            state
+        }));
+
+        [buttonLeft, buttonRight, buttonPlayPause].forEach(el => hCarousel.appendChild(el));
     })
 }
 
