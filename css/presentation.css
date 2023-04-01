@@ -409,3 +409,11 @@ small.scroll {
     background: rgba(0, 0, 0, 0.3);
     border-radius: 8px;
 }
+
+.test-dialog {
+    height: calc(100vh - 48px);
+    width: calc(100vw - 48px);
+    max-width: 800px;
+    max-height: 500px;
+    font-family: "Satoshi";
+}

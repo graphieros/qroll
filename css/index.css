@@ -462,7 +462,8 @@ button.qroll-nav-link {
 .qroll-component-button-right  svg path,
 .qroll-component-button-top svg path,
 .qroll-component-button-down svg path,
-.qroll-component-button-play svg path {
+.qroll-component-button-play svg path,
+.qroll-dialog-button-close svg path {
     filter: drop-shadow(0px 0px 2px black);
 }
 
@@ -470,7 +471,8 @@ button.qroll-nav-link {
 .qroll-component-button-right,
 .qroll-component-button-top,
 .qroll-component-button-down,
-.qroll-component-button-play  {
+.qroll-component-button-play,
+.qroll-dialog-button-close  {
     outline: none;
     border:none;
 }
@@ -479,7 +481,8 @@ button.qroll-nav-link {
 .qroll-component-button-right,
 .qroll-component-button-top,
 .qroll-component-button-down,
-.qroll-component-button-play {
+.qroll-component-button-play,
+.qroll-dialog-button-close {
     align-items: center;
     background: transparent;
     border-radius: 50%;
@@ -496,7 +499,8 @@ button.qroll-nav-link {
 .qroll-component-button-right:focus,
 .qroll-component-button-top:focus,
 .qroll-component-button-down:focus,
-.qroll-component-button-play:focus {
+.qroll-component-button-play:focus,
+.qroll-dialog-button-close:focus {
     outline: 3px solid black;
 }
 
@@ -548,4 +552,57 @@ button.qroll-nav-link {
 
 .qroll-no-transition {
     transition: unset !important;
+}
+
+/* Dialogs */
+.qroll-dialog-body {
+    animation: dialog-plop 0.25s ease-in-out;
+    border-radius: 6px;
+    border:none;
+    box-shadow: 0 0 6px 0px rgba(0, 0, 0, 0.322);
+    min-height: 100px;
+    min-width: 250px !important;
+    position: relative;
+}
+.qroll-dialog-body::backdrop {
+    background: radial-gradient(transparent, rgba(0, 0, 0, 0.6));
+}
+
+@keyframes dialog-plop {
+    0% {
+        opacity: 0;
+        transform: scale(0.9, 0.8) perspective(75em) rotateX(-10deg);
+    }
+    80% {
+        opacity: 1;
+        transform: scale(1.01,1.01) perspective(75em) rotateX(2deg);
+    }
+    100% {
+        opacity:1;
+        transform: scale(1,1) perspective(75em) rotateX(0deg);
+    }
+}
+
+.qroll-dialog-button-close {
+    position: absolute;
+    top: 8px;
+    right: 6px;
+}
+
+.qroll-dialog-title {
+    font-size: 20px;
+    font-weight: bold;
+    left:24px;
+    position: absolute;
+    top: 12px;
+    width: calc(100% - 64px);
+}
+
+.qroll-dialog-content {
+    height:calc(100% - 82px);
+    overflow:auto;
+    padding:8px;
+    position: absolute;
+    top: 48px;
+    width:calc(100% - 45px);
 }
