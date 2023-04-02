@@ -223,15 +223,20 @@
 
         <div class="test-child test-blue">
             <h2 style="color:white">UI components</h2>
-            <button class="test-button" onclick="qroll.openDialog('myId')">
-                Open menu
-            </button>
+            <div style="display: flex; align-items:center;justify-content:center;gap:12px">
+                <button class="test-button" onclick="qroll.openDialog('basicDialog')">
+                    Open basic dialog
+                </button>
+                <button class="test-button" onclick="qroll.openDialog('carouselDialog')">
+                    Open dialog with carousel
+                </button>
+            </div>
         </div>
-        
-        <div class="qroll-dialog" data-id="myId" data-title="Dialog menu" data-close-button="true" data-css-classes="test-dialog test-dialog-2">
+
+        <div class="qroll-dialog" data-id="basicDialog" data-title="Basic dialog" data-close-button="true" data-css-classes="test-dialog">
             <div>
                 <p>
-                    Qroll handles dialog elements for you. You just have to provide an id, a class, and optional data attributes. Place your dialog div at the same level as your slides, and we'll do the rest.
+                    Qroll handles dialog elements for you. You just have to provide an id, a class, and optional data attributes. Place your dialog div at the same level as your slides. You can also provide your own css classes to design your dialog element the way you want.
                 </p>
                 <div class="sample-code" style="width:calc(100% - 48px)">
                     <br>
@@ -258,11 +263,30 @@
                             &lt;/div&gt;
                         </code>
                 </div>
+                
                 <br>
                 <div style="width: 100%; display: flex; align-items:center;justify-content:center">
-                    <button class="test-button" onclick="qroll.closeDialog('myId')">CLOSE</button>
+                    <button class="test-button" onclick="qroll.closeDialog('basicDialog')">CLOSE</button>
                 </div>
             </div>
+        </div>
+        
+        <div class="qroll-dialog" data-id="carouselDialog" data-title="Dialog with nested carousel" data-close-button="true" data-css-classes="test-dialog-2">
+            <p>
+                You can set up a carousel inside of your dialog.<br>Just insert a div inside like so: <code style="background:#e1e5e8; border-radius: 3px; padding: 3px 6px">&lt;div data-carousel&gt; [add your slides] &lt;/div&gt;</code>
+            </p>
+            <div data-carousel>
+                <div style="height:200px; color:white" class="test-blue">Slide 1</div>
+                <div style="height:200px; color:white" class="test-green">Slide 2</div>
+                <div style="height:200px; color:white" class="test-orange">Slide 3</div>
+                <div style="height:200px; color:white" class="test-blue">Slide 4</div>
+                <div style="height:200px; color:white" class="test-green">Slide 5</div>
+            </div>
+            <br>
+            <div style="width: 100%; display: flex; align-items:center;justify-content:center">
+                <button class="test-button" onclick="qroll.closeDialog('carouselDialog')">CLOSE</button>
+            </div>
+            
         </div>
 
     </div>

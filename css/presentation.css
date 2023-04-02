@@ -414,6 +414,14 @@ small.scroll {
     height: calc(100vh - 48px);
     width: calc(100vw - 48px);
     max-width: 800px;
-    max-height: 500px;
+    max-height: 530px;
+    font-family: "Satoshi";
+}
+
+.test-dialog-2 {
+    height: calc(100vh - 48px);
+    width: calc(100vw - 48px);
+    max-width: 800px;
+    max-height: 400px;
     font-family: "Satoshi";
 }
