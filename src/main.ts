@@ -35,9 +35,8 @@ import {
 
 // IDEA: SEO provide url links, change meta tags programatically on slide change
 
+// TODO loading page (how to detect isLoading ? => state.isLoading)
 // TODO: find a way to include css
-
-// ISSUE: using the browser's history previous|next buttons does not update routing to slide in Chrome, Edge, Brave (but does in Firefox)
 
 // TODO: type Main
 const Main: any = (parentName: string, _options: Options = {}) => {
@@ -48,10 +47,6 @@ const Main: any = (parentName: string, _options: Options = {}) => {
     Main.slideToIndex = slideToIndex;
     Main.openDialog = openDialog;
     Main.closeDialog = closeDialog;
-
-    // TODO: update slideToIndex with second param to slide to horizontal slide 
-
-    // TODO loading page (how to detect isLoading ? => state.isLoading)
 
     // const cssLink = document.createElement("link");
     // cssLink.rel = "stylesheet";

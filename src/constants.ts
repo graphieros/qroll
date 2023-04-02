@@ -2,14 +2,32 @@ import { ScrollDirection } from "../types";
 
 export namespace CssClass {
     export const CAROUSEL = "qroll-carousel";
+    export const CAROUSEL_HORIZONTAL_SLIDE = "qroll-carousel-component-horizontal-slide";
     export const CAROUSEL_SLIDE = "qroll-carousel-slide";
     export const CAROUSEL_VERTICAL = "qroll-carousel-vertical";
+    export const CAROUSEL_VERTICAL_SLIDE = "qroll-carousel-component-vertical-slide";
     export const CAROUSEL_WRAPPER = "qroll-slide-carousel-wrapper";
+    export const CAROUSEL_HORIZONTAL_COMPONENT = "qroll-carousel-component-horizontal";
+    export const CAROUSEL_VERTICAL_COMPONENT = "qroll-carousel-component-vertical";
+    export const CAROUSEL_BUTTON_TOP = "qroll-component-button-top";
+    export const CAROUSEL_BUTTON_DOWN = "qroll-component-button-down";
+    export const CAROUSEL_BUTTON_PLAY = "qroll-component-button-play";
+    export const CAROUSEL_BUTTON_RIGHT = "qroll-component-button-right";
+    export const CAROUSEL_BUTTON_LEFT = "qroll-component-button-left";
+
     export const CHILD = "qroll-child";
+
+    export const DIALOG = "qroll-dialog";
+    export const DIALOG_BODY = "qroll-dialog-body";
+    export const DIALOG_BUTTON_CLOSE = "qroll-dialog-button-close";
+    export const DIALOG_CONTENT = "qroll-dialog-content";
+    export const DIALOG_TITLE = "qroll-dialog-title";
+
     export const HAS_HORIZONTAL_NAV = "qroll-has-horizontal-nav";
     export const HAS_NAV = "qroll-nav";
     export const LOOP = "qroll-loop";
     export const MAIN = "qroll-main";
+
     export const NAV_BUTTON_DOWN = "qroll-carousel-vertical-button-down";
     export const NAV_BUTTON_LEFT = "qroll-carousel-horizontal-button-left";
     export const NAV_BUTTON_RIGHT = "qroll-carousel-horizontal-button-right";
@@ -19,12 +37,15 @@ export namespace CssClass {
     export const NAV_LINK = "qroll-nav-link";
     export const NAV_LINK_SELECTED = "qroll-nav-link-selected";
     export const NAV_VERTICAL = "qroll-nav-vertical";
+
     export const NO_TRANSITION = "qroll-no-transition";
     export const PARENT = "qroll-parent";
     export const SLIDE = "qroll-slide";
+
     export const TOOLTIP = "qroll-tooltip";
     export const TOOLTIP_LEFT = "qroll-tooltip-left";
     export const TOOLTIP_TOP = "qroll-tooltip-top";
+
     export const TRANSITION_1000 = "qroll-transition-1000";
     export const TRANSITION_300 = "qroll-transition-300";
     export const TRANSITION_400 = "qroll-transition-400";
