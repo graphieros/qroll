@@ -1,4 +1,5 @@
 import { CssClass } from "./constants";
+
 /** Exposed interface. Get all the descendants of the qroll-main element.
  * 
  * @returns an array of slides
@@ -33,21 +34,44 @@ export function slideUp() {
     (document.getElementsByClassName(CssClass.NAV_BUTTON_TOP)[0] as HTMLElement).click();
 }
 
-export function slideToIndex(index: number) {
+/** Exposed interface. Slide to target index and optional target horizontal slide index.
+ * 
+ * @param index - index of the target slide
+ * @param slide - index of the target horizontal slide
+ */
+export function slideToIndex(index: number, slide: number | null = null) {
+    if (slide !== null) {
+        const targetSlide = document.getElementsByClassName(CssClass.CHILD)[index];
+        const mainNav = document.getElementsByClassName(CssClass.NAV_VERTICAL)[0];
+        const links = mainNav.getElementsByClassName(CssClass.NAV_LINK);
+        const horizontalNav = targetSlide.getElementsByClassName("qroll-nav-link");
+        try {
+            (horizontalNav[slide] as HTMLElement).click();
+        }
+        catch (error) {
+            throw new Error(`The specified index does not correspond to an existing slide.\n> Max index available: ${links.length - 1}\n> Max slide available: ${horizontalNav.length - 1}\n> Index provided: ${index}\n> Slide provided: ${slide}`)
+        }
+        return;
+    }
+
     const nav = document.getElementsByClassName(CssClass.NAV_VERTICAL)[0];
     const links = nav.getElementsByClassName(CssClass.NAV_LINK);
     try {
         (links[index] as HTMLElement).click();
     }
     catch (error) {
-        throw new Error(`The specified index does not correspond to an existing slide. Max index available: ${links.length - 1}; index provided: ${index}`);
+        throw new Error(`The specified index does not correspond to an existing slide.\n> Max index available: ${links.length - 1}\n> Index provided: ${index}`);
     }
 }
 
+/** Exposed interface. Returns the current slide index
+ * 
+ * @returns the current slide index
+ */
 export function getCurrentSlideIndex() {
     const parent = document.getElementsByClassName(CssClass.MAIN)[0];
     if (!parent) {
-        return "No parent element has been found. Did you add the 'qroll-parent' id, and the 'qroll-main' css class to your parent HTML element ?"
+        throw new Error("No parent element has been found. Did you add the 'qroll-parent' id, and the 'qroll-main' css class to your parent HTML element ?");
     } else {
         return Number((parent as HTMLElement).dataset.currentVIndex);
     }
