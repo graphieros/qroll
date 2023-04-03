@@ -1,6 +1,7 @@
 import { ScrollDirection, State } from "../types";
 import { CssClass, CssDisplay, CssUnit, CssVisibility, Direction, DomElement, ElementAttribute, EventTrigger, KeyboardCode, NodeName, Svg } from "./constants";
 import { detectTrackPad, grabId, walkTheDOM, setTabIndex, spawn, updateLocation, applyEllipsis, createUid } from "./functions";
+import { getCurrentSlideIndex } from "./interface";
 
 /** Set up dialog elements from client DIV elements that must be direct children of the main Parent element
  * 
@@ -50,14 +51,17 @@ export function createDialogs(state: State) {
     });
 }
 
+/** Set up slides and sliding logic for dialog nested carousel components
+ * 
+ * @param dialog
+ */
 export function initDialogCarousels(dialog: HTMLDialogElement) {
     const hCarousels = dialog.querySelectorAll('[data-carousel]');
-
     const content = dialog.getElementsByClassName("qroll-dialog-content")[0];
     (content as HTMLElement).style.overflowX = "hidden";
     Array.from(hCarousels).forEach(hCarousel => {
         (hCarousel as HTMLElement).classList.add("qroll-dialog-carousel-horizontal");
-    })
+    });
 
     Array.from(hCarousels).forEach(hCarousel => {
         if ((hCarousel as HTMLElement).dataset.carouselIndex) {
@@ -97,13 +101,11 @@ export function initDialogCarousels(dialog: HTMLDialogElement) {
         buttonRight.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection({ direction: Direction.RIGHT, component: hCarousel as HTMLElement }));
         buttonLeft.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection({ direction: Direction.LEFT, component: hCarousel as HTMLElement }));
 
-
         [buttonLeft, buttonRight].forEach(el => hCarousel.appendChild(el));
-
-    })
+    });
 }
 
-/** Open a dialog element by id
+/** Open a dialog element by id, and initialize optional nested carousels
  * 
  * @param id - dialog element id
  */
@@ -774,12 +776,21 @@ export function createCarousel(state: State, carousel: HTMLElement) {
 export function setupVerticalSlides(state: State, parent: HTMLElement) {
     const children = Array.from(parent.children).filter(child => Array.from(child.classList).includes(CssClass.SLIDE));
 
+    const isLastSlide = getCurrentSlideIndex() === children.length - 1;
+    const isFirstSlide = getCurrentSlideIndex() === 0;
+
     Array.from(children).forEach((child, i) => {
         if (i === Number((parent as HTMLElement).dataset.currentVIndex)) {
             (child as HTMLElement).setAttribute(ElementAttribute.STYLE, `transform:translateY(0);`);
             (child as HTMLElement).style.zIndex = "1";
         } else {
-            (child as HTMLElement).setAttribute(ElementAttribute.STYLE, `transform:translateY(${i < Number((parent as HTMLElement).dataset.currentVIndex) ? "-" : ""}${state.pageHeight}px)`);
+            if (isLastSlide && i === 0) {
+                (child as HTMLElement).setAttribute(ElementAttribute.STYLE, `transform:translateY(${state.pageHeight}px)`);
+            } else if (isFirstSlide && i === children.length - 1) {
+                (child as HTMLElement).setAttribute(ElementAttribute.STYLE, `transform:translateY(-${state.pageHeight}px)`);
+            } else {
+                (child as HTMLElement).setAttribute(ElementAttribute.STYLE, `transform:translateY(${i < Number((parent as HTMLElement).dataset.currentVIndex) ? "-" : ""}${state.pageHeight}px)`);
+            }
             (child as HTMLElement).style.zIndex = "0";
             (child as HTMLElement).style.visibility = CssVisibility.HIDDEN;
         }
