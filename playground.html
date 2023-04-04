@@ -276,11 +276,20 @@
             </div>
         </div>
         
-        <div class="qroll-dialog" data-id="carouselDialog" data-title="Dialog with nested carousel" data-close-button="true" data-css-classes="test-dialog-2">
+        <div 
+            class="qroll-dialog" 
+            data-id="carouselDialog"
+            data-title="Dialog with nested carousel" 
+            data-close-button="true" 
+            data-css-classes="test-dialog-2"
+        >
             <p>
-                You can set up a carousel inside of your dialog.<br>Just insert a div inside like so: <code style="background:#e1e5e8; border-radius: 3px; padding: 3px 6px">&lt;div data-carousel&gt; [add your slides] &lt;/div&gt;</code>
+                You can set up a carousel inside of your dialog.<br>Just insert a div inside like so: <code style="background:#e1e5e8; border-radius: 3px; padding: 3px 6px">&lt;div data-carousel&gt; [add your slides] &lt;/div&gt;</code><br>
+                If you want this carousel to auto slide, just add a data attribute:
+                <br>
+                <code style="background:#e1e5e8; border-radius: 3px; padding: 3px 6px">&lt;div data-carousel data-auto-slide="true"&gt; [add your slides] &lt;/div&gt;</code><br>
             </p>
-            <div data-carousel>
+            <div data-carousel data-auto-slide="true" >
                 <div style="height:200px; color:white" class="test-blue">Slide 1</div>
                 <div style="height:200px; color:white" class="test-green">Slide 2</div>
                 <div style="height:200px; color:white" class="test-orange">Slide 3</div>
@@ -293,6 +302,21 @@
             </div>
         </div>
 
+        <div class="qroll-dialog" data-id="mainMenu" data-title="Menu" data-close-button="true" data-css-classes="test-dialog-menu">
+            <div style="display: flex; align-items:center; justify-content:center;flex-wrap:wrap; gap: 12px">
+                <button class="test-button" onclick="qroll.slideToIndex(1); qroll.closeDialog('mainMenu')">GETTING STARTED</button>
+                <button class="test-button" onclick="qroll.slideToIndex(2); qroll.closeDialog('mainMenu')">HORIZONTAL SLIDES</button>
+                <button class="test-button" onclick="qroll.slideToIndex(4); qroll.closeDialog('mainMenu')">CAROUSEL COMPONENTS</button>
+                <button class="test-button" onclick="qroll.slideToIndex(6); qroll.closeDialog('mainMenu')">INTERFACE</button>
+                <button class="test-button" onclick="qroll.slideToIndex(7); qroll.closeDialog('mainMenu')">UI COMPONENTS</button>
+            </div>
+        </div>
+
     </div>
+    <button class="test-menu-button" onclick="qroll.openDialog('mainMenu')">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="white">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+        </svg>          
+    </button>
 </body>
 </html>

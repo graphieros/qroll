@@ -76,6 +76,7 @@ const Main: any = (parentName: string, _options: Options = {}) => {
         isLoop: Array.from(grabId(ElementId.PARENT).classList).includes(CssClass.LOOP),
         isRouting: false,
         isSliding: false,
+        isSlidingDialog: false,
         isSlidingX: false,
         isTrackpad: false,
         modalIds: [],
@@ -92,7 +93,7 @@ const Main: any = (parentName: string, _options: Options = {}) => {
         wheelCount: 0
     };
 
-    Main.state = () => state; // should we allow this ?
+    Main.state = () => state;
 
     // this needs extra testing for all browsers to check if wheel event makes the scroll work !
 

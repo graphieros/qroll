@@ -1,7 +1,8 @@
 import { ScrollDirection, State } from "../types";
-import { CssClass, CssDisplay, CssUnit, CssVisibility, Direction, DomElement, ElementAttribute, EventTrigger, KeyboardCode, NodeName, Svg } from "./constants";
+import { CssClass, CssDisplay, CssUnit, CssVisibility, DataAttribute, Direction, DomElement, ElementAttribute, EventTrigger, KeyboardCode, NodeName, Svg } from "./constants";
 import { detectTrackPad, grabId, walkTheDOM, setTabIndex, spawn, updateLocation, applyEllipsis, createUid } from "./functions";
 import { getCurrentSlideIndex } from "./interface";
+import Main from "./main";
 
 /** Set up dialog elements from client DIV elements that must be direct children of the main Parent element
  * 
@@ -19,7 +20,7 @@ export function createDialogs(state: State) {
         content.innerHTML = dialog.innerHTML;
         dialog.innerHTML = "";
 
-        if ((dialog as HTMLElement).dataset.closeButton === "true") {
+        if ((dialog as HTMLElement).dataset.closeButton === DataAttribute.TRUE) {
             const closeButton = spawn(DomElement.BUTTON);
             closeButton.classList.add(CssClass.DIALOG_BUTTON_CLOSE);
             closeButton.innerHTML = Svg.CLOSE;
@@ -56,11 +57,11 @@ export function createDialogs(state: State) {
  * @param dialog
  */
 export function initDialogCarousels(dialog: HTMLDialogElement) {
-    const hCarousels = dialog.querySelectorAll('[data-carousel]');
-    const content = dialog.getElementsByClassName("qroll-dialog-content")[0];
-    (content as HTMLElement).style.overflowX = "hidden";
+    const hCarousels = dialog.querySelectorAll(DataAttribute.CAROUSEL);
+    const content = dialog.getElementsByClassName(CssClass.DIALOG_CONTENT)[0];
+    (content as HTMLElement).style.overflowX = CssVisibility.HIDDEN;
     Array.from(hCarousels).forEach(hCarousel => {
-        (hCarousel as HTMLElement).classList.add("qroll-dialog-carousel-horizontal");
+        (hCarousel as HTMLElement).classList.add(CssClass.DIALOG_CAROUSEL);
     });
 
     Array.from(hCarousels).forEach(hCarousel => {
@@ -98,34 +99,107 @@ export function initDialogCarousels(dialog: HTMLDialogElement) {
         buttonLeft.innerHTML = Svg.CHEVRON_LEFT;
         buttonRight.innerHTML = Svg.CHEVRON_RIGHT;
 
-        buttonRight.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection({ direction: Direction.RIGHT, component: hCarousel as HTMLElement }));
-        buttonLeft.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection({ direction: Direction.LEFT, component: hCarousel as HTMLElement }));
+        buttonRight.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection({ state: Main.state(), direction: Direction.RIGHT, component: hCarousel as HTMLElement }));
+        buttonLeft.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection({ state: Main.state(), direction: Direction.LEFT, component: hCarousel as HTMLElement }));
 
-        [buttonLeft, buttonRight].forEach(el => hCarousel.appendChild(el));
+        const buttonPlayPause = spawn(DomElement.BUTTON);
+        buttonPlayPause.classList.add(CssClass.CAROUSEL_BUTTON_PLAY);
+        buttonPlayPause.innerHTML = Svg.PAUSE;
+        if (!(hCarousel as HTMLElement).dataset.autoSlide) {
+            buttonPlayPause.style.display = CssDisplay.NONE;
+        }
+
+        const uid = createUid();
+
+        Main.state().intervals.push({
+            id: uid,
+            interval: null,
+        });
+
+        (hCarousel as HTMLElement).dataset.uid = uid;
+
+        if ((hCarousel as HTMLElement).dataset.autoSlide === DataAttribute.PAUSE) {
+            (hCarousel as HTMLElement).dataset.autoSlide = DataAttribute.TRUE;
+        }
+
+        if ((hCarousel as HTMLElement).dataset.autoSlide === DataAttribute.TRUE) {
+            playPause({
+                carousel: hCarousel as HTMLElement,
+                buttonNext: buttonRight,
+                buttonPrevious: buttonLeft,
+                uid,
+                state: Main.state()
+            });
+        }
+
+        buttonPlayPause.addEventListener(EventTrigger.CLICK, () => togglePlayState({
+            carousel: hCarousel,
+            buttonPlayPause,
+            buttonNext: buttonRight,
+            buttonPrevious: buttonLeft,
+            uid,
+            state: Main.state()
+        }));
+
+
+        [buttonLeft, buttonRight, buttonPlayPause].forEach(el => hCarousel.appendChild(el));
     });
 }
 
-/** Open a dialog element by id, and initialize optional nested carousels
+/** Open a dialog element by id, and initialize optional nested carousels (and restart previously auto sliding carousel automatically paused when closing the dialog)
  * 
  * @param id - dialog element id
  */
 export function openDialog(id: string) {
     const modal = document.getElementById(id) as HTMLDialogElement;
     if (modal) {
-        const hCarousels = modal.querySelectorAll('div[data-carousel]');
+        const hCarousels = modal.querySelectorAll(DataAttribute.CAROUSEL);
         if (hCarousels && hCarousels.length) {
             initDialogCarousels(modal);
+            Array.from(hCarousels).forEach(carousel => {
+                if ((carousel as HTMLElement).dataset.autoSlide === DataAttribute.PAUSE) {
+                    (carousel as HTMLElement).dataset.autoSlide = DataAttribute.FALSE;
+                    const buttonPlayPause = (carousel as HTMLElement).getElementsByClassName(CssClass.CAROUSEL_BUTTON_PLAY)[0] as HTMLElement;
+                    const buttonNext = (carousel as HTMLElement).getElementsByClassName(CssClass.CAROUSEL_BUTTON_RIGHT)[0] as HTMLElement;
+                    const buttonPrevious = (carousel as HTMLElement).getElementsByClassName(CssClass.CAROUSEL_BUTTON_LEFT)[0] as HTMLElement;
+                    togglePlayState({
+                        state: Main.state(),
+                        carousel,
+                        buttonPlayPause,
+                        buttonNext,
+                        buttonPrevious,
+                        uid: (carousel as HTMLElement).dataset.uid,
+                    });
+                }
+            })
         }
         modal.showModal();
     }
 }
 
-/** Close a dialog element by id
+/** Close a dialog element by id. Will pause any nested auto sliding carousel.
  * 
  * @param id - dialog element id
  */
 export function closeDialog(id: string) {
     const modal = document.getElementById(id) as HTMLDialogElement;
+    const hCarousels = modal.querySelectorAll(DataAttribute.CAROUSEL);
+    Array.from(hCarousels).forEach(carousel => {
+        if ((carousel as HTMLElement).dataset.autoSlide === DataAttribute.TRUE) {
+            const buttonPlayPause = (carousel as HTMLElement).getElementsByClassName(CssClass.CAROUSEL_BUTTON_PLAY)[0] as HTMLElement;
+            const buttonNext = (carousel as HTMLElement).getElementsByClassName(CssClass.CAROUSEL_BUTTON_RIGHT)[0] as HTMLElement;
+            const buttonPrevious = (carousel as HTMLElement).getElementsByClassName(CssClass.CAROUSEL_BUTTON_LEFT)[0] as HTMLElement;
+            togglePlayState({
+                state: Main.state(),
+                carousel,
+                buttonPlayPause,
+                buttonNext,
+                buttonPrevious,
+                uid: (carousel as HTMLElement).dataset.uid,
+            });
+            (carousel as HTMLElement).dataset.autoSlide = DataAttribute.PAUSE;
+        }
+    })
     if (modal) {
         modal.close();
     }
@@ -160,13 +234,13 @@ export function togglePlayState({
     buttonNext,
     buttonPrevious,
     uid
-}: { state: State, carousel: any, buttonPlayPause: HTMLElement, buttonNext: HTMLElement, buttonPrevious: HTMLElement, uid: string }) {
+}: { state: State, carousel: any, buttonPlayPause: HTMLElement, buttonNext: HTMLElement, buttonPrevious: HTMLElement, uid: any }) {
     const status = carousel.dataset.autoSlide;
-    if (status === "true") {
-        carousel.dataset.autoSlide = "false";
+    if (status === DataAttribute.TRUE) {
+        carousel.dataset.autoSlide = DataAttribute.FALSE;
         buttonPlayPause.innerHTML = Svg.PLAY;
     } else {
-        carousel.dataset.autoSlide = "true";
+        carousel.dataset.autoSlide = DataAttribute.TRUE;
         buttonPlayPause.innerHTML = Svg.PAUSE;
     }
     playPause({ carousel, buttonNext, buttonPrevious, uid, state });
@@ -181,7 +255,7 @@ export function playPause({ carousel, buttonNext, buttonPrevious, uid, state }: 
     const duration = Number(carousel.dataset.timer) || 5000;
     const thisInterval = state.intervals.find(i => i.id === uid);
 
-    if (carousel.dataset.autoSlide === "false") {
+    if (carousel.dataset.autoSlide === DataAttribute.FALSE) {
         clearInterval(thisInterval.interval);
         thisInterval.interval = null;
     } else {
@@ -203,10 +277,10 @@ export function playPause({ carousel, buttonNext, buttonPrevious, uid, state }: 
  * @param component - auto sliding carousel component
  */
 export function slideComponentToDirection({ state, direction, component }: { state?: State, direction: ScrollDirection, component: HTMLElement }) {
-    if (state && state.isSliding && component.dataset.autoSlide !== "true") {
+    if (state && state.isSliding && component.dataset.autoSlide !== DataAttribute.TRUE) {
         return;
     }
-    if (state && component.dataset.autoSlide !== "true") {
+    if (state && component.dataset.autoSlide !== DataAttribute.TRUE) {
         state.isSliding = true;
     }
     const hSlides = component.getElementsByClassName(CssClass.CAROUSEL_HORIZONTAL_SLIDE);
@@ -359,7 +433,7 @@ export function createCarouselComponents(state: State) {
             interval: null
         });
 
-        if ((vCarousel as HTMLElement).dataset.autoSlide === "true") {
+        if ((vCarousel as HTMLElement).dataset.autoSlide === DataAttribute.TRUE) {
             playPause({
                 carousel: vCarousel as HTMLElement,
                 buttonNext: buttonDown,
@@ -430,7 +504,7 @@ export function createCarouselComponents(state: State) {
             interval: null
         });
 
-        if ((hCarousel as HTMLElement).dataset.autoSlide === "true") {
+        if ((hCarousel as HTMLElement).dataset.autoSlide === DataAttribute.TRUE) {
             playPause({
                 carousel: hCarousel as HTMLElement,
                 buttonNext: buttonRight,

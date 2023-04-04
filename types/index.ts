@@ -45,6 +45,7 @@ export type State = {
     isLoop: boolean;
     isRouting: boolean;
     isSliding: boolean;
+    isSlidingDialog: boolean;
     isSlidingX: boolean;
     isTrackpad: boolean;
     pageHeight: number;
