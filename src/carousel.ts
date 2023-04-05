@@ -9,45 +9,49 @@ import Main from "./main";
  * @param state - the global State object
  */
 export function createDialogs(state: State) {
-    const dialogs = document.getElementsByClassName(CssClass.DIALOG);
+    const dialogBeacons = document.getElementsByClassName(CssClass.DIALOG);
 
-    Array.from(dialogs).forEach((dialog, i) => {
-        const modal = spawn(DomElement.DIALOG);
-        const id = (dialog as HTMLElement).dataset.id || `qroll_dialog_${i}`;
-        modal.setAttribute(ElementAttribute.ID, id);
+    Array.from(dialogBeacons).forEach((beacon, i) => {
+        const dialog = spawn(DomElement.DIALOG);
+        const id = (beacon as HTMLElement).dataset.id || `qroll_dialog_${i}`;
+        dialog.setAttribute(ElementAttribute.ID, id);
         const content = spawn(DomElement.DIV);
         content.classList.add(CssClass.DIALOG_CONTENT);
-        content.innerHTML = dialog.innerHTML;
-        dialog.innerHTML = "";
+        content.innerHTML = beacon.innerHTML;
+        beacon.innerHTML = "";
 
-        if ((dialog as HTMLElement).dataset.closeButton === DataAttribute.TRUE) {
+        const hasCloseButton = (beacon as HTMLElement).dataset.closeButton === DataAttribute.TRUE;
+        const hasTitle = (beacon as HTMLElement).dataset.title;
+        const hasCssClasses = (beacon as HTMLElement).dataset.cssClasses;
+
+        if (hasCloseButton) {
             const closeButton = spawn(DomElement.BUTTON);
             closeButton.classList.add(CssClass.DIALOG_BUTTON_CLOSE);
             closeButton.innerHTML = Svg.CLOSE;
             closeButton.addEventListener(EventTrigger.CLICK, () => closeDialog(id));
-            modal.appendChild(closeButton);
+            dialog.appendChild(closeButton);
         }
 
-        if ((dialog as HTMLElement).dataset.title) {
+        if (hasTitle) {
             const title = spawn(DomElement.DIV);
-            const text = (dialog as HTMLElement).dataset.title;
+            const text = (beacon as HTMLElement).dataset.title;
             title.classList.add(CssClass.DIALOG_TITLE);
             title.innerHTML = text || "";
             if (text) {
-                modal.appendChild(title);
+                dialog.appendChild(title);
             }
         }
-        modal.appendChild(content);
-        modal.classList.add(CssClass.DIALOG_BODY);
-        if ((dialog as HTMLElement).dataset.cssClasses) {
-            const cssClasses = (dialog as HTMLElement).dataset.cssClasses?.split(" ") as any;
+        dialog.appendChild(content);
+        dialog.classList.add(CssClass.DIALOG_BODY);
+        if (hasCssClasses) {
+            const cssClasses = (beacon as HTMLElement).dataset.cssClasses?.split(" ") as any;
             if (cssClasses.length) {
                 cssClasses.forEach((cssClass: string) => {
-                    modal.classList.add(cssClass);
+                    dialog.classList.add(cssClass);
                 });
             }
         }
-        dialog.appendChild(modal);
+        beacon.appendChild(dialog);
         state.modalIds.push(id);
     });
 }
@@ -141,9 +145,20 @@ export function initDialogCarousels(dialog: HTMLDialogElement) {
             state: Main.state()
         }));
 
-
         [buttonLeft, buttonRight, buttonPlayPause].forEach(el => hCarousel.appendChild(el));
     });
+}
+
+/** Get right, left & pause buttons from a carousel element
+ * 
+ * @param carousel - An horizontal carousel element
+ * @returns an object with left, right & pause buttons
+ */
+export function getCarouselButtons(carousel: HTMLElement) {
+    const buttonPlayPause = (carousel as HTMLElement).getElementsByClassName(CssClass.CAROUSEL_BUTTON_PLAY)[0] as HTMLElement;
+    const buttonNext = (carousel as HTMLElement).getElementsByClassName(CssClass.CAROUSEL_BUTTON_RIGHT)[0] as HTMLElement;
+    const buttonPrevious = (carousel as HTMLElement).getElementsByClassName(CssClass.CAROUSEL_BUTTON_LEFT)[0] as HTMLElement;
+    return { buttonPlayPause, buttonNext, buttonPrevious };
 }
 
 /** Open a dialog element by id, and initialize optional nested carousels (and restart previously auto sliding carousel automatically paused when closing the dialog)
@@ -159,9 +174,7 @@ export function openDialog(id: string) {
             Array.from(hCarousels).forEach(carousel => {
                 if ((carousel as HTMLElement).dataset.autoSlide === DataAttribute.PAUSE) {
                     (carousel as HTMLElement).dataset.autoSlide = DataAttribute.FALSE;
-                    const buttonPlayPause = (carousel as HTMLElement).getElementsByClassName(CssClass.CAROUSEL_BUTTON_PLAY)[0] as HTMLElement;
-                    const buttonNext = (carousel as HTMLElement).getElementsByClassName(CssClass.CAROUSEL_BUTTON_RIGHT)[0] as HTMLElement;
-                    const buttonPrevious = (carousel as HTMLElement).getElementsByClassName(CssClass.CAROUSEL_BUTTON_LEFT)[0] as HTMLElement;
+                    const { buttonPlayPause, buttonNext, buttonPrevious } = getCarouselButtons(carousel as HTMLElement);
                     togglePlayState({
                         state: Main.state(),
                         carousel,
@@ -171,7 +184,7 @@ export function openDialog(id: string) {
                         uid: (carousel as HTMLElement).dataset.uid,
                     });
                 }
-            })
+            });
         }
         modal.showModal();
     }
@@ -186,9 +199,7 @@ export function closeDialog(id: string) {
     const hCarousels = modal.querySelectorAll(DataAttribute.CAROUSEL);
     Array.from(hCarousels).forEach(carousel => {
         if ((carousel as HTMLElement).dataset.autoSlide === DataAttribute.TRUE) {
-            const buttonPlayPause = (carousel as HTMLElement).getElementsByClassName(CssClass.CAROUSEL_BUTTON_PLAY)[0] as HTMLElement;
-            const buttonNext = (carousel as HTMLElement).getElementsByClassName(CssClass.CAROUSEL_BUTTON_RIGHT)[0] as HTMLElement;
-            const buttonPrevious = (carousel as HTMLElement).getElementsByClassName(CssClass.CAROUSEL_BUTTON_LEFT)[0] as HTMLElement;
+            const { buttonPlayPause, buttonNext, buttonPrevious } = getCarouselButtons(carousel as HTMLElement);
             togglePlayState({
                 state: Main.state(),
                 carousel,
@@ -199,7 +210,7 @@ export function closeDialog(id: string) {
             });
             (carousel as HTMLElement).dataset.autoSlide = DataAttribute.PAUSE;
         }
-    })
+    });
     if (modal) {
         modal.close();
     }
@@ -534,28 +545,28 @@ export function createCarouselComponents(state: State) {
  */
 export function setupHorizontalSlides(state: State, carousel: HTMLElement) {
     const parent = carousel.getElementsByClassName(CssClass.CAROUSEL_WRAPPER)[0];
-    const slides = Array.from(parent.children).filter(slide => (Array.from(slide.classList).includes(CssClass.CAROUSEL_SLIDE)));
+    const slides = Array.from(parent.children).filter(slide => (Array.from(slide.classList).includes(CssClass.CAROUSEL_SLIDE))) as HTMLElement[];
     const currentHIndex = Number((parent as HTMLElement).dataset.carouselIndex);
 
     slides.forEach((slide, i) => {
-        (slide as HTMLElement).style.width = `${state.pageWidth}px`;
+        slide.style.width = `${state.pageWidth}px`;
         if (i === currentHIndex) {
-            (slide as HTMLElement).style.transform = "translateX(0)";
-            (slide as HTMLElement).style.visibility = CssVisibility.INITIAL;
+            slide.style.transform = "translateX(0)";
+            slide.style.visibility = CssVisibility.INITIAL;
         } else if (i === (currentHIndex - 1 < 0 ? slides.length - 1 : currentHIndex - 1)) {
-            (slide as HTMLElement).style.transform = `translateX(-${state.pageWidth}px)`;
+            slide.style.transform = `translateX(-${state.pageWidth}px)`;
         } else if (i === (currentHIndex + 1 > slides.length - 1 ? 0 : currentHIndex + 1)) {
-            (slide as HTMLElement).style.transform = `translateX(${state.pageWidth}px)`;
+            slide.style.transform = `translateX(${state.pageWidth}px)`;
         } else if (i > currentHIndex) {
-            (slide as HTMLElement).style.transform = `translateX(${state.pageWidth}px)`;
+            slide.style.transform = `translateX(${state.pageWidth}px)`;
         } else if (i < currentHIndex) {
-            (slide as HTMLElement).style.transform = `translateX(-${state.pageWidth}px)`;
+            slide.style.transform = `translateX(-${state.pageWidth}px)`;
         }
     });
 
     setTimeout(() => {
         slides.forEach(slide => {
-            (slide as HTMLElement).classList.remove(CssClass.NO_TRANSITION);
+            slide.classList.remove(CssClass.NO_TRANSITION);
         });
     });
 }
@@ -577,28 +588,28 @@ export function updateCarouselNav(carousel: HTMLElement) {
             link.classList.remove(CssClass.NAV_LINK_SELECTED);
         }
     });
-    const buttonLeft = carousel.getElementsByClassName(CssClass.NAV_BUTTON_LEFT)[0];
-    const buttonRight = carousel.getElementsByClassName(CssClass.NAV_BUTTON_RIGHT)[0];
+    const buttonLeft = carousel.getElementsByClassName(CssClass.NAV_BUTTON_LEFT)[0] as HTMLElement;
+    const buttonRight = carousel.getElementsByClassName(CssClass.NAV_BUTTON_RIGHT)[0] as HTMLElement;
 
     if (!Array.from((carousel as HTMLElement).classList).includes(CssClass.LOOP)) {
         if (currentIndex === 0 && buttonLeft) {
-            (buttonLeft as HTMLElement).style.opacity = '0';
-            (buttonLeft as HTMLElement).style.transform = 'scale(0,0)';
-            (buttonLeft as HTMLElement).style.cursor = 'default';
+            buttonLeft.style.opacity = '0';
+            buttonLeft.style.transform = 'scale(0,0)';
+            buttonLeft.style.cursor = 'default';
         } else {
-            (buttonLeft as HTMLElement).style.opacity = '1';
-            (buttonLeft as HTMLElement).style.transform = 'scale(1,1)';
-            (buttonLeft as HTMLElement).style.cursor = 'pointer';
+            buttonLeft.style.opacity = '1';
+            buttonLeft.style.transform = 'scale(1,1)';
+            buttonLeft.style.cursor = 'pointer';
         }
         if (currentIndex === links.length - 1 && buttonRight) {
-            (buttonRight as HTMLElement).style.opacity = '0';
-            (buttonRight as HTMLElement).style.transform = 'scale(0,0)';
-            (buttonRight as HTMLElement).style.cursor = 'default';
+            buttonRight.style.opacity = '0';
+            buttonRight.style.transform = 'scale(0,0)';
+            buttonRight.style.cursor = 'default';
 
         } else {
-            (buttonRight as HTMLElement).style.opacity = '1';
-            (buttonRight as HTMLElement).style.transform = 'scale(1,1)';
-            (buttonRight as HTMLElement).style.cursor = 'pointer';
+            buttonRight.style.opacity = '1';
+            buttonRight.style.transform = 'scale(1,1)';
+            buttonRight.style.cursor = 'pointer';
         }
     }
 }
