@@ -47,6 +47,7 @@ export function slideToIndex(index: number, slide: number | null = null) {
         const horizontalNav = targetSlide.getElementsByClassName("qroll-nav-link");
         try {
             (horizontalNav[slide] as HTMLElement).click();
+            (links[index] as HTMLElement).click(); // necessary to make it work when the target index is already on target slide
         }
         catch (error) {
             throw new Error(`The specified index does not correspond to an existing slide.\n> Max index available: ${links.length - 1}\n> Max slide available: ${horizontalNav.length - 1}\n> Index provided: ${index}\n> Slide provided: ${slide}`)

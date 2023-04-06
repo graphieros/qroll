@@ -20,6 +20,7 @@ export namespace CssClass {
     export const DIALOG = "qroll-dialog";
     export const DIALOG_BODY = "qroll-dialog-body";
     export const DIALOG_BUTTON_CLOSE = "qroll-dialog-button-close";
+    export const DIALOG_CAROUSEL = "qroll-dialog-carousel-horizontal";
     export const DIALOG_CONTENT = "qroll-dialog-content";
     export const DIALOG_TITLE = "qroll-dialog-title";
 
@@ -70,6 +71,13 @@ export namespace CssUnit {
 export namespace CssVisibility {
     export const INITIAL = "initial";
     export const HIDDEN = "hidden";
+}
+
+export namespace DataAttribute {
+    export const CAROUSEL = "[data-carousel]";
+    export const FALSE = "false";
+    export const PAUSE = "pause";
+    export const TRUE = "true";
 }
 
 export namespace Direction {

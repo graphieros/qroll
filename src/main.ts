@@ -66,19 +66,6 @@ const Main: any = (parentName: string, _options: Options = {}) => {
     //------------------------------------------------------------------------//
 
     const state: State = {
-        carousel: {
-            transitionDuration: 500,
-            currentSlide: 0,
-            currentSlideId: null,
-            hasLoop: false,
-            isVisible: false,
-            slideCount: 0,
-            htmlElement: null,
-            clickLeft: () => { },
-            clickRight: () => { },
-            keyLeft: () => { },
-            keyRight: () => { },
-        },
         cssClassTransition: "",
         currentCarousel: null,
         currentNoLoopSlide: 1,
@@ -89,23 +76,24 @@ const Main: any = (parentName: string, _options: Options = {}) => {
         isLoop: Array.from(grabId(ElementId.PARENT).classList).includes(CssClass.LOOP),
         isRouting: false,
         isSliding: false,
+        isSlidingDialog: false,
         isSlidingX: false,
         isTrackpad: false,
+        modalIds: [],
         pageHeight: (window as Window).innerHeight,
         pageWidth: (window as Window).innerWidth,
         parentClass: CssClass.PARENT,
         timeoutClassTransition: null as unknown as NodeJS.Timeout | number,
         timeoutDestroySlide: null as unknown as NodeJS.Timeout | number,
-        timeoutTransitionX: null as unknown as NodeJS.Timeout | number,
-        timeoutTransitionY: null as unknown as NodeJS.Timeout | number,
         timeoutRouter: null as unknown as NodeJS.Timeout | number,
         tooltipEllipsisLimit: 30,
         trackpadSensitivityThreshold: 30,
         transitionDuration: 1000,
         userAgent: navigator.userAgent,
-        wheelCount: 0,
-        modalIds: []
+        wheelCount: 0
     };
+
+    Main.state = () => state;
 
     // this needs extra testing for all browsers to check if wheel event makes the scroll work !
 
@@ -122,12 +110,6 @@ const Main: any = (parentName: string, _options: Options = {}) => {
             state.wheelCount = 0;
         }
     });
-
-    //------------------------------------------------------------------------//
-    //////////////////////////|                       |/////////////////////////
-    //////////////////////////|      DOM CREATION     |/////////////////////////
-    //////////////////////////|                       |/////////////////////////
-    //------------------------------------------------------------------------//
 
     const parent = grabId(parentName);
     if (!parent) return logError('parent id not found: ' + parentName);

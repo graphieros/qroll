@@ -1,72 +1,216 @@
 import { ScrollDirection, State } from "../types";
-import { CssClass, CssDisplay, CssUnit, CssVisibility, Direction, DomElement, ElementAttribute, EventTrigger, KeyboardCode, NodeName, Svg } from "./constants";
+import { CssClass, CssDisplay, CssUnit, CssVisibility, DataAttribute, Direction, DomElement, ElementAttribute, EventTrigger, KeyboardCode, NodeName, Svg } from "./constants";
 import { detectTrackPad, grabId, walkTheDOM, setTabIndex, spawn, updateLocation, applyEllipsis, createUid } from "./functions";
+import { getCurrentSlideIndex } from "./interface";
+import Main from "./main";
 
 /** Set up dialog elements from client DIV elements that must be direct children of the main Parent element
  * 
  * @param state - the global State object
  */
 export function createDialogs(state: State) {
-    const dialogs = document.getElementsByClassName(CssClass.DIALOG);
+    const dialogBeacons = document.getElementsByClassName(CssClass.DIALOG);
 
-    Array.from(dialogs).forEach((dialog, i) => {
-        const modal = spawn(DomElement.DIALOG);
-        const id = (dialog as HTMLElement).dataset.id || `qroll_dialog_${i}`;
-        modal.setAttribute(ElementAttribute.ID, id);
+    Array.from(dialogBeacons).forEach((beacon, i) => {
+        const dialog = spawn(DomElement.DIALOG);
+        const id = (beacon as HTMLElement).dataset.id || `qroll_dialog_${i}`;
+        dialog.setAttribute(ElementAttribute.ID, id);
         const content = spawn(DomElement.DIV);
         content.classList.add(CssClass.DIALOG_CONTENT);
-        content.innerHTML = dialog.innerHTML;
-        dialog.innerHTML = "";
+        content.innerHTML = beacon.innerHTML;
+        beacon.innerHTML = "";
 
-        if ((dialog as HTMLElement).dataset.closeButton === "true") {
+        const hasCloseButton = (beacon as HTMLElement).dataset.closeButton === DataAttribute.TRUE;
+        const hasTitle = (beacon as HTMLElement).dataset.title;
+        const hasCssClasses = (beacon as HTMLElement).dataset.cssClasses;
+
+        if (hasCloseButton) {
             const closeButton = spawn(DomElement.BUTTON);
             closeButton.classList.add(CssClass.DIALOG_BUTTON_CLOSE);
             closeButton.innerHTML = Svg.CLOSE;
             closeButton.addEventListener(EventTrigger.CLICK, () => closeDialog(id));
-            modal.appendChild(closeButton);
+            dialog.appendChild(closeButton);
         }
 
-        if ((dialog as HTMLElement).dataset.title) {
+        if (hasTitle) {
             const title = spawn(DomElement.DIV);
-            const text = (dialog as HTMLElement).dataset.title;
+            const text = (beacon as HTMLElement).dataset.title;
             title.classList.add(CssClass.DIALOG_TITLE);
             title.innerHTML = text || "";
             if (text) {
-                modal.appendChild(title);
+                dialog.appendChild(title);
             }
         }
-        modal.appendChild(content);
-        modal.classList.add(CssClass.DIALOG_BODY);
-        if ((dialog as HTMLElement).dataset.cssClasses) {
-            const cssClasses = (dialog as HTMLElement).dataset.cssClasses?.split(" ") as any;
+        dialog.appendChild(content);
+        dialog.classList.add(CssClass.DIALOG_BODY);
+        if (hasCssClasses) {
+            const cssClasses = (beacon as HTMLElement).dataset.cssClasses?.split(" ") as any;
             if (cssClasses.length) {
                 cssClasses.forEach((cssClass: string) => {
-                    modal.classList.add(cssClass);
+                    dialog.classList.add(cssClass);
                 });
             }
         }
-        dialog.appendChild(modal);
+        beacon.appendChild(dialog);
         state.modalIds.push(id);
     });
 }
 
-/** Open a dialog element by id
+/** Set up slides and sliding logic for dialog nested carousel components
+ * 
+ * @param dialog
+ */
+export function initDialogCarousels(dialog: HTMLDialogElement) {
+    const hCarousels = dialog.querySelectorAll(DataAttribute.CAROUSEL);
+    const content = dialog.getElementsByClassName(CssClass.DIALOG_CONTENT)[0];
+    (content as HTMLElement).style.overflowX = CssVisibility.HIDDEN;
+    Array.from(hCarousels).forEach(hCarousel => {
+        (hCarousel as HTMLElement).classList.add(CssClass.DIALOG_CAROUSEL);
+    });
+
+    Array.from(hCarousels).forEach(hCarousel => {
+        if ((hCarousel as HTMLElement).dataset.carouselIndex) {
+            return;
+        }
+        (hCarousel as HTMLElement).dataset.carouselIndex = "0";
+        (hCarousel as HTMLElement).style.width = "100%";
+        (hCarousel as HTMLElement).style.position = "relative";
+        const children = hCarousel.children;
+        Array.from(children).forEach((child, j) => {
+            (child as HTMLElement).dataset.index = String(j);
+            (child as HTMLElement).classList.add(CssClass.NO_TRANSITION);
+            (child as HTMLElement).classList.add(CssClass.CAROUSEL_HORIZONTAL_SLIDE);
+            if (j === children.length - 1) {
+                (child as HTMLElement).style.transform = `translateX(-100%)`;
+                (child as HTMLElement).style.visibility = CssVisibility.HIDDEN;
+            } else if (j === 0) {
+                (child as HTMLElement).style.transform = `translateX(0)`;
+            } else {
+                (child as HTMLElement).style.transform = `translateX(100%)`;
+                (child as HTMLElement).style.visibility = CssVisibility.HIDDEN;
+            }
+        });
+        const slides = Array.from(hCarousel.children).filter((child) => Array.from((child as HTMLElement).classList).includes(CssClass.CAROUSEL_HORIZONTAL_SLIDE));
+        const heights = Array.from(slides).map(child => {
+            return Number(window.getComputedStyle(child as HTMLElement).height.replace("px", ""));
+        });
+        const maxContentHeight = Math.max(...heights);
+        (hCarousel as HTMLElement).style.height = `${maxContentHeight}px`;
+        const buttonLeft = spawn(DomElement.BUTTON);
+        const buttonRight = spawn(DomElement.BUTTON);
+        buttonLeft.classList.add(CssClass.CAROUSEL_BUTTON_LEFT);
+        buttonRight.classList.add(CssClass.CAROUSEL_BUTTON_RIGHT);
+        buttonLeft.innerHTML = Svg.CHEVRON_LEFT;
+        buttonRight.innerHTML = Svg.CHEVRON_RIGHT;
+
+        buttonRight.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection({ state: Main.state(), direction: Direction.RIGHT, component: hCarousel as HTMLElement }));
+        buttonLeft.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection({ state: Main.state(), direction: Direction.LEFT, component: hCarousel as HTMLElement }));
+
+        const buttonPlayPause = spawn(DomElement.BUTTON);
+        buttonPlayPause.classList.add(CssClass.CAROUSEL_BUTTON_PLAY);
+        buttonPlayPause.innerHTML = Svg.PAUSE;
+        if (!(hCarousel as HTMLElement).dataset.autoSlide) {
+            buttonPlayPause.style.display = CssDisplay.NONE;
+        }
+
+        const uid = createUid();
+
+        Main.state().intervals.push({
+            id: uid,
+            interval: null,
+        });
+
+        (hCarousel as HTMLElement).dataset.uid = uid;
+
+        if ((hCarousel as HTMLElement).dataset.autoSlide === DataAttribute.PAUSE) {
+            (hCarousel as HTMLElement).dataset.autoSlide = DataAttribute.TRUE;
+        }
+
+        if ((hCarousel as HTMLElement).dataset.autoSlide === DataAttribute.TRUE) {
+            playPause({
+                carousel: hCarousel as HTMLElement,
+                buttonNext: buttonRight,
+                buttonPrevious: buttonLeft,
+                uid,
+                state: Main.state()
+            });
+        }
+
+        buttonPlayPause.addEventListener(EventTrigger.CLICK, () => togglePlayState({
+            carousel: hCarousel,
+            buttonPlayPause,
+            buttonNext: buttonRight,
+            buttonPrevious: buttonLeft,
+            uid,
+            state: Main.state()
+        }));
+
+        [buttonLeft, buttonRight, buttonPlayPause].forEach(el => hCarousel.appendChild(el));
+    });
+}
+
+/** Get right, left & pause buttons from a carousel element
+ * 
+ * @param carousel - An horizontal carousel element
+ * @returns an object with left, right & pause buttons
+ */
+export function getCarouselButtons(carousel: HTMLElement) {
+    const buttonPlayPause = (carousel as HTMLElement).getElementsByClassName(CssClass.CAROUSEL_BUTTON_PLAY)[0] as HTMLElement;
+    const buttonNext = (carousel as HTMLElement).getElementsByClassName(CssClass.CAROUSEL_BUTTON_RIGHT)[0] as HTMLElement;
+    const buttonPrevious = (carousel as HTMLElement).getElementsByClassName(CssClass.CAROUSEL_BUTTON_LEFT)[0] as HTMLElement;
+    return { buttonPlayPause, buttonNext, buttonPrevious };
+}
+
+/** Open a dialog element by id, and initialize optional nested carousels (and restart previously auto sliding carousel automatically paused when closing the dialog)
  * 
  * @param id - dialog element id
  */
 export function openDialog(id: string) {
     const modal = document.getElementById(id) as HTMLDialogElement;
     if (modal) {
+        const hCarousels = modal.querySelectorAll(DataAttribute.CAROUSEL);
+        if (hCarousels && hCarousels.length) {
+            initDialogCarousels(modal);
+            Array.from(hCarousels).forEach(carousel => {
+                if ((carousel as HTMLElement).dataset.autoSlide === DataAttribute.PAUSE) {
+                    (carousel as HTMLElement).dataset.autoSlide = DataAttribute.FALSE;
+                    const { buttonPlayPause, buttonNext, buttonPrevious } = getCarouselButtons(carousel as HTMLElement);
+                    togglePlayState({
+                        state: Main.state(),
+                        carousel,
+                        buttonPlayPause,
+                        buttonNext,
+                        buttonPrevious,
+                        uid: (carousel as HTMLElement).dataset.uid,
+                    });
+                }
+            });
+        }
         modal.showModal();
     }
 }
 
-/** Close a dialog element by id
+/** Close a dialog element by id. Will pause any nested auto sliding carousel.
  * 
  * @param id - dialog element id
  */
 export function closeDialog(id: string) {
     const modal = document.getElementById(id) as HTMLDialogElement;
+    const hCarousels = modal.querySelectorAll(DataAttribute.CAROUSEL);
+    Array.from(hCarousels).forEach(carousel => {
+        if ((carousel as HTMLElement).dataset.autoSlide === DataAttribute.TRUE) {
+            const { buttonPlayPause, buttonNext, buttonPrevious } = getCarouselButtons(carousel as HTMLElement);
+            togglePlayState({
+                state: Main.state(),
+                carousel,
+                buttonPlayPause,
+                buttonNext,
+                buttonPrevious,
+                uid: (carousel as HTMLElement).dataset.uid,
+            });
+            (carousel as HTMLElement).dataset.autoSlide = DataAttribute.PAUSE;
+        }
+    });
     if (modal) {
         modal.close();
     }
@@ -101,13 +245,13 @@ export function togglePlayState({
     buttonNext,
     buttonPrevious,
     uid
-}: { state: State, carousel: any, buttonPlayPause: HTMLElement, buttonNext: HTMLElement, buttonPrevious: HTMLElement, uid: string }) {
+}: { state: State, carousel: any, buttonPlayPause: HTMLElement, buttonNext: HTMLElement, buttonPrevious: HTMLElement, uid: any }) {
     const status = carousel.dataset.autoSlide;
-    if (status === "true") {
-        carousel.dataset.autoSlide = "false";
+    if (status === DataAttribute.TRUE) {
+        carousel.dataset.autoSlide = DataAttribute.FALSE;
         buttonPlayPause.innerHTML = Svg.PLAY;
     } else {
-        carousel.dataset.autoSlide = "true";
+        carousel.dataset.autoSlide = DataAttribute.TRUE;
         buttonPlayPause.innerHTML = Svg.PAUSE;
     }
     playPause({ carousel, buttonNext, buttonPrevious, uid, state });
@@ -122,7 +266,7 @@ export function playPause({ carousel, buttonNext, buttonPrevious, uid, state }: 
     const duration = Number(carousel.dataset.timer) || 5000;
     const thisInterval = state.intervals.find(i => i.id === uid);
 
-    if (carousel.dataset.autoSlide === "false") {
+    if (carousel.dataset.autoSlide === DataAttribute.FALSE) {
         clearInterval(thisInterval.interval);
         thisInterval.interval = null;
     } else {
@@ -143,11 +287,11 @@ export function playPause({ carousel, buttonNext, buttonPrevious, uid, state }: 
  * @param direction - UP | RIGHT | DOWN | LEFT
  * @param component - auto sliding carousel component
  */
-export function slideComponentToDirection(state: State, direction: ScrollDirection, component: HTMLElement) {
-    if (state.isSliding && component.dataset.autoSlide !== "true") {
+export function slideComponentToDirection({ state, direction, component }: { state?: State, direction: ScrollDirection, component: HTMLElement }) {
+    if (state && state.isSliding && component.dataset.autoSlide !== DataAttribute.TRUE) {
         return;
     }
-    if (component.dataset.autoSlide !== "true") {
+    if (state && component.dataset.autoSlide !== DataAttribute.TRUE) {
         state.isSliding = true;
     }
     const hSlides = component.getElementsByClassName(CssClass.CAROUSEL_HORIZONTAL_SLIDE);
@@ -190,9 +334,11 @@ export function slideComponentToDirection(state: State, direction: ScrollDirecti
             }
 
             component.dataset.carouselIndex = String(nextIndex);
-            setTimeout(() => {
-                state.isSliding = false;
-            }, state.transitionDuration);
+            if (state) {
+                setTimeout(() => {
+                    state.isSliding = false;
+                }, state.transitionDuration);
+            }
         });
     } else if ([Direction.UP, Direction.DOWN].includes(direction)) {
 
@@ -228,9 +374,11 @@ export function slideComponentToDirection(state: State, direction: ScrollDirecti
                 }
             }
             component.dataset.carouselIndex = String(nextIndex);
-            setTimeout(() => {
-                state.isSliding = false;
-            }, state.transitionDuration);
+            if (state) {
+                setTimeout(() => {
+                    state.isSliding = false;
+                }, state.transitionDuration);
+            }
         })
     }
 
@@ -280,8 +428,8 @@ export function createCarouselComponents(state: State) {
         buttonTop.innerHTML = Svg.CHEVRON_TOP;
         buttonDown.innerHTML = Svg.CHEVRON_DOWN;
 
-        buttonTop.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection(state, Direction.UP, vCarousel as HTMLElement));
-        buttonDown.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection(state, Direction.DOWN, vCarousel as HTMLElement));
+        buttonTop.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection({ state, direction: Direction.UP, component: vCarousel as HTMLElement }));
+        buttonDown.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection({ state, direction: Direction.DOWN, component: vCarousel as HTMLElement }));
 
         const buttonPlayPause = spawn(DomElement.BUTTON);
         buttonPlayPause.classList.add(CssClass.CAROUSEL_BUTTON_PLAY);
@@ -296,7 +444,7 @@ export function createCarouselComponents(state: State) {
             interval: null
         });
 
-        if ((vCarousel as HTMLElement).dataset.autoSlide === "true") {
+        if ((vCarousel as HTMLElement).dataset.autoSlide === DataAttribute.TRUE) {
             playPause({
                 carousel: vCarousel as HTMLElement,
                 buttonNext: buttonDown,
@@ -351,8 +499,8 @@ export function createCarouselComponents(state: State) {
         buttonLeft.innerHTML = Svg.CHEVRON_LEFT;
         buttonRight.innerHTML = Svg.CHEVRON_RIGHT;
 
-        buttonRight.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection(state, Direction.RIGHT, hCarousel as HTMLElement));
-        buttonLeft.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection(state, Direction.LEFT, hCarousel as HTMLElement));
+        buttonRight.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection({ state, direction: Direction.RIGHT, component: hCarousel as HTMLElement }));
+        buttonLeft.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection({ state, direction: Direction.LEFT, component: hCarousel as HTMLElement }));
 
         const buttonPlayPause = spawn(DomElement.BUTTON);
         buttonPlayPause.classList.add(CssClass.CAROUSEL_BUTTON_PLAY);
@@ -367,7 +515,7 @@ export function createCarouselComponents(state: State) {
             interval: null
         });
 
-        if ((hCarousel as HTMLElement).dataset.autoSlide === "true") {
+        if ((hCarousel as HTMLElement).dataset.autoSlide === DataAttribute.TRUE) {
             playPause({
                 carousel: hCarousel as HTMLElement,
                 buttonNext: buttonRight,
@@ -397,28 +545,28 @@ export function createCarouselComponents(state: State) {
  */
 export function setupHorizontalSlides(state: State, carousel: HTMLElement) {
     const parent = carousel.getElementsByClassName(CssClass.CAROUSEL_WRAPPER)[0];
-    const slides = Array.from(parent.children).filter(slide => (Array.from(slide.classList).includes(CssClass.CAROUSEL_SLIDE)));
+    const slides = Array.from(parent.children).filter(slide => (Array.from(slide.classList).includes(CssClass.CAROUSEL_SLIDE))) as HTMLElement[];
     const currentHIndex = Number((parent as HTMLElement).dataset.carouselIndex);
 
     slides.forEach((slide, i) => {
-        (slide as HTMLElement).style.width = `${state.pageWidth}px`;
+        slide.style.width = `${state.pageWidth}px`;
         if (i === currentHIndex) {
-            (slide as HTMLElement).style.transform = "translateX(0)";
-            (slide as HTMLElement).style.visibility = CssVisibility.INITIAL;
+            slide.style.transform = "translateX(0)";
+            slide.style.visibility = CssVisibility.INITIAL;
         } else if (i === (currentHIndex - 1 < 0 ? slides.length - 1 : currentHIndex - 1)) {
-            (slide as HTMLElement).style.transform = `translateX(-${state.pageWidth}px)`;
+            slide.style.transform = `translateX(-${state.pageWidth}px)`;
         } else if (i === (currentHIndex + 1 > slides.length - 1 ? 0 : currentHIndex + 1)) {
-            (slide as HTMLElement).style.transform = `translateX(${state.pageWidth}px)`;
+            slide.style.transform = `translateX(${state.pageWidth}px)`;
         } else if (i > currentHIndex) {
-            (slide as HTMLElement).style.transform = `translateX(${state.pageWidth}px)`;
+            slide.style.transform = `translateX(${state.pageWidth}px)`;
         } else if (i < currentHIndex) {
-            (slide as HTMLElement).style.transform = `translateX(-${state.pageWidth}px)`;
+            slide.style.transform = `translateX(-${state.pageWidth}px)`;
         }
     });
 
     setTimeout(() => {
         slides.forEach(slide => {
-            (slide as HTMLElement).classList.remove(CssClass.NO_TRANSITION);
+            slide.classList.remove(CssClass.NO_TRANSITION);
         });
     });
 }
@@ -440,28 +588,28 @@ export function updateCarouselNav(carousel: HTMLElement) {
             link.classList.remove(CssClass.NAV_LINK_SELECTED);
         }
     });
-    const buttonLeft = carousel.getElementsByClassName(CssClass.NAV_BUTTON_LEFT)[0];
-    const buttonRight = carousel.getElementsByClassName(CssClass.NAV_BUTTON_RIGHT)[0];
+    const buttonLeft = carousel.getElementsByClassName(CssClass.NAV_BUTTON_LEFT)[0] as HTMLElement;
+    const buttonRight = carousel.getElementsByClassName(CssClass.NAV_BUTTON_RIGHT)[0] as HTMLElement;
 
     if (!Array.from((carousel as HTMLElement).classList).includes(CssClass.LOOP)) {
         if (currentIndex === 0 && buttonLeft) {
-            (buttonLeft as HTMLElement).style.opacity = '0';
-            (buttonLeft as HTMLElement).style.transform = 'scale(0,0)';
-            (buttonLeft as HTMLElement).style.cursor = 'default';
+            buttonLeft.style.opacity = '0';
+            buttonLeft.style.transform = 'scale(0,0)';
+            buttonLeft.style.cursor = 'default';
         } else {
-            (buttonLeft as HTMLElement).style.opacity = '1';
-            (buttonLeft as HTMLElement).style.transform = 'scale(1,1)';
-            (buttonLeft as HTMLElement).style.cursor = 'pointer';
+            buttonLeft.style.opacity = '1';
+            buttonLeft.style.transform = 'scale(1,1)';
+            buttonLeft.style.cursor = 'pointer';
         }
         if (currentIndex === links.length - 1 && buttonRight) {
-            (buttonRight as HTMLElement).style.opacity = '0';
-            (buttonRight as HTMLElement).style.transform = 'scale(0,0)';
-            (buttonRight as HTMLElement).style.cursor = 'default';
+            buttonRight.style.opacity = '0';
+            buttonRight.style.transform = 'scale(0,0)';
+            buttonRight.style.cursor = 'default';
 
         } else {
-            (buttonRight as HTMLElement).style.opacity = '1';
-            (buttonRight as HTMLElement).style.transform = 'scale(1,1)';
-            (buttonRight as HTMLElement).style.cursor = 'pointer';
+            buttonRight.style.opacity = '1';
+            buttonRight.style.transform = 'scale(1,1)';
+            buttonRight.style.cursor = 'pointer';
         }
     }
 }
@@ -713,12 +861,21 @@ export function createCarousel(state: State, carousel: HTMLElement) {
 export function setupVerticalSlides(state: State, parent: HTMLElement) {
     const children = Array.from(parent.children).filter(child => Array.from(child.classList).includes(CssClass.SLIDE));
 
+    const isLastSlide = getCurrentSlideIndex() === children.length - 1;
+    const isFirstSlide = getCurrentSlideIndex() === 0;
+
     Array.from(children).forEach((child, i) => {
         if (i === Number((parent as HTMLElement).dataset.currentVIndex)) {
             (child as HTMLElement).setAttribute(ElementAttribute.STYLE, `transform:translateY(0);`);
             (child as HTMLElement).style.zIndex = "1";
         } else {
-            (child as HTMLElement).setAttribute(ElementAttribute.STYLE, `transform:translateY(${i < Number((parent as HTMLElement).dataset.currentVIndex) ? "-" : ""}${state.pageHeight}px)`);
+            if (isLastSlide && i === 0) {
+                (child as HTMLElement).setAttribute(ElementAttribute.STYLE, `transform:translateY(${state.pageHeight}px)`);
+            } else if (isFirstSlide && i === children.length - 1) {
+                (child as HTMLElement).setAttribute(ElementAttribute.STYLE, `transform:translateY(-${state.pageHeight}px)`);
+            } else {
+                (child as HTMLElement).setAttribute(ElementAttribute.STYLE, `transform:translateY(${i < Number((parent as HTMLElement).dataset.currentVIndex) ? "-" : ""}${state.pageHeight}px)`);
+            }
             (child as HTMLElement).style.zIndex = "0";
             (child as HTMLElement).style.visibility = CssVisibility.HIDDEN;
         }

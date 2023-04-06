@@ -34,22 +34,7 @@ export type EventTriggerListener = {
     method: (event: any) => void;
 }
 
-export type Carousel = {
-    transitionDuration: number;
-    currentSlide: number;
-    currentSlideId: null | string;
-    hasLoop: boolean;
-    isVisible: boolean;
-    slideCount: number;
-    htmlElement: HTMLDivElement | null;
-    clickLeft: () => void;
-    clickRight: () => void;
-    keyLeft: () => void;
-    keyRight: () => void;
-}
-
 export type State = {
-    carousel: Carousel,
     cssClassTransition: string;
     currentCarousel: HTMLDivElement | null;
     currentNoLoopSlide: number;
@@ -60,6 +45,7 @@ export type State = {
     isLoop: boolean;
     isRouting: boolean;
     isSliding: boolean;
+    isSlidingDialog: boolean;
     isSlidingX: boolean;
     isTrackpad: boolean;
     pageHeight: number;
@@ -67,8 +53,6 @@ export type State = {
     parentClass: string;
     timeoutClassTransition: NodeJS.Timeout | number;
     timeoutDestroySlide: NodeJS.Timeout | number;
-    timeoutTransitionX: NodeJS.Timeout | number;
-    timeoutTransitionY: NodeJS.Timeout | number;
     timeoutRouter: NodeJS.Timeout | number;
     tooltipEllipsisLimit: number;
     trackpadSensitivityThreshold: number;
