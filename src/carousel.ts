@@ -1,6 +1,6 @@
 import { ScrollDirection, State } from "../types";
 import { CssClass, CssDisplay, CssUnit, CssVisibility, DataAttribute, Direction, DomElement, ElementAttribute, EventTrigger, KeyboardCode, NodeName, Svg } from "./constants";
-import { detectTrackPad, grabId, walkTheDOM, setTabIndex, spawn, updateLocation, applyEllipsis, createUid } from "./functions";
+import { detectTrackPad, grabId, walkTheDOM, setTabIndex, spawn, updateLocation, applyEllipsis, createUid, updateMetaTags } from "./functions";
 import { getCurrentSlideIndex } from "./interface";
 import Main from "./main";
 
@@ -1043,6 +1043,7 @@ export function createMainLayout(state: State, parent: HTMLElement) {
             setTimeout(() => {
                 state.isRouting = true;
                 if (!skipHistory) {
+                    updateMetaTags(nextSlide as HTMLElement);
                     updateLocation(id, clearRoutingTimeout);
                     state.wheelCount = 0;
                 }
@@ -1109,6 +1110,7 @@ export function createMainLayout(state: State, parent: HTMLElement) {
             setTimeout(() => {
                 if (!skipHistory) {
                     state.isRouting = true;
+                    updateMetaTags(nextSlide as HTMLElement);
                     updateLocation(id, clearRoutingTimeout);
                     state.wheelCount = 0;
                 }
@@ -1505,6 +1507,7 @@ export function createMainLayout(state: State, parent: HTMLElement) {
         updateNav();
         restoreCarousel();
         updateCarouselNav(grabId(currentSlideId));
+        updateMetaTags(grabId(currentSlideId) as HTMLElement);
         setTimeout(() => {
             Array.from(children).filter(child => (Array.from(child.classList).includes(CssClass.SLIDE))).forEach((child) => {
                 child.classList.remove(CssClass.NO_TRANSITION);

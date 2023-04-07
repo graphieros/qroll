@@ -1,3 +1,5 @@
+import { DomElement, ElementAttribute } from "./constants";
+
 /** Apply ellipsis on a string depending on a limit
  * 
  * @param text - string to apply the ellipsis on
@@ -201,8 +203,24 @@ export function updateCssClasses({ element, addedClasses = [], removedClasses = 
 export function updateLocation(slideId: string, callback?: () => void) {
     // this is good stuff
     (window as Window).location.href = `${(window as Window).location.pathname}#${slideId}`;
-
+    // update meta tags if slide bears proper data attributes
     if (callback) callback()
+}
+
+export function updateMetaTags(slide: HTMLElement) {
+    if (slide.dataset.metaTitle) {
+        document.head.getElementsByTagName(DomElement.TITLE)[0].innerHTML = slide.dataset.metaTitle;
+    }
+    if (slide.dataset.metaDescription) {
+        const currentMeta = document.head.querySelector("meta[name=description]");
+        if (currentMeta) {
+            document.head.removeChild(currentMeta);
+        }
+        const newMeta = spawn(DomElement.META);
+        newMeta.setAttribute(ElementAttribute.NAME, "description");
+        newMeta.setAttribute(ElementAttribute.CONTENT, slide.dataset.metaDescription);
+        document.head.appendChild(newMeta);
+    }
 }
 
 /** Traverse the dom an apply a callback as long as there is a node

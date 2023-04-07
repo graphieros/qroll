@@ -14,7 +14,13 @@
 
     <div id="qroll-parent" class="qroll-main qroll-loop qroll-tooltip" data-progress-css="background: linear-gradient(to right, transparent,rgb(83,172,110))">
 
-        <div class="test-child test-blue front-page"  data-title="Qroll" data-tooltip-css="font-family:'Satoshi'">
+        <div 
+            class="test-child test-blue front-page"  
+            data-title="Qroll" 
+            data-tooltip-css="font-family:'Satoshi'"
+            data-meta-title="Qroll library"
+            data-meta-description="Qroll, a friendly scroll JavaScript library"
+        >
                 <h1 class="test-title-light">
                     <img src="./assets/android-chrome-512x512.png" height="125"><span style="margin-left:0px">roll</span>
                 </h1>
@@ -28,7 +34,11 @@
             </svg>
         </div>
 
-        <div class="test-child test-green">
+        <div 
+            class="test-child test-green"
+            data-meta-title="Qroll, it's easy !"
+            data-meta-description="Qroll is very easy to implement, with only a few css classes and a few data attributes."
+        >
             <div style="height: 100%; display: flex; align-items:center; justify-content:center; flex-direction: column">
                 <h2 class="test-title-dark">Easy</h2>
                 <p style="font-size: 32px; color: #1a173b; text-align:center">
@@ -61,7 +71,12 @@
 
         </div>
 
-        <div class="test-child test-green qroll-carousel qroll-tooltip qroll-loop" data-title="This is slide 2">
+        <div 
+            class="test-child test-green qroll-carousel qroll-tooltip qroll-loop" 
+            data-title="This is slide 2"
+            data-meta-title="Qroll horizontal"
+            data-meta-description="Set up your slides vertically and horizontally"
+        >
             <div class="test-carousel-slide test-blue" data-title="Horizontal sliding">
                 <h2 class="test-title-light">It also works sideways</h2>
             </div>
@@ -106,7 +121,12 @@
             </div>
         </div>
 
-        <div class="test-child test-green qroll-carousel qroll-tooltip" data-title="Images">
+        <div 
+            class="test-child test-green qroll-carousel qroll-tooltip" 
+            data-title="Images"
+            data-meta-title="Qroll infinite slides"
+            data-meta-description="Qroll, your slides can loop infinitely, or not."
+        >
             <div class="test-carousel-slide" data-title="image 1">
                 <img src="testpic.png" style="height:100%; width:100%; object-fit:cover">
             </div>
@@ -121,7 +141,11 @@
             </div>
         </div>
 
-        <div class="test-child test-blue">
+        <div 
+            class="test-child test-blue"
+            data-meta-title="Qroll horizontal carousel components"
+            data-meta-description="Qroll, with simple css classes and some data attributes, add carousel components to your slides. They can auto-slide if you wish."
+        >
             <h2 style="color: #e7e6f3">Carousel components</h2>
             <div class="qroll-carousel-component-horizontal" data-auto-slide="true" data-timer="5000">
                 <div class="test-blue-reversed" style="color:white; height: 250px;padding:24px">
@@ -191,7 +215,11 @@
             </div>
         </div>
 
-        <div class="test-child test-green">
+        <div 
+            class="test-child test-green"
+            data-meta-title="Qroll vertical carousel components"
+            data-meta-description="Carousel components can be horizontal, or vertical. You can also choose to make them auto slide, it only takes a data attribute."
+        >
             <h2 style="color: #e7e6f3">Also vertical</h2>
             <div class="qroll-carousel-component-vertical" data-auto-slide="true" data-direction="down" data-timer="5000">
                 <div style="height: 200px;color:white" class="test-blue">4.1.1</div>
@@ -200,7 +228,11 @@
             </div>
         </div>
 
-        <div class="test-child test-blue">
+        <div 
+            class="test-child test-blue"
+            data-meta-title="Qroll interface"
+            data-meta-description="Qroll, a simple interface give you the keys to manage navigation in an easy way."
+        >
             <h2 style="color:white">You are in control</h2>
             <p style="max-width:60ch; margin:0 auto;text-align:center;font-size:16px;color:white; margin-bottom:24px">
                 Qroll exposes its interface to allow you to add actions to scroll anywhere you want.
@@ -225,7 +257,11 @@
             </div>
         </div>
 
-        <div class="test-child test-blue">
+        <div 
+            class="test-child test-blue"
+            data-meta-title="Qroll UI components"
+            data-meta-description="Qroll also provides UI components, like dialogs."
+        >
             <h2 style="color:white">UI components</h2>
             <div style="display: flex; align-items:center;justify-content:center;gap:12px">
                 <button class="test-button" onclick="qroll.openDialog('basicDialog')">

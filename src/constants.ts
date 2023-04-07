@@ -94,6 +94,8 @@ export namespace DomElement {
     export const NAV = "nav";
     export const SPAN = "span";
     export const DIALOG = "dialog";
+    export const META = "meta";
+    export const TITLE = "title";
 }
 
 export namespace ElementAttribute {
@@ -101,6 +103,8 @@ export namespace ElementAttribute {
     export const ID = "id";
     export const TYPE = "type";
     export const TABINDEX = "tabindex";
+    export const CONTENT = "content";
+    export const NAME = "name";
 }
 
 export namespace ElementId {
