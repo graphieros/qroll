@@ -1,5 +1,15 @@
 import { DomElement, ElementAttribute } from "./constants";
 
+/** Shorthand for element.setAttribute
+ * 
+ * @param element 
+ * @param attribute 
+ * @param value 
+ */
+export function addTo(element: HTMLElement | SVGElement, attribute: string, value: string | number) {
+    return element.setAttribute(attribute, String(value));
+}
+
 /** Apply ellipsis on a string depending on a limit
  * 
  * @param text - string to apply the ellipsis on
@@ -153,6 +163,16 @@ export function spawn(element: string) {
     return document.createElement(element);
 }
 
+export function spawnNS(element: string) {
+    const xmlns = "http://www.w3.org/2000/svg";
+    return document.createElementNS(xmlns, element);
+}
+
+export function setSvgAttribute(element: any, attribute: string, value: string) {
+    const xmlns = "http://www.w3.org/2000/svg";
+    return element.setAttributeNS(xmlns, attribute, value);
+}
+
 /** Mutate an array by swapping 2 elements
  * 
  * @param arr - any array of any datatype
@@ -203,7 +223,6 @@ export function updateCssClasses({ element, addedClasses = [], removedClasses = 
 export function updateLocation(slideId: string, callback?: () => void) {
     // this is good stuff
     (window as Window).location.href = `${(window as Window).location.pathname}#${slideId}`;
-    // update meta tags if slide bears proper data attributes
     if (callback) callback()
 }
 
@@ -241,6 +260,7 @@ export function walkTheDOM(node: any, func: any) {
 
 
 const alpra = {
+    addTo,
     applyEllipsis,
     createUid,
     detectTrackPad,
@@ -252,7 +272,10 @@ const alpra = {
     logError,
     reorderArrayByIndex,
     reorderArrayByCarouselIndex,
+    setSvgAttribute,
     setTabIndex,
+    spawn,
+    spawnNS,
     swapArrayPositions,
     translateX,
     translateY,

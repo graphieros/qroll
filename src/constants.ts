@@ -55,6 +55,22 @@ export namespace CssClass {
     export const TRANSITION_700 = "qroll-transition-700";
     export const TRANSITION_800 = "qroll-transition-800";
     export const TRANSITION_900 = "qroll-transition-900";
+
+    export const CHART = "qroll-chart";
+    export const CHART_DATALABEL_X = "qroll-chart__data-label-x";
+    export const CHART_DATAPOINT_CIRCLE = "qroll-chart__datapoint-circle";
+    export const CHART_LEGEND = "qroll-chart__legend";
+    export const CHART_LEGEND_BLOCK = "qroll-chart__legend__block";
+    export const CHART_LEGEND_ITEM = "qroll-chart__legend-item";
+    export const CHART_LEGEND_ITEM_LEFT = "qroll-chart__legend-item--left";
+    export const CHART_LEGEND_ITEM_RIGHT = "qroll-chart__legend-item--right";
+    export const CHART_LEGEND_MARKER_RIGHT = "qroll-chart__legend-marker--right";
+    export const CHART_LEGEND_NAME_LEFT = "qroll-chart__legend-name--left";
+    export const CHART_LINE = "qroll-chart__line";
+    export const CHART_TOOLTIP = "qroll-chart__tooltip";
+    export const CHART_TOOLTIP_DATE = "qroll-chart__tooltip-date";
+    export const CHART_TOOLTIP_ITEM = "qroll-chart__tooltip-item";
+    export const CHART_TOOLTIP_TRAP = "qroll-chart__tooltip-trap";
 }
 
 export namespace CssDisplay {
@@ -105,6 +121,8 @@ export namespace ElementAttribute {
     export const TABINDEX = "tabindex";
     export const CONTENT = "content";
     export const NAME = "name";
+    export const HEIGHT = "height";
+    export const WIDTH = "width";
 }
 
 export namespace ElementId {
@@ -120,6 +138,7 @@ export namespace EventTrigger {
     export const TOUCHSTART = "touchstart";
     export const WHEEL = "wheel";
     export const CLICK = "click";
+    export const MOUSEMOVE = "mousemove";
 }
 
 export namespace KeyboardCode {
@@ -145,4 +164,40 @@ export namespace Svg {
     export const CLOSE = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="white"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>`;
     export const PAUSE = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="white"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" /></svg>`;
     export const PLAY = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="white"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" /></svg>`;
+}
+
+export namespace SvgAttribute {
+    export const X1 = "x1";
+    export const Y1 = "y1";
+    export const X2 = "x2";
+    export const Y2 = "y2";
+    export const X = "x";
+    export const Y = "y";
+    export const CX = "cx";
+    export const CY = "cy";
+    export const R = "r";
+    export const TEXT_ANCHOR = "text-anchor";
+    export const STROKE = "stroke";
+    export const STROKE_WIDTH = "stroke-width";
+    export const STROKE_LINECAP = "stroke-linecap";
+    export const STROKE_LINEJOIN = "stroke-linejoin";
+    export const FILL = "fill";
+    export const FONT_SIZE = "font-size";
+    export const VIEWBOX = "viewBox";
+}
+
+export namespace SvgElement {
+    export const CIRCLE = "circle";
+    export const LINE = "line";
+    export const FOREIGNOBJECT = "foreignObject";
+    export const RECT = "rect";
+    export const SVG = "svg";
+    export const G = "g";
+    export const TEXT = "text";
+}
+
+export namespace Chart {
+    export const LINE = "line";
+    export const BAR = "bar";
+    export const DONUT = "donut";
 }

@@ -32,6 +32,9 @@ import {
     slideUp,
     slideToIndex
 } from "./interface";
+import {
+    createCharts
+} from "./charts";
 
 // IDEA: SEO provide url links, change meta tags programatically on slide change
 
@@ -58,6 +61,9 @@ const Main: any = (parentName: string, _options: Options = {}) => {
     // }
     // console.log((import.meta as any).env)
     // document.head.appendChild(cssLink);
+
+
+    // TODO: onload, scan all elements' to check if any data attribute includes a script tag
 
     //------------------------------------------------------------------------//
     //\/\/\/\/\/\/\/\/\/\/\/\/|                       |\/\/\/\/\/\/\/\/\/\/\/\//
@@ -90,7 +96,7 @@ const Main: any = (parentName: string, _options: Options = {}) => {
         trackpadSensitivityThreshold: 30,
         transitionDuration: 1000,
         userAgent: navigator.userAgent,
-        wheelCount: 0
+        wheelCount: 0,
     };
 
     Main.state = () => state;
@@ -166,6 +172,7 @@ const Main: any = (parentName: string, _options: Options = {}) => {
         Array.from(element.children).forEach(child => walkTheDOM(child, setTabIndex));
         createCarousel(state, element);
     }
+    createCharts();
     createCarouselComponents(state);
     createMainLayout(state, parent);
     createDialogs(state);

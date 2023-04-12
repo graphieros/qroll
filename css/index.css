@@ -607,3 +607,74 @@ button.qroll-nav-link {
     top: 48px;
     width:calc(100% - 45px);
 }
+
+/* Charts */
+.qroll-chart {
+    display: flex;
+    flex-direction: column;
+}
+.qroll-chart__line,
+.qroll-chart__legend {
+    background-color: white;
+    width: 100%;
+}
+.qroll-chart__data-label-x {
+    width: 100%;
+    height: 100%;
+    color: black;
+    font-size: 16px;
+    background: white;
+    text-align:center;
+    overflow: visible;
+    border-radius: 6px;
+    display: flex;
+    align-items:center;
+    justify-content:center;
+}
+.qroll-chart__tooltip {
+    position: fixed;
+    z-index: 1000;
+    background: white;
+    padding: 12px 24px;
+    border-radius: 4px;
+    box-shadow: 0 6px 12px -6px rgba(0,0,0,0.3);
+    transition: opacity 0.15s ease-in-out;
+}
+.qroll-chart__tooltip-item {
+    display: flex;
+    flex-direction: row;
+    gap: 3px;
+}
+.qroll-chart__tooltip-date {
+    border-bottom: 1px solid rgba(0,0,0,0.15);
+    margin-bottom: 6px;
+    padding-bottom: 6px;
+    font-weight: bold;
+}
+.qroll-chart__data-label-x {
+    user-select:none;
+}
+.qroll-chart__legend {
+    margin-top: -3%;
+    user-select:none;
+}
+.qroll-chart__legend-item {
+    height: 100%;
+    width: 100%;
+    font-size: 20px;
+    display: flex;
+    align-items:center;
+    gap: 6px;
+}
+.qroll-chart__legend-item--left {
+    justify-content:end;
+}
+.qroll-chart__legend-name--left {
+    padding-right: 12px;
+}
+.qroll-chart__legend-marker--right {
+    padding-left: 12px;
+}
+.qroll-chart__legend__block {
+    cursor: pointer;
+}
