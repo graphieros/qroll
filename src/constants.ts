@@ -71,6 +71,7 @@ export namespace CssClass {
     export const CHART_TOOLTIP_DATE = "qroll-chart__tooltip-date";
     export const CHART_TOOLTIP_ITEM = "qroll-chart__tooltip-item";
     export const CHART_TOOLTIP_TRAP = "qroll-chart__tooltip-trap";
+    export const CHART_BAR = "qroll-chart__bar";
 }
 
 export namespace CssDisplay {

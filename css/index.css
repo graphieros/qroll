@@ -614,6 +614,7 @@ button.qroll-nav-link {
     flex-direction: column;
 }
 .qroll-chart__line,
+.qroll-chart__bar,
 .qroll-chart__legend {
     background-color: white;
     width: 100%;
