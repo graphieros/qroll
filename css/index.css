@@ -616,6 +616,7 @@ button.qroll-nav-link {
 .qroll-chart__line,
 .qroll-chart__bar,
 .qroll-chart__donut,
+.qroll-chart__gauge,
 .qroll-chart__legend {
     background-color: white;
     width: 100%;

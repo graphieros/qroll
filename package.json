@@ -1,6 +1,6 @@
 {
   "name": "qroll",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "main": "./dist/qroll.umd.cjs",
   "module": "./dist/qroll.js",

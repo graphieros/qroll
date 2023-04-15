@@ -1,5 +1,5 @@
 import { Chart, CssClass, DomElement, ElementAttribute, EventTrigger, SvgAttribute, SvgElement, SvgTextPosition } from "./constants";
-import { addTo, createUid, spawn, spawnNS } from "./functions";
+import { addTo, createUid, findClosestNumberInArray, spawn, spawnNS } from "./functions";
 
 // TODO: dark mode
 
@@ -203,13 +203,12 @@ export function createCharts() {
                     tickX.style.fill = "grey";
                     gTicks.appendChild(tickX);
 
-                    const labelX = spawnNS(SvgElement.TEXT);
-                    addTo(labelX, SvgAttribute.X, (i * interval) + padding.x);
-                    addTo(labelX, SvgAttribute.Y, calcY(0) + 40);
-                    addTo(labelX, SvgAttribute.TEXT_ANCHOR, SvgTextPosition.MIDDLE);
-                    addTo(labelX, SvgAttribute.FONT_SIZE, 20);
-                    labelX.innerHTML = yValues[i] || "";
-                    gTicks.appendChild(labelX);
+                    gTicks.appendChild(createText({
+                        content: yValues[i] ?? "",
+                        x: (i * interval) + padding.x + interval / 2,
+                        y: calcY(0) + 40,
+                        fontSize: 20
+                    }));
                 }
                 for (let i = 0; i <= (maxValue + Math.abs(minValue)); i += ((maxValue + Math.abs(minValue)) / 10)) {
                     const tickY = spawnNS(SvgElement.CIRCLE);
@@ -229,13 +228,13 @@ export function createCharts() {
                         gTicks.appendChild(yLine);
                     }
 
-                    const labelY = spawnNS(SvgElement.TEXT);
-                    addTo(labelY, SvgAttribute.X, padding.x - 25);
-                    addTo(labelY, SvgAttribute.Y, calcY(i) + 5);
-                    addTo(labelY, SvgAttribute.TEXT_ANCHOR, "end");
-                    addTo(labelY, SvgAttribute.FONT_SIZE, 20);
-                    labelY.innerHTML = `${Math.round(minValue + i)}${dataSymbol ?? ''}`;
-                    gTicks.appendChild(labelY);
+                    gTicks.appendChild(createText({
+                        content: `${Math.round(minValue + i)}${dataSymbol ?? ''}`,
+                        x: padding.x - 25,
+                        y: calcY(i) + 5,
+                        fontSize: 20,
+                        position: "end",
+                    }));
                 }
                 chartSvg.appendChild(gTicks);
             }
@@ -365,36 +364,33 @@ export function createCharts() {
                         tooltip.style.zIndex = "-1";
                     }
                 });
+
+                chartSvg.addEventListener(EventTrigger.MOUSELEAVE, () => {
+                    tooltip.style.opacity = "0";
+                    tooltip.style.zIndex = "-1";
+                });
                 document.body.appendChild(tooltip);
             }
 
             child.appendChild(chartSvg);
 
-            // TITLE
-
             if (hasTitle) {
-                const titleContent = (child as HTMLElement).dataset.title as string;
-                const title = spawnNS(SvgElement.TEXT);
-                addTo(title, SvgAttribute.X, svgWidth / 2);
-                addTo(title, SvgAttribute.Y, 30);
-                addTo(title, SvgAttribute.TEXT_ANCHOR, SvgTextPosition.MIDDLE);
-                addTo(title, SvgAttribute.FONT_SIZE, 32);
-                title.innerHTML = titleContent;
-                chartSvg.appendChild(title);
+                chartSvg.appendChild(createText({
+                    content: (child as HTMLElement).dataset.title as string,
+                    x: svgWidth / 2,
+                    y: 30,
+                    fontSize: 32
+                }));
             }
 
-            // SUBTITLE
-
             if (hasSubtitle) {
-                const subtitleContent = (child as HTMLElement).dataset.subtitle as string;
-                const subtitle = spawnNS(SvgElement.TEXT);
-                addTo(subtitle, SvgAttribute.X, svgWidth / 2);
-                addTo(subtitle, SvgAttribute.Y, 55);
-                addTo(subtitle, SvgAttribute.TEXT_ANCHOR, SvgTextPosition.MIDDLE);
-                addTo(subtitle, SvgAttribute.FONT_SIZE, 20);
-                addTo(subtitle, SvgAttribute.FILL, "grey");
-                subtitle.innerHTML = subtitleContent;
-                chartSvg.appendChild(subtitle);
+                chartSvg.appendChild(createText({
+                    content: (child as HTMLElement).dataset.subtitle as string,
+                    color: "grey",
+                    fontSize: 20,
+                    x: svgWidth / 2,
+                    y: 55
+                }));
             }
 
             // LEGEND
@@ -654,13 +650,12 @@ export function createCharts() {
             if (showTicks) {
                 const gTicks = spawnNS(SvgElement.G);
                 for (let i = 0; i < maxDatapoints; i += 1) {
-                    const labelX = spawnNS(SvgElement.TEXT);
-                    addTo(labelX, SvgAttribute.X, (i * interval) + padding.x + interval / 2);
-                    addTo(labelX, SvgAttribute.Y, calcY(0) + 40);
-                    addTo(labelX, SvgAttribute.TEXT_ANCHOR, SvgTextPosition.MIDDLE);
-                    addTo(labelX, SvgAttribute.FONT_SIZE, 20);
-                    labelX.innerHTML = yValues[i] || "";
-                    gTicks.appendChild(labelX);
+                    gTicks.appendChild(createText({
+                        content: yValues[i] ?? "",
+                        x: (i * interval) + padding.x + interval / 2,
+                        y: calcY(0) + 40,
+                        fontSize: 20
+                    }));
                 }
                 for (let i = 0; i <= (maxValue + Math.abs(minValue)); i += ((maxValue + Math.abs(minValue)) / 10)) {
                     const tickY = spawnNS(SvgElement.CIRCLE);
@@ -680,13 +675,13 @@ export function createCharts() {
                         gTicks.appendChild(yLine);
                     }
 
-                    const labelY = spawnNS(SvgElement.TEXT);
-                    addTo(labelY, SvgAttribute.X, padding.x - 25);
-                    addTo(labelY, SvgAttribute.Y, calcY(i) + 5);
-                    addTo(labelY, SvgAttribute.TEXT_ANCHOR, "end");
-                    addTo(labelY, SvgAttribute.FONT_SIZE, 20);
-                    labelY.innerHTML = `${Math.round(minValue + i)}${dataSymbol ?? ''}`;
-                    gTicks.appendChild(labelY);
+                    gTicks.appendChild(createText({
+                        content: `${Math.round(minValue + i)}${dataSymbol ?? ''}`,
+                        x: padding.x - 25,
+                        y: calcY(i) + 5,
+                        fontSize: 20,
+                        position: "end",
+                    }));
                 }
                 chartSvg.appendChild(gTicks);
             }
@@ -791,34 +786,32 @@ export function createCharts() {
                         tooltip.style.zIndex = "-1";
                     }
                 });
+                chartSvg.addEventListener(EventTrigger.MOUSELEAVE, () => {
+                    tooltip.style.opacity = "0";
+                    tooltip.style.zIndex = "-1";
+                });
                 document.body.appendChild(tooltip);
             }
 
             child.appendChild(chartSvg);
 
             if (hasTitle) {
-                const titleContent = (child as HTMLElement).dataset.title as string;
-                const title = spawnNS(SvgElement.TEXT);
-                addTo(title, SvgAttribute.X, svgWidth / 2);
-                addTo(title, SvgAttribute.Y, 30);
-                addTo(title, SvgAttribute.TEXT_ANCHOR, SvgTextPosition.MIDDLE);
-                addTo(title, SvgAttribute.FONT_SIZE, 32);
-                title.innerHTML = titleContent;
-                chartSvg.appendChild(title);
+                chartSvg.appendChild(createText({
+                    content: (child as HTMLElement).dataset.title as string,
+                    x: svgWidth / 2,
+                    y: 30,
+                    fontSize: 32
+                }))
             }
 
-            // SUBTITLE
-
             if (hasSubtitle) {
-                const subtitleContent = (child as HTMLElement).dataset.subtitle as string;
-                const subtitle = spawnNS(SvgElement.TEXT);
-                addTo(subtitle, SvgAttribute.X, svgWidth / 2);
-                addTo(subtitle, SvgAttribute.Y, 55);
-                addTo(subtitle, SvgAttribute.TEXT_ANCHOR, SvgTextPosition.MIDDLE);
-                addTo(subtitle, SvgAttribute.FONT_SIZE, 20);
-                addTo(subtitle, SvgAttribute.FILL, "grey");
-                subtitle.innerHTML = subtitleContent;
-                chartSvg.appendChild(subtitle);
+                chartSvg.appendChild(createText({
+                    content: (child as HTMLElement).dataset.subtitle as string,
+                    color: "grey",
+                    fontSize: 20,
+                    x: svgWidth / 2,
+                    y: 55
+                }));
             }
 
             // LEGEND
@@ -1093,6 +1086,10 @@ export function createCharts() {
                         tooltip.style.zIndex = "-1";
                     }
                 });
+                chartSvg.addEventListener(EventTrigger.MOUSELEAVE, () => {
+                    tooltip.style.opacity = "0";
+                    tooltip.style.zIndex = "-1";
+                });
                 document.body.appendChild(tooltip);
             }
 
@@ -1101,50 +1098,44 @@ export function createCharts() {
             // TITLE
 
             if (hasTitle) {
-                const titleContent = (child as HTMLElement).dataset.title as string;
-                const title = spawnNS(SvgElement.TEXT);
-                addTo(title, SvgAttribute.X, size / 2);
-                addTo(title, SvgAttribute.Y, 30);
-                addTo(title, SvgAttribute.TEXT_ANCHOR, SvgTextPosition.MIDDLE);
-                addTo(title, SvgAttribute.FONT_SIZE, 32);
-                title.innerHTML = titleContent;
-                chartSvg.appendChild(title);
+                chartSvg.appendChild(createText({
+                    content: (child as HTMLElement).dataset.title as string,
+                    fontSize: 32,
+                    x: size / 2,
+                    y: 30,
+                }));
             }
 
             // SUBTITLE
 
             if (hasSubtitle) {
-                const subtitleContent = (child as HTMLElement).dataset.subtitle as string;
-                const subtitle = spawnNS(SvgElement.TEXT);
-                addTo(subtitle, SvgAttribute.X, size / 2);
-                addTo(subtitle, SvgAttribute.Y, 55);
-                addTo(subtitle, SvgAttribute.TEXT_ANCHOR, SvgTextPosition.MIDDLE);
-                addTo(subtitle, SvgAttribute.FONT_SIZE, 20);
-                addTo(subtitle, SvgAttribute.FILL, "grey");
-                subtitle.innerHTML = subtitleContent;
-                chartSvg.appendChild(subtitle);
+                chartSvg.appendChild(createText({
+                    content: (child as HTMLElement).dataset.subtitle as string,
+                    color: "grey",
+                    fontSize: 20,
+                    x: size / 2,
+                    y: 55
+                }));
             }
 
             // TOTAL
             if (hasTotal) {
                 const gCenterLabel = spawnNS(SvgElement.G);
                 const total = Object.values(xValues).reduce((a: any, b: any) => a + b, 0);
-                const totalValue = spawnNS(SvgElement.TEXT);
-                totalValue.classList.add(CssClass.CHART_DONUT_CENTER_LABEL)
-                addTo(totalValue, SvgAttribute.TEXT_ANCHOR, SvgTextPosition.MIDDLE);
-                addTo(totalValue, SvgAttribute.X, size / 2);
-                addTo(totalValue, SvgAttribute.FONT_SIZE, 28);
-                addTo(totalValue, SvgAttribute.Y, size / 2 + 40);
-                totalValue.innerHTML = String(total).toLocaleString();
-                gCenterLabel.appendChild(totalValue);
+                gCenterLabel.appendChild(createText({
+                    cssClasses: [CssClass.CHART_DONUT_CENTER_LABEL],
+                    content: String(total).toLocaleString(),
+                    x: size / 2,
+                    y: size / 2 + 40,
+                    fontSize: 28
+                }));
                 if (hasTotalLabel) {
-                    const totalLabel = spawnNS(SvgElement.TEXT);
-                    addTo(totalLabel, SvgAttribute.TEXT_ANCHOR, SvgTextPosition.MIDDLE);
-                    addTo(totalLabel, SvgAttribute.X, size / 2);
-                    addTo(totalLabel, SvgAttribute.Y, size / 2);
-                    addTo(totalLabel, SvgAttribute.FONT_SIZE, 28);
-                    totalLabel.innerHTML = (child as HTMLElement).dataset.totalLabel as string;
-                    gCenterLabel.appendChild(totalLabel);
+                    gCenterLabel.appendChild(createText({
+                        content: (child as HTMLElement).dataset.totalLabel as string,
+                        x: size / 2,
+                        y: size / 2,
+                        fontSize: 28
+                    }));
                 }
                 chartSvg.appendChild(gCenterLabel);
             }
@@ -1234,6 +1225,238 @@ export function createCharts() {
             }
         }
 
+        /////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////
+        ///////////                   GAUGE CHART                     ///////////
+        /////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////
+
+        if ((child as HTMLElement).dataset.type === Chart.GAUGE) {
+            const userInputs = [
+                (child as HTMLElement).dataset.colors,
+                (child as HTMLElement).dataset.type,
+                (child as HTMLElement).dataset.min,
+                (child as HTMLElement).dataset.max,
+                (child as HTMLElement).dataset.symbol,
+                (child as HTMLElement).dataset.title,
+                (child as HTMLElement).dataset.subtitle,
+                (child as HTMLElement).dataset.value
+            ];
+            userInputs.forEach((input: string | undefined) => checkDirtyInputs(input));
+            const max = Number((child as HTMLElement).dataset.max) ? Number((child as HTMLElement).dataset.max) : 100;
+            const min = Number((child as HTMLElement).dataset.min) ? Number((child as HTMLElement).dataset.min) : 0;
+            const hasTitle = !!(child as HTMLElement).dataset.title;
+            const hasSubtitle = !!(child as HTMLElement).dataset.subtitle;
+            const hasSymbol = !!(child as HTMLElement).dataset.symbol;
+
+            const svgHeight = 512;
+            const svgWidth = 316;
+            const barWidth = Number((child as HTMLElement).dataset.barWidth) ? Number((child as HTMLElement).dataset.barWidth) : 70;
+
+            let colors;
+            if (!!(child as HTMLElement).dataset.colors) {
+                colors = JSON.parse((child as HTMLElement).dataset.colors as string);
+            } else {
+                colors = [
+                    "#c43310",
+                    "#dc3912",
+                    "#f04800",
+                    "#ff6d00",
+                    "#ff9900",
+                    "#ffc600",
+                    "#e3e200",
+                    "#b4d900",
+                    "#5ba800",
+                    "#109618"
+                ];
+            }
+
+            const colorsMap = colors.map((color: string, i: number) => {
+                return {
+                    proportion: i / colors.length,
+                    color
+                }
+            });
+
+            const valueToMax = Number((child as HTMLElement).dataset.value) / max;
+            const currentColor = colorsMap.find((cm: any) => cm.proportion === findClosestNumberInArray(colorsMap.map((c: any) => c.proportion), valueToMax)).color;
+
+            const chartSvg = spawnNS(SvgElement.SVG);
+            addTo(chartSvg, "xmlns", "http://www.w3.org/2000/svg");
+            addTo(chartSvg, "preserveAspectRatio", "xMinYMid meet");
+            addTo(chartSvg, SvgAttribute.VIEWBOX, `0 0 ${svgWidth} ${svgHeight}`);
+            chartSvg.classList.add(CssClass.CHART_GAUGE);
+
+            const padding = {
+                top: 80,
+                bottom: 30
+            };
+
+            const gTitle = spawnNS(SvgElement.G);
+            if (hasTitle) {
+                gTitle.appendChild(createText({
+                    content: (child as HTMLElement).dataset.title as string,
+                    x: svgWidth / 2,
+                    y: 30,
+                    fontSize: 32
+                }));
+            }
+
+            if (hasSubtitle) {
+                gTitle.appendChild(createText({
+                    content: (child as HTMLElement).dataset.subtitle as string,
+                    x: svgWidth / 2,
+                    y: 55,
+                    color: "grey",
+                    fontSize: 20
+                }));
+            }
+
+            chartSvg.appendChild(gTitle);
+
+            const trackHeight = padding.top + svgHeight - (padding.top + padding.bottom);
+            const proportion = Number((child as HTMLElement).dataset.value) / (max - min);
+            const barHeight = (trackHeight - padding.top) * proportion;
+
+
+            // TRACK
+            const gChart = spawnNS(SvgElement.G);
+            const track = spawnNS(SvgElement.RECT);
+            addTo(track, SvgAttribute.X, svgWidth / 2 - barWidth / 2);
+            addTo(track, SvgAttribute.Y, padding.top);
+            addTo(track, ElementAttribute.WIDTH, barWidth);
+            addTo(track, ElementAttribute.HEIGHT, svgHeight - (padding.top + padding.bottom));
+            addTo(track, SvgAttribute.FILL, "#f0f3f5");
+
+            // ARROW
+            const arrow = spawnNS(SvgElement.PATH);
+            addTo(arrow, SvgAttribute.D, `M${svgWidth / 2 - (barWidth / 2 + 10)} ${svgHeight - padding.bottom - barHeight}, ${svgWidth / 2 - (barWidth / 2 + 23)} ${svgHeight - padding.bottom - barHeight - 10}, ${svgWidth / 2 - (barWidth / 2 + 23)} ${svgHeight - padding.bottom - barHeight + 10}Z`);
+            addTo(arrow, SvgAttribute.FILL, "#c9ced1");
+            addTo(arrow, SvgAttribute.STROKE, currentColor);
+            addTo(arrow, SvgAttribute.STROKE_WIDTH, 2);
+            addTo(arrow, SvgAttribute.STROKE_LINECAP, "round");
+            addTo(arrow, SvgAttribute.STROKE_LINEJOIN, "round");
+
+            // TICKS
+            const gTicks = spawnNS(SvgElement.G);
+            for (let i = 0; i < max - min; i += 2) {
+                const tickLeft = spawnNS(SvgElement.LINE);
+                const ratio = i / (max - min);
+                addTo(tickLeft, SvgAttribute.X1, svgWidth / 2 - barWidth / 2);
+                addTo(tickLeft, SvgAttribute.X2, svgWidth / 2 - (barWidth / 2 + 5));
+                addTo(tickLeft, SvgAttribute.Y1, padding.top + (svgHeight - padding.top - padding.bottom) * ratio);
+                addTo(tickLeft, SvgAttribute.Y2, padding.top + (svgHeight - padding.top - padding.bottom) * ratio);
+                addTo(tickLeft, SvgAttribute.STROKE, "black");
+                addTo(tickLeft, SvgAttribute.STROKE_WIDTH, 1);
+                addTo(tickLeft, SvgAttribute.STROKE_LINECAP, "round");
+                addTo(tickLeft, SvgAttribute.STROKE_LINEJOIN, "round");
+
+                const tickRight = spawnNS(SvgElement.LINE);
+                addTo(tickRight, SvgAttribute.X1, svgWidth / 2 + barWidth / 2);
+                addTo(tickRight, SvgAttribute.X2, svgWidth / 2 + (barWidth / 2 + 5));
+                addTo(tickRight, SvgAttribute.Y1, padding.top + (svgHeight - padding.top - padding.bottom) * ratio);
+                addTo(tickRight, SvgAttribute.Y2, padding.top + (svgHeight - padding.top - padding.bottom) * ratio);
+                addTo(tickRight, SvgAttribute.STROKE, "black");
+                addTo(tickRight, SvgAttribute.STROKE_WIDTH, 1);
+                addTo(tickRight, SvgAttribute.STROKE_LINECAP, "round");
+                addTo(tickRight, SvgAttribute.STROKE_LINEJOIN, "round");
+
+                if (i % 10 === 0) {
+                    const tick5Left = spawnNS(SvgElement.LINE);
+                    addTo(tick5Left, SvgAttribute.X1, svgWidth / 2 - barWidth / 2);
+                    addTo(tick5Left, SvgAttribute.X2, svgWidth / 2 - (barWidth / 2 + 10));
+                    addTo(tick5Left, SvgAttribute.Y1, padding.top + (svgHeight - padding.top - padding.bottom) * ratio);
+                    addTo(tick5Left, SvgAttribute.Y2, padding.top + (svgHeight - padding.top - padding.bottom) * ratio);
+                    addTo(tick5Left, SvgAttribute.STROKE, "black");
+                    addTo(tick5Left, SvgAttribute.STROKE_WIDTH, 1);
+                    addTo(tick5Left, SvgAttribute.STROKE_LINECAP, "round");
+                    addTo(tick5Left, SvgAttribute.STROKE_LINEJOIN, "round");
+
+                    const tick5Right = spawnNS(SvgElement.LINE);
+                    addTo(tick5Right, SvgAttribute.X1, svgWidth / 2 + barWidth / 2);
+                    addTo(tick5Right, SvgAttribute.X2, svgWidth / 2 + (barWidth / 2 + 10));
+                    addTo(tick5Right, SvgAttribute.Y1, padding.top + (svgHeight - padding.top - padding.bottom) * ratio);
+                    addTo(tick5Right, SvgAttribute.Y2, padding.top + (svgHeight - padding.top - padding.bottom) * ratio);
+                    addTo(tick5Right, SvgAttribute.STROKE, "black");
+                    addTo(tick5Right, SvgAttribute.STROKE_WIDTH, 1);
+                    addTo(tick5Right, SvgAttribute.STROKE_LINECAP, "round");
+                    addTo(tick5Right, SvgAttribute.STROKE_LINEJOIN, "round");
+                    [tick5Left, tick5Right].forEach(e => gTicks.appendChild(e));
+                }
+                [tickLeft, tickRight].forEach(e => gTicks.appendChild(e));
+            }
+
+            // BAR
+            const bar = spawnNS(SvgElement.RECT);
+            addTo(bar, SvgAttribute.X, svgWidth / 2 - barWidth / 2);
+            addTo(bar, SvgAttribute.Y, svgHeight - padding.bottom - barHeight);
+            addTo(bar, SvgAttribute.FILL, currentColor);
+            addTo(bar, ElementAttribute.WIDTH, barWidth);
+            addTo(bar, ElementAttribute.HEIGHT, barHeight);
+
+            // BORDERS
+            const borderLeft = spawnNS(SvgElement.LINE);
+            addTo(borderLeft, SvgAttribute.X1, svgWidth / 2 - barWidth / 2);
+            addTo(borderLeft, SvgAttribute.X2, svgWidth / 2 - barWidth / 2);
+            addTo(borderLeft, SvgAttribute.Y1, padding.top);
+            addTo(borderLeft, SvgAttribute.Y2, trackHeight);
+            addTo(borderLeft, SvgAttribute.STROKE, "#c9ced1");
+            addTo(borderLeft, SvgAttribute.STROKE_WIDTH, 2);
+            addTo(borderLeft, SvgAttribute.STROKE_LINECAP, "round");
+            addTo(borderLeft, SvgAttribute.STROKE_LINEJOIN, "round");
+
+            const borderRight = spawnNS(SvgElement.LINE);
+            addTo(borderRight, SvgAttribute.X1, svgWidth / 2 + barWidth / 2);
+            addTo(borderRight, SvgAttribute.X2, svgWidth / 2 + barWidth / 2);
+            addTo(borderRight, SvgAttribute.Y1, padding.top);
+            addTo(borderRight, SvgAttribute.Y2, trackHeight);
+            addTo(borderRight, SvgAttribute.STROKE, "#c9ced1");
+            addTo(borderRight, SvgAttribute.STROKE_WIDTH, 2);
+            addTo(borderRight, SvgAttribute.STROKE_LINECAP, "round");
+            addTo(borderRight, SvgAttribute.STROKE_LINEJOIN, "round");
+
+            // VALUE LABEL
+            gChart.appendChild(createText({
+                content: `${(child as HTMLElement).dataset.value}${hasSymbol ? (child as HTMLElement).dataset.symbol : ''}`,
+                y: svgHeight - padding.bottom - barHeight + 8.5,
+                x: svgWidth / 2 - (barWidth / 2 + 30),
+                fontSize: 24,
+                position: "end"
+            }));
+
+            // TICK LABELS
+            gChart.appendChild(createText({
+                content: `${String(max)}${hasSymbol ? (child as HTMLElement).dataset.symbol : ''}`,
+                x: svgWidth / 2 + barWidth / 2 + 20,
+                y: padding.top + 6,
+                fontSize: 18,
+                color: "grey",
+                position: "left"
+            }));
+
+            gChart.appendChild(createText({
+                content: `${String(min)}${hasSymbol ? (child as HTMLElement).dataset.symbol : ''}`,
+                x: svgWidth / 2 + barWidth / 2 + 20,
+                y: svgHeight - padding.bottom,
+                fontSize: 18,
+                color: "grey",
+                position: "left"
+            }));
+
+            [
+                track,
+                bar,
+                gTicks,
+                arrow,
+                borderLeft,
+                borderRight
+            ].forEach(e => gChart.appendChild(e));
+
+            chartSvg.appendChild(gChart);
+
+            child.appendChild(chartSvg);
+        }
+
     });
 }
 
@@ -1242,6 +1465,40 @@ export function createCharts() {
 //------------------------------      UTILS      -------------------------------
 ////////////////////////////////////////////////////////////////////////////////
 //\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\//
+
+export function createText(
+    {
+        cssClasses,
+        color = "black",
+        content,
+        fontSize = 20,
+        position = SvgTextPosition.MIDDLE,
+        x,
+        y
+    }:
+        {
+            cssClasses?: string[],
+            color?: string,
+            content: string,
+            fontSize?: number,
+            position?: string,
+            x: number,
+            y: number
+        }): SVGTextContentElement {
+    const text = spawnNS(SvgElement.TEXT);
+    if (cssClasses) {
+        cssClasses.forEach(c => {
+            text.classList.add(c);
+        });
+    }
+    addTo(text, SvgAttribute.X, x);
+    addTo(text, SvgAttribute.Y, y);
+    addTo(text, SvgAttribute.TEXT_ANCHOR, position);
+    addTo(text, SvgAttribute.FONT_SIZE, fontSize);
+    addTo(text, SvgAttribute.FILL, color);
+    text.innerHTML = content;
+    return text as SVGTextContentElement;
+}
 
 export function rotateMatrix(x: number): [number[], number[]] {
     return [

@@ -76,6 +76,7 @@ export namespace CssClass {
     export const CHART_DONUT_LABEL = "qroll-chart__donut__label";
     export const CHART_DONUT_MARKER = "qroll-chart__donut__marker";
     export const CHART_DONUT_CENTER_LABEL = "qroll-chart__donut__center-label";
+    export const CHART_GAUGE = "qroll-chart__gauge";
 }
 
 export namespace CssDisplay {
@@ -144,6 +145,7 @@ export namespace EventTrigger {
     export const WHEEL = "wheel";
     export const CLICK = "click";
     export const MOUSEMOVE = "mousemove";
+    export const MOUSELEAVE = "mouseleave";
 }
 
 export namespace KeyboardCode {
@@ -181,6 +183,7 @@ export namespace SvgAttribute {
     export const CX = "cx";
     export const CY = "cy";
     export const R = "r";
+    export const D = "d";
     export const TEXT_ANCHOR = "text-anchor";
     export const STROKE = "stroke";
     export const STROKE_WIDTH = "stroke-width";
@@ -212,4 +215,5 @@ export namespace Chart {
     export const LINE = "line";
     export const BAR = "bar";
     export const DONUT = "donut";
+    export const GAUGE = "gauge";
 }
