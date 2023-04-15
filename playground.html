@@ -262,7 +262,7 @@
             data-meta-title="Qroll UI components"
             data-meta-description="Qroll also provides UI components, like dialogs."
         >
-            <h2 style="color:white">UI components</h2>
+            <h2 style="color:white">Easy dialog</h2>
             <div style="display: flex; align-items:center;justify-content:center;gap:12px">
                 <button class="test-button" onclick="qroll.openDialog('basicDialog')">
                     Open basic dialog
@@ -278,7 +278,7 @@
             data-meta-title="Qroll chart components"
             data-meta-description="Qroll also provides simple charting tools"
         >
-            <!-- <h2 style="color: white">Charts</h2> -->
+            <h2 style="color: white">Quick charts</h2>
             <div style="display:flex; gap: 6px; flex-wrap:wrap;align-items:center; justify-content:center;">
                 <div 
                     class="qroll-chart" 
@@ -300,13 +300,60 @@
                     data-y-axis="true"
                     data-y-grid="true"
                     data-x-values='{
-                        "Blue serie": [-50,-32,-2,3,5,8,13,21,34,55,89,134],
-                        "Red serie": [1,1,2,3,5,8,13,21,34,55,89,134]
+                        "Blue serie": [-50,-32,-2,3,5,8,13,21,34,55,89,100],
+                        "Red serie": [1,1,2,3,5,8,13,21,34,55,89,90]
                     }'
                     data-y-values='["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"]'
-                    style="width: 700px"
+                    style="width: 300px"
                     >
                 </div>
+                <div 
+                    class="qroll-chart" 
+                    data-colors='["#3366CC", "#DC3912", "#FF9900", "#109618"]'
+                    data-legend="true"
+                    data-line-size="8"
+                    data-plot-size="6"
+                    data-plot-value="true"
+                    data-plot="true"
+                    data-subtitle="This is a subtitle"
+                    data-symbol=""
+                    data-ticks="true"
+                    data-title="title"
+                    data-tooltip="true"
+                    data-type="line"
+                    data-value-box="true"
+                    data-x-axis="true"
+                    data-x-grid="true"
+                    data-y-axis="true"
+                    data-y-grid="true"
+                    data-x-values='{
+                        "Blue serie": [-50,-32,-2,3,5,28,13,21,34,55,89,100],
+                        "Red serie": [1,1,2,3,5,8,13,18,32,25,80,90]
+                    }'
+                    data-y-values='["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"]'
+                    style="width: 300px"
+                    >
+                </div>
+                <div 
+                    style="width: 158px"
+                    class="qroll-chart"
+                    data-type="donut"
+                    data-title="title"
+                    data-subtitle="This is a subtitle"
+                    data-total="true"
+                    data-total-label="Total"
+                    data-tooltip="true"
+                    data-x-values='
+                        {
+                            "Blue serie" : 10,
+                            "Red serie" : 20,
+                            "Orange serie" : 30,
+                            "Green serie" : 5,
+                            "Purple serie" : 3,
+                            "Indigo serie" : 1
+                        }
+                    '
+                ></div>
             </div>
         </div>  
 
@@ -381,7 +428,8 @@
                 <button class="test-button" onclick="qroll.slideToIndex(2); qroll.closeDialog('mainMenu')">HORIZONTAL SLIDES</button>
                 <button class="test-button" onclick="qroll.slideToIndex(4); qroll.closeDialog('mainMenu')">CAROUSEL COMPONENTS</button>
                 <button class="test-button" onclick="qroll.slideToIndex(6); qroll.closeDialog('mainMenu')">INTERFACE</button>
-                <button class="test-button" onclick="qroll.slideToIndex(7); qroll.closeDialog('mainMenu')">UI COMPONENTS</button>
+                <button class="test-button" onclick="qroll.slideToIndex(7); qroll.closeDialog('mainMenu')">DIALOGS</button>
+                <button class="test-button" onclick="qroll.slideToIndex(8); qroll.closeDialog('mainMenu')">CHARTS</button>
             </div>
         </div>
 

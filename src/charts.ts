@@ -1,4 +1,4 @@
-import { Chart, CssClass, DomElement, ElementAttribute, EventTrigger, SvgAttribute, SvgElement } from "./constants";
+import { Chart, CssClass, DomElement, ElementAttribute, EventTrigger, SvgAttribute, SvgElement, SvgTextPosition } from "./constants";
 import { addTo, createUid, spawn, spawnNS } from "./functions";
 
 // TODO: dark mode
@@ -16,7 +16,12 @@ export function createCharts() {
 
     Array.from(children).forEach(child => {
 
-        // LINE CHARTS
+        /////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////
+        ///////////                   LINE CHART                      ///////////
+        /////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////
+
 
         if ((child as HTMLElement).dataset.type === Chart.LINE) {
 
@@ -73,7 +78,6 @@ export function createCharts() {
             const showTooltip = (child as HTMLElement).dataset.tooltip === "true";
             const hideLegend = (child as HTMLElement).dataset.legend === "false";
             const dataSymbol = (child as HTMLElement).dataset.symbol;
-            const userColors = JSON.parse((child as HTMLElement).dataset.colors as any);
 
             let colors: any;
 
@@ -101,7 +105,7 @@ export function createCharts() {
             ];
 
             if ((child as HTMLElement).dataset.colors) {
-                colors = userColors;
+                colors = JSON.parse((child as HTMLElement).dataset.colors as any);
             } else {
                 colors = defaultColors;
             }
@@ -202,7 +206,7 @@ export function createCharts() {
                     const labelX = spawnNS(SvgElement.TEXT);
                     addTo(labelX, SvgAttribute.X, (i * interval) + padding.x);
                     addTo(labelX, SvgAttribute.Y, calcY(0) + 40);
-                    addTo(labelX, SvgAttribute.TEXT_ANCHOR, "middle");
+                    addTo(labelX, SvgAttribute.TEXT_ANCHOR, SvgTextPosition.MIDDLE);
                     addTo(labelX, SvgAttribute.FONT_SIZE, 20);
                     labelX.innerHTML = yValues[i] || "";
                     gTicks.appendChild(labelX);
@@ -373,7 +377,7 @@ export function createCharts() {
                 const title = spawnNS(SvgElement.TEXT);
                 addTo(title, SvgAttribute.X, svgWidth / 2);
                 addTo(title, SvgAttribute.Y, 30);
-                addTo(title, SvgAttribute.TEXT_ANCHOR, "middle");
+                addTo(title, SvgAttribute.TEXT_ANCHOR, SvgTextPosition.MIDDLE);
                 addTo(title, SvgAttribute.FONT_SIZE, 32);
                 title.innerHTML = titleContent;
                 chartSvg.appendChild(title);
@@ -386,7 +390,7 @@ export function createCharts() {
                 const subtitle = spawnNS(SvgElement.TEXT);
                 addTo(subtitle, SvgAttribute.X, svgWidth / 2);
                 addTo(subtitle, SvgAttribute.Y, 55);
-                addTo(subtitle, SvgAttribute.TEXT_ANCHOR, "middle");
+                addTo(subtitle, SvgAttribute.TEXT_ANCHOR, SvgTextPosition.MIDDLE);
                 addTo(subtitle, SvgAttribute.FONT_SIZE, 20);
                 addTo(subtitle, SvgAttribute.FILL, "grey");
                 subtitle.innerHTML = subtitleContent;
@@ -475,7 +479,13 @@ export function createCharts() {
             }
         }
 
-        // BAR CHART
+        /////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////
+        ///////////                    BAR CHART                      ///////////
+        /////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////
+
+
         if ((child as HTMLElement).dataset.type === Chart.BAR) {
             const userInputs = [
                 (child as HTMLElement).dataset.colors,
@@ -520,7 +530,6 @@ export function createCharts() {
             const showTooltip = (child as HTMLElement).dataset.tooltip === "true";
             const hideLegend = (child as HTMLElement).dataset.legend === "false";
             const dataSymbol = (child as HTMLElement).dataset.symbol;
-            const userColors = JSON.parse((child as HTMLElement).dataset.colors as any);
 
             const gap = 7;
 
@@ -554,7 +563,7 @@ export function createCharts() {
             ];
 
             if ((child as HTMLElement).dataset.colors) {
-                colors = userColors;
+                colors = JSON.parse((child as HTMLElement).dataset.colors as any);
             } else {
                 colors = defaultColors;
             }
@@ -648,7 +657,7 @@ export function createCharts() {
                     const labelX = spawnNS(SvgElement.TEXT);
                     addTo(labelX, SvgAttribute.X, (i * interval) + padding.x + interval / 2);
                     addTo(labelX, SvgAttribute.Y, calcY(0) + 40);
-                    addTo(labelX, SvgAttribute.TEXT_ANCHOR, "middle");
+                    addTo(labelX, SvgAttribute.TEXT_ANCHOR, SvgTextPosition.MIDDLE);
                     addTo(labelX, SvgAttribute.FONT_SIZE, 20);
                     labelX.innerHTML = yValues[i] || "";
                     gTicks.appendChild(labelX);
@@ -697,12 +706,12 @@ export function createCharts() {
                     if (plot.y > calcY(Math.abs(minValue))) {
                         addTo(rect, SvgAttribute.Y, calcY(Math.abs(minValue)));
                         const minCeiling = svgHeight - padding.y - calcY(Math.abs(minValue));
-                        addTo(rect, "height", (minCeiling * (Math.abs(plot.absoluteValue) / Math.abs(minValue))));
+                        addTo(rect, ElementAttribute.HEIGHT, (minCeiling * (Math.abs(plot.absoluteValue) / Math.abs(minValue))));
                     } else {
                         addTo(rect, SvgAttribute.Y, plot.y);
-                        addTo(rect, "height", calcY(Math.abs(minValue)) - plot.y);
+                        addTo(rect, ElementAttribute.HEIGHT, calcY(Math.abs(minValue)) - plot.y);
                     }
-                    addTo(rect, "width", (interval - (gap * 2)) / plots.length);
+                    addTo(rect, ElementAttribute.WIDTH, (interval - (gap * 2)) / plots.length);
                     g.appendChild(rect);
                 });
                 chartSvg.appendChild(g);
@@ -723,7 +732,7 @@ export function createCharts() {
                             addTo(text, SvgAttribute.Y, plot.y - 4);
                         }
                         addTo(text, SvgAttribute.FONT_SIZE, 12);
-                        addTo(text, SvgAttribute.TEXT_ANCHOR, "middle");
+                        addTo(text, SvgAttribute.TEXT_ANCHOR, SvgTextPosition.MIDDLE);
                         text.innerHTML = plot.absoluteValue;
                         g.appendChild(text);
                     }
@@ -792,7 +801,7 @@ export function createCharts() {
                 const title = spawnNS(SvgElement.TEXT);
                 addTo(title, SvgAttribute.X, svgWidth / 2);
                 addTo(title, SvgAttribute.Y, 30);
-                addTo(title, SvgAttribute.TEXT_ANCHOR, "middle");
+                addTo(title, SvgAttribute.TEXT_ANCHOR, SvgTextPosition.MIDDLE);
                 addTo(title, SvgAttribute.FONT_SIZE, 32);
                 title.innerHTML = titleContent;
                 chartSvg.appendChild(title);
@@ -805,7 +814,7 @@ export function createCharts() {
                 const subtitle = spawnNS(SvgElement.TEXT);
                 addTo(subtitle, SvgAttribute.X, svgWidth / 2);
                 addTo(subtitle, SvgAttribute.Y, 55);
-                addTo(subtitle, SvgAttribute.TEXT_ANCHOR, "middle");
+                addTo(subtitle, SvgAttribute.TEXT_ANCHOR, SvgTextPosition.MIDDLE);
                 addTo(subtitle, SvgAttribute.FONT_SIZE, 20);
                 addTo(subtitle, SvgAttribute.FILL, "grey");
                 subtitle.innerHTML = subtitleContent;
@@ -893,7 +902,447 @@ export function createCharts() {
             }
 
         }
+
+        /////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////
+        ///////////                    DONUT CHART                    ///////////
+        /////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////
+
+        if ((child as HTMLElement).dataset.type === Chart.DONUT) {
+            const userInputs = [
+                (child as HTMLElement).dataset.colors,
+                (child as HTMLElement).dataset.legend,
+                (child as HTMLElement).dataset.symbol,
+                (child as HTMLElement).dataset.tooltip,
+                (child as HTMLElement).dataset.xValues,
+                (child as HTMLElement).dataset.title,
+                (child as HTMLElement).dataset.subtitle,
+                (child as HTMLElement).dataset.total,
+                (child as HTMLElement).dataset.totalLabel,
+            ];
+
+            userInputs.forEach((input: string | undefined) => checkDirtyInputs(input));
+            const uid = createUid();
+
+            const hasTitle = !!(child as HTMLElement).dataset.title;
+            const hasSubtitle = !!(child as HTMLElement).dataset.subtitle;
+            const hasTotal = (child as HTMLElement).dataset.total === "true";
+            const hideLegend = (child as HTMLElement).dataset.legend === "false";
+            const showTooltip = (child as HTMLElement).dataset.tooltip === "true";
+            const hasTotalLabel = !!(child as HTMLElement).dataset.totalLabel;
+
+            let colors: any;
+
+            const defaultColors = [
+                "#3366CC",
+                "#DC3912",
+                "#FF9900",
+                "#109618",
+                "#990099",
+                "#3B3EAC",
+                "#0099C6",
+                "#DD4477",
+                "#66AA00",
+                "#B82E2E",
+                "#316395",
+                "#994499",
+                "#22AA99",
+                "#AAAA11",
+                "#6633CC",
+                "#E67300",
+                "#8B0707",
+                "#329262",
+                "#5574A6",
+                "#651067"
+            ];
+
+            if ((child as HTMLElement).dataset.colors) {
+                colors = JSON.parse((child as HTMLElement).dataset.colors as any);
+            } else {
+                colors = defaultColors;
+            }
+
+            const xValues = JSON.parse((child as HTMLElement).dataset.xValues as string);
+            const xTotal = Object.values(xValues).reduce((a, b) => Number(a) + Number(b), 0) as number;
+
+            const dataset = Object.keys(xValues).map((key, i) => {
+                return {
+                    name: key,
+                    value: Number(xValues[key]),
+                    color: colors[i],
+                    proportion: Number(xValues[key]) / xTotal
+                }
+            });
+
+            const size = 512;
+            const chartSvg = spawnNS(SvgElement.SVG);
+            chartSvg.classList.add(CssClass.CHART_DONUT);
+            addTo(chartSvg, "xmlns", "http://www.w3.org/2000/svg");
+            addTo(chartSvg, "preserveAspectRatio", "xMinYMid meet");
+            addTo(chartSvg, SvgAttribute.VIEWBOX, `0 0 ${size} ${size}`);
+            addTo(chartSvg, SvgAttribute.STROKE_WIDTH, size / 6.1803398875);
+
+            const donut = makeDonut(
+                { series: dataset },
+                size / 2,
+                size / 1.8,
+                size / 3.8,
+                size / 3.8
+            );
+
+            const labels = makeDonut(
+                { series: dataset },
+                size / 2.25,
+                size / 2.1,
+                size / 3.8,
+                size / 3.8
+            );
+
+            const gBites = spawnNS(SvgElement.G);
+            const gMarkers = spawnNS(SvgElement.G);
+
+            donut.forEach((bite: any, i: number) => {
+                // ARC
+                const path = spawnNS(SvgElement.PATH);
+                path.dataset.plotIndex = String(i);
+                path.classList.add(String(uid));
+                path.classList.add(CssClass.CHART_TOOLTIP_TRAP);
+                addTo(path, "d", bite.path);
+                addTo(path, SvgAttribute.STROKE, bite.color);
+                path.style.fill = "none";
+                gBites.appendChild(path);
+
+                // MARKER
+                const label = spawnNS(SvgElement.FOREIGNOBJECT);
+                label.classList.add(String(uid));
+                label.classList.add(CssClass.CHART_DONUT_LABEL);
+                label.classList.add(CssClass.CHART_TOOLTIP_TRAP);
+                label.dataset.plotIndex = String(i);
+                label.style.overflow = "visible";
+                addTo(label, SvgAttribute.X, labels[i].center.endX);
+                addTo(label, SvgAttribute.Y, labels[i].center.endY);
+                addTo(label, ElementAttribute.HEIGHT, 20);
+                addTo(label, ElementAttribute.WIDTH, (`${(bite.proportion * 100).toFixed(0)}%`).length * 10);
+
+                const marker = spawn(DomElement.DIV);
+                marker.classList.add(CssClass.CHART_DONUT_MARKER);
+                marker.classList.add(CssClass.CHART_TOOLTIP_TRAP);
+                marker.dataset.plotIndex = String(i);
+                marker.style.border = `2px solid ${bite.color}`;
+                marker.style.background = `white`;
+                marker.innerHTML = `${(bite.proportion * 100).toFixed(0)}%`;
+                if (bite.proportion > 0.07) {
+                    label.appendChild(marker);
+                    gMarkers.appendChild(label);
+                }
+
+            });
+
+            chartSvg.appendChild(gBites);
+            chartSvg.appendChild(gMarkers);
+
+            // TOOLTIP
+            if (showTooltip) {
+                const tooltip = spawn(DomElement.DIV) as HTMLElement;
+                tooltip.classList.add(CssClass.CHART_TOOLTIP);
+                tooltip.style.opacity = "0";
+                tooltip.style.zIndex = "-1";
+
+                chartSvg.addEventListener(EventTrigger.MOUSEMOVE, (e) => {
+                    tooltip.style.top = `${e.clientY + 20}px`;
+                    tooltip.style.left = `${e.clientX}px`;
+                    tooltip.innerHTML = "";
+                    tooltip.style.fontFamily = getComputedStyle(child).fontFamily;
+                    if (Array.from((e.target as HTMLElement).classList).includes(CssClass.CHART_TOOLTIP_TRAP) || Array.from((e.target as HTMLElement).classList).includes(CssClass.CHART_DATALABEL_X)) {
+                        const tooltipSet = dataset.map((plot, i) => {
+                            if (!plot.name) return;
+                            return {
+                                color: plot.color || defaultColors[i],
+                                name: plot.name,
+                                value: String(plot.value).toLocaleString() as any,
+                                proportion: plot.proportion
+                            }
+                        });
+
+                        tooltipSet.forEach((datapoint: any, i) => {
+                            const tooltipItem = spawn(DomElement.DIV);
+                            tooltipItem.classList.add(CssClass.CHART_TOOLTIP_ITEM);
+                            const title = spawn(DomElement.DIV);
+                            title.classList.add(CssClass.CHART_TOOLTIP_DATE);
+                            title.innerHTML = (child as HTMLElement).dataset.title as string ?? "";
+                            const marker = spawn(DomElement.SPAN);
+                            marker.innerHTML = "●";
+                            marker.style.color = datapoint?.color;
+                            const label = spawn(DomElement.SPAN);
+                            label.innerHTML = `${datapoint?.name}: ` || "";
+                            const value = spawn(DomElement.SPAN);
+                            value.innerHTML = `${datapoint?.value ?? ''} <span style="color:grey">(${(datapoint.proportion * 100).toFixed(0)}%)</span>`;
+                            value.style.fontWeight = "bold";
+                            [marker, label, value].forEach(el => tooltipItem.appendChild(el));
+                            if (i === 0) {
+                                tooltip.appendChild(title);
+                            }
+                            tooltip.appendChild(tooltipItem);
+                        })
+
+                        tooltip.style.opacity = "1";
+                        tooltip.style.zIndex = "1000";
+                    } else {
+                        tooltip.style.opacity = "0";
+                        tooltip.style.zIndex = "-1";
+                    }
+                });
+                document.body.appendChild(tooltip);
+            }
+
+            child.appendChild(chartSvg);
+
+            // TITLE
+
+            if (hasTitle) {
+                const titleContent = (child as HTMLElement).dataset.title as string;
+                const title = spawnNS(SvgElement.TEXT);
+                addTo(title, SvgAttribute.X, size / 2);
+                addTo(title, SvgAttribute.Y, 30);
+                addTo(title, SvgAttribute.TEXT_ANCHOR, SvgTextPosition.MIDDLE);
+                addTo(title, SvgAttribute.FONT_SIZE, 32);
+                title.innerHTML = titleContent;
+                chartSvg.appendChild(title);
+            }
+
+            // SUBTITLE
+
+            if (hasSubtitle) {
+                const subtitleContent = (child as HTMLElement).dataset.subtitle as string;
+                const subtitle = spawnNS(SvgElement.TEXT);
+                addTo(subtitle, SvgAttribute.X, size / 2);
+                addTo(subtitle, SvgAttribute.Y, 55);
+                addTo(subtitle, SvgAttribute.TEXT_ANCHOR, SvgTextPosition.MIDDLE);
+                addTo(subtitle, SvgAttribute.FONT_SIZE, 20);
+                addTo(subtitle, SvgAttribute.FILL, "grey");
+                subtitle.innerHTML = subtitleContent;
+                chartSvg.appendChild(subtitle);
+            }
+
+            // TOTAL
+            if (hasTotal) {
+                const gCenterLabel = spawnNS(SvgElement.G);
+                const total = Object.values(xValues).reduce((a: any, b: any) => a + b, 0);
+                const totalValue = spawnNS(SvgElement.TEXT);
+                totalValue.classList.add(CssClass.CHART_DONUT_CENTER_LABEL)
+                addTo(totalValue, SvgAttribute.TEXT_ANCHOR, SvgTextPosition.MIDDLE);
+                addTo(totalValue, SvgAttribute.X, size / 2);
+                addTo(totalValue, SvgAttribute.FONT_SIZE, 28);
+                addTo(totalValue, SvgAttribute.Y, size / 2 + 40);
+                totalValue.innerHTML = String(total).toLocaleString();
+                gCenterLabel.appendChild(totalValue);
+                if (hasTotalLabel) {
+                    const totalLabel = spawnNS(SvgElement.TEXT);
+                    addTo(totalLabel, SvgAttribute.TEXT_ANCHOR, SvgTextPosition.MIDDLE);
+                    addTo(totalLabel, SvgAttribute.X, size / 2);
+                    addTo(totalLabel, SvgAttribute.Y, size / 2);
+                    addTo(totalLabel, SvgAttribute.FONT_SIZE, 28);
+                    totalLabel.innerHTML = (child as HTMLElement).dataset.totalLabel as string;
+                    gCenterLabel.appendChild(totalLabel);
+                }
+                chartSvg.appendChild(gCenterLabel);
+            }
+
+            // LEGEND
+
+            if (!hideLegend) {
+                const legendSvg = spawnNS(SvgElement.SVG);
+                addTo(legendSvg, "xmlns", "http://www.w3.org/2000/svg");
+                addTo(legendSvg, "preserveAspectRatio", "xMinYMid meet");
+                const rows = Math.round(dataset.length / 2);
+                addTo(legendSvg, SvgAttribute.VIEWBOX, `0 0 ${size} ${40 * rows}`);
+                legendSvg.classList.add(CssClass.CHART_LEGEND);
+
+                const legendItems = [...dataset].map((plot, i) => {
+                    return {
+                        ...plot,
+                        y: Math.floor(i / 2),
+                        x: i % 2
+                    }
+                });
+
+                let segregated = [] as any;
+
+                legendItems.forEach((plot, i) => {
+                    // TODO: center legend item if legendItems.length == 1
+                    const foreignObject = spawnNS(SvgElement.FOREIGNOBJECT);
+                    addTo(foreignObject, ElementAttribute.HEIGHT, 30);
+                    addTo(foreignObject, ElementAttribute.WIDTH, size / 2);
+                    addTo(foreignObject, SvgAttribute.Y, plot.y * 30);
+                    foreignObject.dataset.plotIndex = String(i);
+                    foreignObject.classList.add(String(uid));
+                    foreignObject.classList.add(CssClass.CHART_LEGEND_BLOCK);
+                    if (i % 2 === 1) {
+                        addTo(foreignObject, SvgAttribute.X, size / 2);
+                    } else {
+                        addTo(foreignObject, SvgAttribute.X, 0);
+                    }
+                    const legendItem = spawn(DomElement.DIV);
+                    const marker = spawn(DomElement.SPAN);
+                    marker.style.color = plot.color || defaultColors[i];
+                    marker.innerHTML = "●";
+
+                    const serieName = spawn(DomElement.SPAN);
+                    serieName.innerHTML = `${plot.name} <span style="color:grey">(${plot.value})</span>`;
+                    legendItem.classList.add(CssClass.CHART_LEGEND_ITEM);
+
+                    if (i % 2 === 1) {
+                        legendItem.classList.add(CssClass.CHART_LEGEND_ITEM_RIGHT);
+                        marker.classList.add(CssClass.CHART_LEGEND_MARKER_RIGHT);
+                    } else {
+                        legendItem.classList.add(CssClass.CHART_LEGEND_ITEM_LEFT);
+                        serieName.classList.add(CssClass.CHART_LEGEND_NAME_LEFT);
+                    }
+
+                    [marker, serieName].forEach(el => {
+                        legendItem.appendChild(el)
+                    }
+                    );
+                    foreignObject.appendChild(legendItem);
+
+                    foreignObject.addEventListener(EventTrigger.CLICK, () => {
+                        if (segregated.includes(i)) {
+                            segregated = segregated.filter((el: number) => el !== i);
+                        } else {
+                            segregated.push(i)
+                        }
+                        const allElements = document.getElementsByClassName(String(uid));
+                        Array.from(allElements).forEach(element => {
+                            if (segregated.includes(Number((element as HTMLElement).dataset.plotIndex))) {
+                                (element as HTMLElement).style.opacity = "0.1";
+                                if (element.nodeName === SvgElement.FOREIGNOBJECT) {
+                                    (element as HTMLElement).style.opacity = "0.3";
+                                }
+                                if (Array.from(element.classList).includes(CssClass.CHART_DONUT_LABEL)) {
+                                    (element as HTMLElement).style.opacity = "0";
+                                }
+
+                            } else {
+                                (element as HTMLElement).style.opacity = "1";
+                            }
+                        });
+                    });
+                    legendSvg.appendChild(foreignObject);
+                });
+                child.appendChild(legendSvg);
+            }
+        }
+
     });
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\//
+//------------------------------      UTILS      -------------------------------
+////////////////////////////////////////////////////////////////////////////////
+//\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\//
+
+export function rotateMatrix(x: number): [number[], number[]] {
+    return [
+        [Math.cos(x), -Math.sin(x)],
+        [Math.sin(x), Math.cos(x)],
+    ];
+}
+
+export function addVector([a1, a2]: number[], [b1, b2]: number[]): number[] {
+    return [a1 + b1, a2 + b2];
+}
+
+export function matrixTimes([[a, b], [c, d]]: number[][], [x, y]: number[]) {
+    return [a * x + b * y, c * x + d * y];
+}
+
+export function createArc([cx, cy]: number[], [rx, ry]: number[], [position, ratio]: number[], phi: number) {
+    ratio = ratio % (2 * Math.PI);
+    const rotMatrix = rotateMatrix(phi);
+    const [sX, sY] = addVector(
+        matrixTimes(rotMatrix, [
+            rx * Math.cos(position),
+            ry * Math.sin(position),
+        ]),
+        [cx, cy]
+    );
+    const [eX, eY] = addVector(
+        matrixTimes(rotMatrix, [
+            rx * Math.cos(position + ratio),
+            ry * Math.sin(position + ratio),
+        ]),
+        [cx, cy]
+    );
+    const fA = ratio > Math.PI ? 1 : 0;
+    const fS = ratio > 0 ? 1 : 0;
+    return {
+        startX: sX,
+        startY: sY,
+        endX: eX,
+        endY: eY,
+        path: `M${sX} ${sY} A ${[
+            rx,
+            ry,
+            (phi / (2 * Math.PI)) * 360,
+            fA,
+            fS,
+            eX,
+            eY,
+        ].join(" ")}`,
+    };
+}
+
+export function makeDonut(item: any, cx: number, cy: number, rx: number, ry: number) {
+    let { series } = item;
+    if (!series)
+        return {
+            ...series,
+            proportion: 0,
+            ratio: 0,
+            path: "",
+            startX: 0,
+            startY: 0,
+            endX: 0,
+            center: {},
+        };
+    const sum = [...series]
+        .map((serie) => serie.value)
+        .reduce((a, b) => a + b, 0);
+    const ratios = [];
+    let acc = 0;
+    for (let i = 0; i < series.length; i += 1) {
+        let proportion = series[i].value / sum;
+        const ratio = proportion * (Math.PI * 1.9999); // (Math.PI * 2) fails to display a donut with only one value > 0 as it goes full circle again
+        // midProportion & midRatio are used to find the midpoint of the arc to display markers
+        const midProportion = series[i].value / 2 / sum;
+        const midRatio = midProportion * (Math.PI * 2);
+        const { startX, startY, endX, endY, path } = createArc(
+            [cx, cy],
+            [rx, ry],
+            [acc, ratio],
+            110
+        );
+        ratios.push({
+            ...series[i],
+            proportion,
+            ratio: ratio,
+            path,
+            startX,
+            startY,
+            endX,
+            endY,
+            center: createArc(
+                [cx, cy],
+                [rx * 1.35, ry * 1.35],
+                [acc, midRatio],
+                110
+            ), // center of the arc, to display the marker. rx & ry are larger to be displayed with a slight offset
+        });
+        acc += ratio;
+    }
+    return ratios;
 }
 
 const charts = {

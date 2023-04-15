@@ -72,6 +72,10 @@ export namespace CssClass {
     export const CHART_TOOLTIP_ITEM = "qroll-chart__tooltip-item";
     export const CHART_TOOLTIP_TRAP = "qroll-chart__tooltip-trap";
     export const CHART_BAR = "qroll-chart__bar";
+    export const CHART_DONUT = "qroll-chart__donut";
+    export const CHART_DONUT_LABEL = "qroll-chart__donut__label";
+    export const CHART_DONUT_MARKER = "qroll-chart__donut__marker";
+    export const CHART_DONUT_CENTER_LABEL = "qroll-chart__donut__center-label";
 }
 
 export namespace CssDisplay {
@@ -195,6 +199,13 @@ export namespace SvgElement {
     export const SVG = "svg";
     export const G = "g";
     export const TEXT = "text";
+    export const PATH = "path";
+}
+
+export namespace SvgTextPosition {
+    export const LEFT = "left";
+    export const MIDDLE = "middle";
+    export const RIGHT = "right";
 }
 
 export namespace Chart {

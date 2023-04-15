@@ -615,6 +615,7 @@ button.qroll-nav-link {
 }
 .qroll-chart__line,
 .qroll-chart__bar,
+.qroll-chart__donut,
 .qroll-chart__legend {
     background-color: white;
     width: 100%;
@@ -678,4 +679,23 @@ button.qroll-nav-link {
 }
 .qroll-chart__legend__block {
     cursor: pointer;
+}
+
+.qroll-chart__donut__marker {
+    top:0;
+    left:0;
+    font-size: 20px;
+    background: white;
+    padding: 6px;
+    border-radius: 50%;
+    box-shadow: 0 6px 12px -6px rgba(0,0,0,0.6);
+    height: 50px;
+    width: 50px;
+    display: flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.qroll-chart__donut__center-label {
+    fill: grey;
 }
