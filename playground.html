@@ -278,7 +278,7 @@
             data-meta-title="Qroll chart components"
             data-meta-description="Qroll also provides simple charting tools"
         >
-            <div>
+            <div data-title="Qroll easy charts">
                 <h2 style="color: white">
                     Quick charts
                     <br>
@@ -367,7 +367,7 @@
                         data-min="0"
                         data-max="100"
                         data-symbol="%"
-                        data-value="80"
+                        data-value="10"
                         data-title="title"
                         data-bar-width="60"
                         data-subtitle="This is a subtitle"
@@ -379,9 +379,10 @@
 
                 </div>
             </div>
-            <div style="display: flex; align-items:center; justify-content:center; height: 100%; width: 100%; padding: 48px; gap: 24px">
-                <div 
-                    class="qroll-chart" 
+            <div class="test-chart-slide" data-title="Bar chart">
+                <div class="test-chart-slide-wrapper">
+                    <div 
+                    class="qroll-chart test-chart" 
                     data-colors='["#3366CC", "#DC3912", "#FF9900", "#109618"]'
                     data-legend="true"
                     data-line-size="8"
@@ -404,14 +405,149 @@
                         "Red serie": [1,1,2,3,5,8,13,21,34,55,89,90]
                     }'
                     data-y-values='["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"]'
-                    style="width: 100%"
                     >
                 </div>
 
-                    <div style="width:100%; font-size: 14px; color:white">
-                        test
+                    <div class="test-chart-code" style="width:100%; font-size: 14px; color:white">
+                        <div class="test-chart-code-body">
+                            <code>
+                                &lt;div id="<span class="css-light">qroll-parent</span>" class="<span class="css-light">qroll-main qroll-loop qroll-tooltip</span>"&gt;
+                                <br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;div id="mySlide1" class="my-slide-class"&gt;
+                                <br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;h1&gt; Bar chart &lt;/h1&gt;
+                                <br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;div 
+                                <br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;class="<span class="css-light">qroll-chart</span>"
+                                <br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="css-light-blue">data-type</span>=<span class="css-orange">"bar"</span>
+                                <br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="css-light-blue">data-x-values</span>=<span class="css-orange">'{'</span>
+                                <br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="css-orange">"Blue serie":[-50,-32,-2,3,5,8,13,21,34,55,89,100],</span>
+                                <br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="css-orange">"Red serie":[1,1,2,3,5,8,13,21,34,55,89,90]</span>
+                                <br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="css-orange">}'</span>
+                                <br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="css-light-blue">data-y-values</span>=<span class="css-orange">'["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"]'</span>
+                                <br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="css-light-blue">data-title</span>=<span class="css-orange">"Title"</span>
+                                <br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="css-light-blue">data-subtitle</span>=<span class="css-orange">"This is a subtitle"</span>
+                                <br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="css-light-blue">data-legend</span>=<span class="css-orange">"true"</span>
+                                <br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="css-light-blue">data-tooltip</span>=<span class="css-orange">"true"</span>
+                                <br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&gt;
+                                <br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/div&gt;
+                                <br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/div&gt;
+                                <br>
+                                &lt;/div&gt;
+                            </code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="test-chart-slide" data-title="Line chart">
+                <div class="test-chart-slide-wrapper">
+                    <div 
+                    class="qroll-chart test-chart" 
+                    data-colors='["#3366CC", "#DC3912", "#FF9900", "#109618"]'
+                    data-legend="true"
+                    data-line-size="8"
+                    data-plot-size="6"
+                    data-plot-value="true"
+                    data-plot="true"
+                    data-subtitle="This is a subtitle"
+                    data-symbol=""
+                    data-ticks="true"
+                    data-title="title"
+                    data-tooltip="true"
+                    data-type="line"
+                    data-value-box="true"
+                    data-x-axis="true"
+                    data-x-grid="true"
+                    data-y-axis="true"
+                    data-y-grid="true"
+                    data-x-values='{
+                        "Blue serie": [-50,-32,-2,3,5,8,13,21,34,55,89,100],
+                        "Red serie": [1,1,2,3,5,8,13,21,34,55,89,90]
+                    }'
+                    data-y-values='["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"]'
+                    >
+                </div>
+
+                    <div class="test-chart-code" style="width:100%; font-size: 14px; color:white">
+                        <div class="test-chart-code-body">
+                            <code>
+                               markup
+                            </code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="test-chart-slide" data-title="Donut">
+                <div class="test-chart-slide-wrapper">
+                    <div 
+                        style="max-width: 600px; margin:0 auto"
+                        class="qroll-chart"
+                        data-type="donut"
+                        data-title="title"
+                        data-subtitle="This is a subtitle"
+                        data-total="true"
+                        data-total-label="Total"
+                        data-tooltip="true"
+                        data-x-values='
+                            {
+                                "Blue serie" : 10,
+                                "Red serie" : 20,
+                                "Orange serie" : 30,
+                                "Green serie" : 5,
+                                "Purple serie" : 3,
+                                "Indigo serie" : 1
+                            }
+                        '
+                    ></div>
+
+                    <div class="test-chart-code" style="width:100%; font-size: 14px; color:white">
+                        <div class="test-chart-code-body">
+                            <code>
+                               markup
+                            </code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="test-chart-slide" data-title="Thermometer gauge">
+                <div class="test-chart-slide-wrapper">
+                    <div
+                        style="max-width: 600px; margin:0 auto"
+                        class="qroll-chart"
+                        data-type="gauge"
+                        data-min="0"
+                        data-max="100"
+                        data-symbol="%"
+                        data-value="80"
+                        data-title="title"
+                        data-bar-width="60"
+                        data-subtitle="This is a subtitle"
+                        style="width: 118px"
+                    >
                     </div>
 
+                    <div class="test-chart-code" style="width:100%; font-size: 14px; color:white">
+                        <div class="test-chart-code-body">
+                            <code>
+                               markup
+                            </code>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>  
 

@@ -451,3 +451,49 @@ small.scroll {
     max-height: 200px;
     font-family: "Satoshi";
 }
+
+.test-chart-slide {
+    display: flex;
+    align-items:center;
+    justify-content: center;
+    height:100%;
+}
+
+.test-chart-slide-wrapper {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    align-items: center;
+    align-content: center;
+    height: 100%;
+    width:100%;
+    gap: 48px;
+    padding: 48px;
+}
+
+@media screen and (max-width: 769px) {
+    .test-chart-slide-wrapper {
+        grid-template-columns: repeat(1,1fr);
+        gap: 12px;
+    }
+}
+
+.test-chart-code {
+    background: rgba(0, 0, 0, 0.534);
+    height: 100%;
+    width: 100%;
+    max-width: 600px;
+    max-height: 400px;
+    word-break: break-all;
+}
+.test-chart-code-body {
+    padding: 12px;
+}
+
+.test-chart {
+    width: 100%;
+}
+
+.css-orange {
+    color: rgb(224, 165, 110);
+
+}
