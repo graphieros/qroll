@@ -1482,7 +1482,6 @@ export function createCharts() {
             ].forEach(e => gChart.appendChild(e));
 
             chartSvg.appendChild(gChart);
-
             child.appendChild(chartSvg);
         }
 
@@ -1631,8 +1630,17 @@ export function makeDonut(item: any, cx: number, cy: number, rx: number, ry: num
     return ratios;
 }
 
+export function updateCharts() {
+    const charts = document.getElementsByClassName(CssClass.CHART);
+    Array.from(charts).forEach(c => {
+        c.innerHTML = "";
+    })
+    createCharts();
+}
+
 const charts = {
-    createCharts
+    createCharts,
+    updateCharts
 }
 
 export default charts;

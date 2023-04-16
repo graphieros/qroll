@@ -33,7 +33,8 @@ import {
     slideToIndex
 } from "./interface";
 import {
-    createCharts
+    createCharts,
+    updateCharts
 } from "./charts";
 
 // IDEA: SEO provide url links, change meta tags programatically on slide change
@@ -50,6 +51,7 @@ const Main: any = (parentName: string, _options: Options = {}) => {
     Main.slideToIndex = slideToIndex;
     Main.openDialog = openDialog;
     Main.closeDialog = closeDialog;
+    Main.updateCharts = updateCharts;
 
     // const cssLink = document.createElement("link");
     // cssLink.rel = "stylesheet";
