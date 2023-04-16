@@ -77,6 +77,8 @@ export namespace CssClass {
     export const CHART_DONUT_MARKER = "qroll-chart__donut__marker";
     export const CHART_DONUT_CENTER_LABEL = "qroll-chart__donut__center-label";
     export const CHART_GAUGE = "qroll-chart__gauge";
+    export const CHART_TITLE = "qroll-chart__title";
+    export const CHART_SUBTITLE = "qroll-chart__subtitle";
 }
 
 export namespace CssDisplay {

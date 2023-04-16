@@ -497,3 +497,7 @@ small.scroll {
     color: rgb(224, 165, 110);
 
 }
+
+.qroll-chart__title {
+    font-size: 24px;
+}

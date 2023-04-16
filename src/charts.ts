@@ -376,6 +376,7 @@ export function createCharts() {
 
             if (hasTitle) {
                 chartSvg.appendChild(createText({
+                    cssClasses: [CssClass.CHART_TITLE],
                     content: (child as HTMLElement).dataset.title as string,
                     x: svgWidth / 2,
                     y: 30,
@@ -385,6 +386,7 @@ export function createCharts() {
 
             if (hasSubtitle) {
                 chartSvg.appendChild(createText({
+                    cssClasses: [CssClass.CHART_SUBTITLE],
                     content: (child as HTMLElement).dataset.subtitle as string,
                     color: "grey",
                     fontSize: 20,
@@ -797,6 +799,7 @@ export function createCharts() {
 
             if (hasTitle) {
                 chartSvg.appendChild(createText({
+                    cssClasses: [CssClass.CHART_TITLE],
                     content: (child as HTMLElement).dataset.title as string,
                     x: svgWidth / 2,
                     y: 30,
@@ -806,6 +809,7 @@ export function createCharts() {
 
             if (hasSubtitle) {
                 chartSvg.appendChild(createText({
+                    cssClasses: [CssClass.CHART_SUBTITLE],
                     content: (child as HTMLElement).dataset.subtitle as string,
                     color: "grey",
                     fontSize: 20,
@@ -1099,6 +1103,7 @@ export function createCharts() {
 
             if (hasTitle) {
                 chartSvg.appendChild(createText({
+                    cssClasses: [CssClass.CHART_TITLE],
                     content: (child as HTMLElement).dataset.title as string,
                     fontSize: 32,
                     x: size / 2,
@@ -1110,6 +1115,7 @@ export function createCharts() {
 
             if (hasSubtitle) {
                 chartSvg.appendChild(createText({
+                    cssClasses: [CssClass.CHART_SUBTITLE],
                     content: (child as HTMLElement).dataset.subtitle as string,
                     color: "grey",
                     fontSize: 20,
@@ -1248,6 +1254,9 @@ export function createCharts() {
             const hasTitle = !!(child as HTMLElement).dataset.title;
             const hasSubtitle = !!(child as HTMLElement).dataset.subtitle;
             const hasSymbol = !!(child as HTMLElement).dataset.symbol;
+            const hasGradient = (child as HTMLElement).dataset.gradient === "true";
+
+            const absoluteValue = Number((child as HTMLElement).dataset.value) - min;
 
             const svgHeight = 512;
             const svgWidth = 316;
@@ -1295,6 +1304,7 @@ export function createCharts() {
             const gTitle = spawnNS(SvgElement.G);
             if (hasTitle) {
                 gTitle.appendChild(createText({
+                    cssClasses: [CssClass.CHART_TITLE],
                     content: (child as HTMLElement).dataset.title as string,
                     x: svgWidth / 2,
                     y: 30,
@@ -1304,6 +1314,7 @@ export function createCharts() {
 
             if (hasSubtitle) {
                 gTitle.appendChild(createText({
+                    cssClasses: [CssClass.CHART_SUBTITLE],
                     content: (child as HTMLElement).dataset.subtitle as string,
                     x: svgWidth / 2,
                     y: 55,
@@ -1314,10 +1325,28 @@ export function createCharts() {
 
             chartSvg.appendChild(gTitle);
 
+
+
             const trackHeight = padding.top + svgHeight - (padding.top + padding.bottom);
-            const proportion = Number((child as HTMLElement).dataset.value) / (max - min);
+            const proportion = absoluteValue / (max - min);
             const barHeight = (trackHeight - padding.top) * proportion;
 
+            // GRADIENT
+            const lid = createUid();
+            if (hasGradient) {
+                const defs = spawnNS("defs");
+                const radialGradient = spawnNS("radialGradient");
+                radialGradient.id = lid;
+                const stop0 = spawnNS("stop");
+                const stop1 = spawnNS("stop");
+                addTo(stop0, "offset", '10%');
+                addTo(stop0, "stop-color", "white");
+                addTo(stop1, "offset", '95%');
+                addTo(stop1, "stop-color", currentColor);
+                [stop0, stop1].forEach(e => radialGradient.appendChild(e));
+                defs.appendChild(radialGradient);
+                chartSvg.appendChild(defs);
+            }
 
             // TRACK
             const gChart = spawnNS(SvgElement.G);
@@ -1330,7 +1359,7 @@ export function createCharts() {
 
             // ARROW
             const arrow = spawnNS(SvgElement.PATH);
-            addTo(arrow, SvgAttribute.D, `M${svgWidth / 2 - (barWidth / 2 + 10)} ${svgHeight - padding.bottom - barHeight}, ${svgWidth / 2 - (barWidth / 2 + 23)} ${svgHeight - padding.bottom - barHeight - 10}, ${svgWidth / 2 - (barWidth / 2 + 23)} ${svgHeight - padding.bottom - barHeight + 10}Z`);
+            addTo(arrow, SvgAttribute.D, `M${svgWidth / 2 - (barWidth / 2 + 10)} ${svgHeight - padding.bottom - barHeight}, ${svgWidth / 2 - (barWidth / 2 + 23)} ${svgHeight - padding.bottom - barHeight - 7.5}, ${svgWidth / 2 - (barWidth / 2 + 23)} ${svgHeight - padding.bottom - barHeight + 7.5}Z`);
             addTo(arrow, SvgAttribute.FILL, "#c9ced1");
             addTo(arrow, SvgAttribute.STROKE, currentColor);
             addTo(arrow, SvgAttribute.STROKE_WIDTH, 2);
@@ -1390,7 +1419,7 @@ export function createCharts() {
             const bar = spawnNS(SvgElement.RECT);
             addTo(bar, SvgAttribute.X, svgWidth / 2 - barWidth / 2);
             addTo(bar, SvgAttribute.Y, svgHeight - padding.bottom - barHeight);
-            addTo(bar, SvgAttribute.FILL, currentColor);
+            addTo(bar, SvgAttribute.FILL, hasGradient ? `url('#${lid}')` : currentColor);
             addTo(bar, ElementAttribute.WIDTH, barWidth);
             addTo(bar, ElementAttribute.HEIGHT, barHeight);
 

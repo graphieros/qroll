@@ -525,19 +525,38 @@
             </div>
             <div class="test-chart-slide" data-title="Thermometer gauge">
                 <div class="test-chart-slide-wrapper">
-                    <div
-                        style="max-width: 600px; margin:0 auto"
-                        class="qroll-chart"
-                        data-type="gauge"
-                        data-min="0"
-                        data-max="100"
-                        data-symbol="%"
-                        data-value="80"
-                        data-title="title"
-                        data-bar-width="60"
-                        data-subtitle="This is a subtitle"
-                        style="width: 118px"
-                    >
+                    <div style="display: flex;">
+                        <div
+                            style="max-width: 300px; margin:0 auto"
+                            class="qroll-chart"
+                            data-type="gauge"
+                            data-min="-100"
+                            data-max="100"
+                            data-symbol="°C"
+                            data-value="-10"
+                            data-title="Temperature"
+                            data-bar-width="15"
+                            data-gradient="true"
+                            data-subtitle="Moon surface"
+                            style="width: 118px"
+                            data-colors='["#2b68b3"]'
+                        >
+                        </div>
+                        <div
+                            style="max-width: 300px; margin:0 auto"
+                            class="qroll-chart"
+                            data-type="gauge"
+                            data-min="0"
+                            data-max="100"
+                            data-gradient="false"
+                            data-symbol="%"
+                            data-value="80"
+                            data-title="Performance"
+                            data-bar-width="60"
+                            data-subtitle="Almost to target"
+                            style="width: 118px"
+                        >
+                        </div>
                     </div>
 
                     <div class="test-chart-code" style="width:100%; font-size: 14px; color:white">
