@@ -28,7 +28,14 @@ export function createDialogs(state: State) {
             const closeButton = spawn(DomElement.BUTTON);
             closeButton.classList.add(CssClass.DIALOG_BUTTON_CLOSE);
             closeButton.innerHTML = Svg.CLOSE;
-            closeButton.addEventListener(EventTrigger.CLICK, () => closeDialog(id));
+            const abortCloseButton = new AbortController();
+            closeButton.addEventListener(EventTrigger.CLICK, () => closeDialog(id), { signal: abortCloseButton.signal });
+            state.events.push({
+                element: closeButton,
+                trigger: EventTrigger.CLICK,
+                callback: () => closeDialog(id),
+                aborter: abortCloseButton
+            });
             dialog.appendChild(closeButton);
         }
 
@@ -103,8 +110,23 @@ export function initDialogCarousels(dialog: HTMLDialogElement) {
         buttonLeft.innerHTML = Svg.CHEVRON_LEFT;
         buttonRight.innerHTML = Svg.CHEVRON_RIGHT;
 
-        buttonRight.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection({ state: Main.state(), direction: Direction.RIGHT, component: hCarousel as HTMLElement }));
-        buttonLeft.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection({ state: Main.state(), direction: Direction.LEFT, component: hCarousel as HTMLElement }));
+        const abortButtonRight = new AbortController();
+        buttonRight.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection({ state: Main.state(), direction: Direction.RIGHT, component: hCarousel as HTMLElement }), { signal: abortButtonRight.signal });
+        Main.state().events.push({
+            element: buttonRight,
+            trigger: EventTrigger.CLICK,
+            callback: () => slideComponentToDirection({ state: Main.state(), direction: Direction.RIGHT, component: hCarousel as HTMLElement }),
+            aborter: abortButtonRight
+        });
+
+        const abortButtonLeft = new AbortController();
+        buttonLeft.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection({ state: Main.state(), direction: Direction.LEFT, component: hCarousel as HTMLElement }), { signal: abortButtonLeft.signal });
+        Main.state().events.push({
+            element: buttonLeft,
+            trigger: EventTrigger.CLICK,
+            callback: slideComponentToDirection({ state: Main.state(), direction: Direction.LEFT, component: hCarousel as HTMLElement }),
+            aborter: abortButtonLeft
+        });
 
         const buttonPlayPause = spawn(DomElement.BUTTON);
         buttonPlayPause.classList.add(CssClass.CAROUSEL_BUTTON_PLAY);
@@ -135,7 +157,7 @@ export function initDialogCarousels(dialog: HTMLDialogElement) {
                 state: Main.state()
             });
         }
-
+        const abortPlayPause = new AbortController();
         buttonPlayPause.addEventListener(EventTrigger.CLICK, () => togglePlayState({
             carousel: hCarousel,
             buttonPlayPause,
@@ -143,7 +165,21 @@ export function initDialogCarousels(dialog: HTMLDialogElement) {
             buttonPrevious: buttonLeft,
             uid,
             state: Main.state()
-        }));
+        }), { signal: abortPlayPause.signal });
+
+        Main.state().events.push({
+            element: buttonPlayPause,
+            trigger: EventTrigger.CLICK,
+            callback: () => togglePlayState({
+                carousel: hCarousel,
+                buttonPlayPause,
+                buttonNext: buttonRight,
+                buttonPrevious: buttonLeft,
+                uid,
+                state: Main.state()
+            }),
+            aborter: abortPlayPause
+        });
 
         [buttonLeft, buttonRight, buttonPlayPause].forEach(el => hCarousel.appendChild(el));
     });
@@ -335,9 +371,10 @@ export function slideComponentToDirection({ state, direction, component }: { sta
 
             component.dataset.carouselIndex = String(nextIndex);
             if (state) {
-                setTimeout(() => {
+                state.timeouts.t0 = setTimeout(() => {
                     state.isSliding = false;
                 }, state.transitionDuration);
+
             }
         });
     } else if ([Direction.UP, Direction.DOWN].includes(direction)) {
@@ -375,7 +412,7 @@ export function slideComponentToDirection({ state, direction, component }: { sta
             }
             component.dataset.carouselIndex = String(nextIndex);
             if (state) {
-                setTimeout(() => {
+                state.timeouts.t1 = setTimeout(() => {
                     state.isSliding = false;
                 }, state.transitionDuration);
             }
@@ -428,8 +465,23 @@ export function createCarouselComponents(state: State) {
         buttonTop.innerHTML = Svg.CHEVRON_TOP;
         buttonDown.innerHTML = Svg.CHEVRON_DOWN;
 
-        buttonTop.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection({ state, direction: Direction.UP, component: vCarousel as HTMLElement }));
-        buttonDown.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection({ state, direction: Direction.DOWN, component: vCarousel as HTMLElement }));
+        const abortButtonTop = new AbortController();
+        buttonTop.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection({ state, direction: Direction.UP, component: vCarousel as HTMLElement }), { signal: abortButtonTop.signal });
+        state.events.push({
+            element: buttonTop,
+            trigger: EventTrigger.CLICK,
+            callback: () => slideComponentToDirection({ state, direction: Direction.UP, component: vCarousel as HTMLElement }),
+            aborter: abortButtonTop
+        });
+
+        const abortButtonDown = new AbortController();
+        buttonDown.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection({ state, direction: Direction.DOWN, component: vCarousel as HTMLElement }), { signal: abortButtonDown.signal });
+        state.events.push({
+            element: buttonDown,
+            trigger: EventTrigger.CLICK,
+            callback: () => slideComponentToDirection({ state, direction: Direction.DOWN, component: vCarousel as HTMLElement }),
+            aborter: abortButtonDown
+        });
 
         const buttonPlayPause = spawn(DomElement.BUTTON);
         buttonPlayPause.classList.add(CssClass.CAROUSEL_BUTTON_PLAY);
@@ -454,6 +506,7 @@ export function createCarouselComponents(state: State) {
             });
         }
 
+        const abortPlayPause = new AbortController();
         buttonPlayPause.addEventListener(EventTrigger.CLICK, () => togglePlayState({
             carousel: vCarousel,
             buttonPlayPause,
@@ -461,7 +514,21 @@ export function createCarouselComponents(state: State) {
             buttonPrevious: buttonTop,
             uid,
             state
-        }));
+        }), { signal: abortPlayPause.signal });
+
+        state.events.push({
+            element: buttonPlayPause,
+            trigger: EventTrigger.CLICK,
+            callback: () => togglePlayState({
+                carousel: vCarousel,
+                buttonPlayPause,
+                buttonNext: buttonDown,
+                buttonPrevious: buttonTop,
+                uid,
+                state
+            }),
+            aborter: abortPlayPause
+        });
 
         [buttonTop, buttonDown, buttonPlayPause].forEach(el => vCarousel.appendChild(el));
     });
@@ -499,8 +566,23 @@ export function createCarouselComponents(state: State) {
         buttonLeft.innerHTML = Svg.CHEVRON_LEFT;
         buttonRight.innerHTML = Svg.CHEVRON_RIGHT;
 
-        buttonRight.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection({ state, direction: Direction.RIGHT, component: hCarousel as HTMLElement }));
-        buttonLeft.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection({ state, direction: Direction.LEFT, component: hCarousel as HTMLElement }));
+        const abortButtonRight = new AbortController();
+        buttonRight.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection({ state, direction: Direction.RIGHT, component: hCarousel as HTMLElement }), { signal: abortButtonRight.signal });
+        state.events.push({
+            element: buttonRight,
+            trigger: EventTrigger.CLICK,
+            callback: () => slideComponentToDirection({ state, direction: Direction.RIGHT, component: hCarousel as HTMLElement }),
+            aborter: abortButtonRight
+        });
+
+        const abortButtonLeft = new AbortController();
+        buttonLeft.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection({ state, direction: Direction.LEFT, component: hCarousel as HTMLElement }), { signal: abortButtonLeft.signal });
+        state.events.push({
+            element: buttonLeft,
+            trigger: EventTrigger.CLICK,
+            callback: () => slideComponentToDirection({ state, direction: Direction.LEFT, component: hCarousel as HTMLElement }),
+            aborter: abortButtonLeft
+        });
 
         const buttonPlayPause = spawn(DomElement.BUTTON);
         buttonPlayPause.classList.add(CssClass.CAROUSEL_BUTTON_PLAY);
@@ -525,6 +607,7 @@ export function createCarouselComponents(state: State) {
             });
         }
 
+        const abortPlayPause = new AbortController();
         buttonPlayPause.addEventListener(EventTrigger.CLICK, () => togglePlayState({
             carousel: hCarousel,
             buttonPlayPause,
@@ -532,7 +615,21 @@ export function createCarouselComponents(state: State) {
             buttonPrevious: buttonLeft,
             uid,
             state
-        }));
+        }), { signal: abortPlayPause.signal });
+
+        state.events.push({
+            element: buttonPlayPause,
+            trigger: EventTrigger.CLICK,
+            callback: () => togglePlayState({
+                carousel: hCarousel,
+                buttonPlayPause,
+                buttonNext: buttonRight,
+                buttonPrevious: buttonLeft,
+                uid,
+                state
+            }),
+            aborter: abortPlayPause
+        });
 
         [buttonLeft, buttonRight, buttonPlayPause].forEach(el => hCarousel.appendChild(el));
     })
@@ -563,8 +660,7 @@ export function setupHorizontalSlides(state: State, carousel: HTMLElement) {
             slide.style.transform = `translateX(-${state.pageWidth}px)`;
         }
     });
-
-    setTimeout(() => {
+    state.timeouts.t2 = setTimeout(() => {
         slides.forEach(slide => {
             slide.classList.remove(CssClass.NO_TRANSITION);
         });
@@ -670,7 +766,16 @@ export function createCarousel(state: State, carousel: HTMLElement) {
             link.classList.remove(CssClass.NAV_LINK_SELECTED);
         }
         link.dataset.linkIndex = `${i}`;
-        link.addEventListener(EventTrigger.CLICK, () => slideTo(i));
+        const abortLink = new AbortController();
+        link.addEventListener(EventTrigger.CLICK, () => slideTo(i), { signal: abortLink.signal });
+
+        Main.state().events.push({
+            element: link,
+            trigger: EventTrigger.CLICK,
+            callback: () => slideTo(i),
+            aborter: abortLink
+        });
+
 
         const tooltip = spawn(DomElement.DIV);
         tooltip.classList.add(CssClass.TOOLTIP_TOP);
@@ -744,7 +849,7 @@ export function createCarousel(state: State, carousel: HTMLElement) {
             updateCarouselNav(carousel);
             updateLocation(`${carousel.id}/${nextIndex}`);
 
-            setTimeout(() => {
+            state.timeouts.t3 = setTimeout(() => {
                 state.isSliding = false;
                 state.wheelCount = 0;
             }, state.transitionDuration);
@@ -773,7 +878,7 @@ export function createCarousel(state: State, carousel: HTMLElement) {
             updateCarouselNav(carousel);
             updateLocation(`${carousel.id}/${nextIndex}`);
 
-            setTimeout(() => {
+            state.timeouts.t4 = setTimeout(() => {
                 state.isSliding = false;
                 state.wheelCount = 0;
             }, state.transitionDuration);
@@ -806,7 +911,7 @@ export function createCarousel(state: State, carousel: HTMLElement) {
         updateCarouselNav(carousel);
         updateLocation(`${carousel.id}/${nextIndex}`);
 
-        setTimeout(() => {
+        state.timeouts.t5 = setTimeout(() => {
             state.isSliding = false;
             state.wheelCount = 0;
         }, state.transitionDuration)
@@ -838,14 +943,28 @@ export function createCarousel(state: State, carousel: HTMLElement) {
         updateCarouselNav(carousel);
         updateLocation(`${carousel.id}/${nextIndex}`);
 
-        setTimeout(() => {
+        state.timeouts.t6 = setTimeout(() => {
             state.isSliding = false;
             state.wheelCount = 0;
         }, state.transitionDuration)
     }
 
-    buttonRight.addEventListener(EventTrigger.CLICK, slideRight);
-    buttonLeft.addEventListener(EventTrigger.CLICK, slideLeft);
+    const abortButtonRight = new AbortController();
+    buttonRight.addEventListener(EventTrigger.CLICK, slideRight, { signal: abortButtonRight.signal });
+    state.events.push({
+        element: buttonRight,
+        trigger: EventTrigger.CLICK,
+        callback: slideRight,
+        aborter: abortButtonRight
+    });
+    const abortButtonLeft = new AbortController();
+    buttonLeft.addEventListener(EventTrigger.CLICK, slideLeft, { signal: abortButtonLeft.signal });
+    state.events.push({
+        element: buttonLeft,
+        trigger: EventTrigger.CLICK,
+        callback: slideLeft,
+        aborter: abortButtonLeft
+    });
 
     carousel.appendChild(buttonRight);
     carousel.appendChild(buttonLeft);
@@ -1040,7 +1159,8 @@ export function createMainLayout(state: State, parent: HTMLElement) {
 
             updateNav();
             updateCarouselNav(nextSlide as HTMLElement);
-            setTimeout(() => {
+
+            state.timeouts.t7 = setTimeout(() => {
                 state.isRouting = true;
                 if (!skipHistory) {
                     updateMetaTags(nextSlide as HTMLElement);
@@ -1107,7 +1227,8 @@ export function createMainLayout(state: State, parent: HTMLElement) {
 
             updateNav();
             updateCarouselNav(nextSlide as HTMLElement);
-            setTimeout(() => {
+
+            state.timeouts.t8 = setTimeout(() => {
                 if (!skipHistory) {
                     state.isRouting = true;
                     updateMetaTags(nextSlide as HTMLElement);
@@ -1128,14 +1249,29 @@ export function createMainLayout(state: State, parent: HTMLElement) {
         link.classList.add(CssClass.NAV_LINK);
         link.classList.add(CssClass.NO_TRANSITION);
         (link as HTMLElement).dataset.index = `${i}`;
+        const abortLink = new AbortController();
         link.addEventListener(EventTrigger.CLICK, () => {
             if (state.isSliding) return;
             state.isSliding = true;
             slideTo({
                 direction: undefined,
                 targetIndex: i
-            })
+            }), { signal: abortLink.signal }
         });
+        Main.state().events.push({
+            element: link,
+            trigger: EventTrigger.CLICK,
+            callback: () => {
+                if (state.isSliding) return;
+                state.isSliding = true;
+                slideTo({
+                    direction: undefined,
+                    targetIndex: i
+                })
+            },
+            aborter: abortLink
+        });
+
         const tooltip = spawn(DomElement.DIV);
         tooltip.classList.add(CssClass.TOOLTIP_LEFT);
         tooltip.classList.add(CssClass.NO_TRANSITION);
@@ -1191,19 +1327,45 @@ export function createMainLayout(state: State, parent: HTMLElement) {
     buttonTop.innerHTML = Svg.CHEVRON_TOP;
 
     // EVENTS
+    const abortButtonTop = new AbortController();
     buttonTop.addEventListener(EventTrigger.CLICK, () => {
         if (state.isSliding) return;
         state.isSliding = true;
         slideTo({ direction: Direction.UP })
-    });
+    }, { signal: abortButtonTop.signal });
+    if (state.events) {
+        state.events.push({
+            element: buttonTop,
+            trigger: EventTrigger.CLICK,
+            callback: () => {
+                if (state.isSliding) return;
+                state.isSliding = true;
+                slideTo({ direction: Direction.UP })
+            },
+            aborter: abortButtonTop
+        });
+    }
+
+    const abortButtonBottom = new AbortController();
     buttonBottom.addEventListener(EventTrigger.CLICK, () => {
         if (state.isSliding) return;
         state.isSliding = true;
         slideTo({ direction: Direction.DOWN })
-    });
+    }, { signal: abortButtonBottom.signal });
+    if (state.events) {
+        state.events.push({
+            element: buttonBottom,
+            trigger: EventTrigger.CLICK,
+            callback: () => {
+                if (state.isSliding) return;
+                state.isSliding = true;
+                slideTo({ direction: Direction.DOWN })
+            },
+            aborter: abortButtonBottom
+        });
+    }
 
-    window.addEventListener(EventTrigger.WHEEL, (event: WheelEvent) => {
-
+    function wheel(event: any) {
         if (isDialogOpen(state)) {
             return;
         }
@@ -1226,14 +1388,24 @@ export function createMainLayout(state: State, parent: HTMLElement) {
             slideTo({ isWheel: true, targetIndex: Number((parent as HTMLElement).dataset.currentVIndex) - 1 < 0 ? slides.length - 1 : Number((parent as HTMLElement).dataset.currentVIndex) - 1 });
         }
 
-        setTimeout(() => {
+        state.timeouts.t9 = setTimeout(() => {
             state.isSliding = false;
             state.wheelCount = 0;
         }, state.transitionDuration);
-    });
+    }
 
-    document.addEventListener(EventTrigger.KEYUP, (event: KeyboardEvent) => {
+    const abortWheel = new AbortController();
+    window.addEventListener(EventTrigger.WHEEL, (event: WheelEvent) => wheel(event), { signal: abortWheel.signal });
+    if (state.events) {
+        state.events.push({
+            element: window,
+            trigger: EventTrigger.WHEEL,
+            callback: wheel,
+            aborter: abortWheel
+        })
+    }
 
+    function keyup(event: any) {
         if (isDialogOpen(state)) {
             return;
         }
@@ -1274,7 +1446,7 @@ export function createMainLayout(state: State, parent: HTMLElement) {
                     }
                     (buttonRight as HTMLElement).click();
 
-                    setTimeout(() => {
+                    state.timeouts.t10 = setTimeout(() => {
                         state.isSliding = false;
                         state.wheelCount = 0;
                     }, state.transitionDuration);
@@ -1293,7 +1465,7 @@ export function createMainLayout(state: State, parent: HTMLElement) {
 
                     (buttonLeft as HTMLElement).click();
 
-                    setTimeout(() => {
+                    state.timeouts.t11 = setTimeout(() => {
                         state.isSliding = false;
                         state.wheelCount = 0;
                     }, state.transitionDuration);
@@ -1331,14 +1503,36 @@ export function createMainLayout(state: State, parent: HTMLElement) {
                 state.wheelCount = 0;
                 return;
         }
-    });
+    }
 
-    document.addEventListener(EventTrigger.TOUCHSTART, (event: TouchEvent) => {
+    const abortKeyup = new AbortController();
+    document.addEventListener(EventTrigger.KEYUP, (event: KeyboardEvent) => keyup(event), { signal: abortKeyup.signal });
+    if (state.events) {
+        state.events.push({
+            element: document,
+            trigger: EventTrigger.KEYUP,
+            callback: keyup,
+            aborter: abortKeyup
+        });
+    }
+
+    function startTouch(event: any) {
         state.isSliding = true;
         state.eventTouchStart = event.changedTouches?.[0] || state.eventTouchStart;
-    });
+    }
+    const abortTouchstart = new AbortController();
+    document.addEventListener(EventTrigger.TOUCHSTART, (event: TouchEvent) => startTouch(event), { signal: abortTouchstart.signal });
 
-    document.addEventListener(EventTrigger.TOUCHEND, (event: any) => {
+    if (state.events) {
+        state.events.push({
+            element: document,
+            trigger: EventTrigger.TOUCHSTART,
+            callback: startTouch,
+            aborter: abortTouchstart
+        });
+    }
+
+    function endTouch(event: any) {
         state.isSliding = false;
         state.eventTouchEnd = event.changedTouches?.[0] || state.eventTouchEnd;
         const hasVerticalScrollBar = event.target.scrollHeight > event.target.clientHeight;
@@ -1351,7 +1545,8 @@ export function createMainLayout(state: State, parent: HTMLElement) {
         const isScrollableIsland = !Array.from(event.target.classList).includes(CssClass.CHILD) && hasVerticalScrollBar;
         if ([isScrollableIsland].includes(true)) return;
         if (state.isSliding) {
-            setTimeout(() => {
+
+            state.timeouts.t12 = setTimeout(() => {
                 state.isSliding = false;
             });
         };
@@ -1403,7 +1598,7 @@ export function createMainLayout(state: State, parent: HTMLElement) {
                     updateCarouselNav(thisCarousel as HTMLElement);
                     updateLocation(`${thisCarousel.id}/${nextIndex}`);
 
-                    setTimeout(() => {
+                    state.timeouts.t13 = setTimeout(() => {
                         state.isSliding = false;
                         state.wheelCount = 0;
                     }, state.transitionDuration);
@@ -1442,7 +1637,7 @@ export function createMainLayout(state: State, parent: HTMLElement) {
                     updateCarouselNav(thisCarousel as HTMLElement);
                     updateLocation(`${thisCarousel.id}/${nextIndex}`);
 
-                    setTimeout(() => {
+                    state.timeouts.t14 = setTimeout(() => {
                         state.isSliding = false;
                         state.wheelCount = 0;
                     }, state.transitionDuration);
@@ -1462,15 +1657,37 @@ export function createMainLayout(state: State, parent: HTMLElement) {
                 }
             }
         }
-    });
+    }
 
-    window.addEventListener(EventTrigger.RESIZE, () => {
+    const abortTouchend = new AbortController();
+    document.addEventListener(EventTrigger.TOUCHEND, (event: any) => endTouch(event), { signal: abortTouchend.signal });
+    if (state.events) {
+        state.events.push({
+            element: document,
+            trigger: EventTrigger.TOUCHEND,
+            callback: endTouch,
+            aborter: abortTouchend
+        });
+    }
+
+    function resize() {
         state.pageHeight = window.innerHeight;
         state.pageWidth = window.innerWidth;
         setupVerticalSlides(state, parent);
         const carousels = document.getElementsByClassName(CssClass.CAROUSEL);
         Array.from(carousels).forEach(carousel => setupHorizontalSlides(state, (carousel as HTMLElement)))
-    });
+    }
+
+    const abortResize = new AbortController();
+    window.addEventListener(EventTrigger.RESIZE, resize, { signal: abortResize.signal });
+    if (state.events) {
+        state.events.push({
+            element: window,
+            trigger: EventTrigger.RESIZE,
+            callback: resize,
+            aborter: abortResize
+        });
+    }
 
     function getCurrentSlideId() {
         const location = window?.location;
@@ -1496,8 +1713,10 @@ export function createMainLayout(state: State, parent: HTMLElement) {
         return carouselIndex;
     }
 
+    // TODO: export as a qrollReset function
+    // if typeof window === 'undefined' return; 
     window.onload = () => {
-        const currentSlideId = getCurrentSlideId().replace("#", "");
+        const currentSlideId = getCurrentSlideId().replace("#", "") || Array.from(parent.children).filter(c => Array.from(c.classList).includes(CssClass.CHILD))[0].id;
         const targetIndex = Number(grabId(currentSlideId).dataset.index);
         parent.dataset.currentVIndex = `${targetIndex}`;
         Array.from(children).filter(child => (Array.from(child.classList).includes(CssClass.SLIDE))).forEach((child) => {
@@ -1508,7 +1727,8 @@ export function createMainLayout(state: State, parent: HTMLElement) {
         restoreCarousel();
         updateCarouselNav(grabId(currentSlideId));
         updateMetaTags(grabId(currentSlideId) as HTMLElement);
-        setTimeout(() => {
+
+        state.timeouts.t15 = setTimeout(() => {
             Array.from(children).filter(child => (Array.from(child.classList).includes(CssClass.SLIDE))).forEach((child) => {
                 child.classList.remove(CssClass.NO_TRANSITION);
             });
@@ -1541,7 +1761,7 @@ export function createMainLayout(state: State, parent: HTMLElement) {
         }
     }
 
-    window.addEventListener(EventTrigger.HASHCHANGE, () => {
+    function hashChange() {
         if (state.isRouting) return;
         state.isRouting = true;
         const currentSlideId = getCurrentSlideId().replace("#", "");
@@ -1551,7 +1771,18 @@ export function createMainLayout(state: State, parent: HTMLElement) {
         updateCarouselNav(grabId(currentSlideId));
         updateNav();
         clearRoutingTimeout();
-    })
+    }
+
+    const abortHashchange = new AbortController();
+    window.addEventListener(EventTrigger.HASHCHANGE, hashChange, { signal: abortHashchange.signal });
+    if (state.events) {
+        state.events.push({
+            element: window,
+            trigger: EventTrigger.HASHCHANGE,
+            callback: hashChange,
+            aborter: abortHashchange
+        });
+    }
 
     parent.appendChild(nav);
     parent.appendChild(buttonTop);
@@ -1564,7 +1795,8 @@ const carousel = {
     createDialogs,
     createMainLayout,
     closeDialog,
-    openDialog
+    openDialog,
+    setupVerticalSlides,
 }
 
 export default carousel;

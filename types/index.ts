@@ -60,4 +60,7 @@ export type State = {
     userAgent: string;
     wheelCount: number;
     modalIds: string[];
+    appContent: string;
+    events: any;
+    timeouts: any;
 }
