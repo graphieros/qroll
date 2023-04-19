@@ -3,6 +3,7 @@ import { resolve } from 'path';
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
 import path from "path";
+import terser from "@rollup/plugin-terser";
 
 // https://vitejs.dev/guide/build.html#library-mode
 export default defineConfig({
@@ -12,8 +13,29 @@ export default defineConfig({
       name: 'qroll',
       fileName: 'qroll',
     },
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        // enable variable renaming
+        keep_fnames: false,
+        keep_infinity: true,
+        // set the maximum line length to prevent extremely long lines
+      },
+      mangle: {
+        properties: false,
+        toplevel: true,
+      },
+    },
+    sourcemap: true,
   },
-  plugins: [dts()],
+  plugins: [
+    dts(),
+    terser({
+      format: {
+        comments: false,
+      },
+    }),
+  ],
   css: {
     modules: {
       scopeBehaviour: 'global'

@@ -1,5 +1,6 @@
 import { Chart, CssClass, DomElement, ElementAttribute, EventTrigger, SvgAttribute, SvgElement, SvgTextPosition } from "./constants";
 import { addTo, createUid, findClosestNumberInArray, spawn, spawnNS } from "./functions";
+import Main from "./main";
 
 // TODO: dark mode
 
@@ -258,7 +259,7 @@ export function createCharts() {
                         g.appendChild(line);
                     }
                 });
-                dataset.serie.forEach((plot: any, i: any) => {
+                dataset.serie.forEach((plot: any) => {
                     if (showPlots) {
                         const circle = spawnNS(SvgElement.CIRCLE);
                         circle.classList.add(CssClass.CHART_DATAPOINT_CIRCLE);
@@ -320,7 +321,7 @@ export function createCharts() {
                 tooltip.style.opacity = "0";
                 tooltip.style.zIndex = "-1";
 
-                chartSvg.addEventListener(EventTrigger.MOUSEMOVE, (e) => {
+                function moveMouse(e: any) {
                     tooltip.style.top = `${e.clientY + 20}px`;
                     tooltip.style.left = `${e.clientX}px`;
                     tooltip.innerHTML = "";
@@ -363,12 +364,31 @@ export function createCharts() {
                         tooltip.style.opacity = "0";
                         tooltip.style.zIndex = "-1";
                     }
+                }
+
+                const abortMousemove = new AbortController();
+                chartSvg.addEventListener(EventTrigger.MOUSEMOVE, moveMouse, { signal: abortMousemove.signal });
+                Main.state().events.push({
+                    element: chartSvg,
+                    trigger: EventTrigger.MOUSEMOVE,
+                    callback: moveMouse,
+                    aborter: abortMousemove
                 });
 
-                chartSvg.addEventListener(EventTrigger.MOUSELEAVE, () => {
+                function leaveMouse() {
                     tooltip.style.opacity = "0";
                     tooltip.style.zIndex = "-1";
+                }
+
+                const abortMouseleave = new AbortController();
+                chartSvg.addEventListener(EventTrigger.MOUSELEAVE, leaveMouse, { signal: abortMouseleave.signal });
+                Main.state().events.push({
+                    element: chartSvg,
+                    trigger: EventTrigger.MOUSELEAVE,
+                    callback: leaveMouse,
+                    aborter: abortMouseleave
                 });
+
                 document.body.appendChild(tooltip);
             }
 
@@ -452,7 +472,7 @@ export function createCharts() {
                     );
                     foreignObject.appendChild(legendItem);
 
-                    foreignObject.addEventListener(EventTrigger.CLICK, () => {
+                    function clickLegend() {
                         if (segregated.includes(i)) {
                             segregated = segregated.filter((el: number) => el !== i);
                         } else {
@@ -470,7 +490,16 @@ export function createCharts() {
                                 (element as HTMLElement).style.opacity = "1";
                             }
                         });
+                    }
+                    const abortClickLegend = new AbortController();
+                    foreignObject.addEventListener(EventTrigger.CLICK, clickLegend, { signal: abortClickLegend.signal });
+                    Main.state().events.push({
+                        element: foreignObject,
+                        trigger: EventTrigger.CLICK,
+                        callback: clickLegend,
+                        aborter: abortClickLegend
                     });
+
                     legendSvg.appendChild(foreignObject);
                 });
                 child.appendChild(legendSvg);
@@ -716,7 +745,7 @@ export function createCharts() {
 
             plots.forEach((dataset, index) => {
                 const g = spawnNS(SvgElement.G);
-                dataset.serie.forEach((plot: any, i: any) => {
+                dataset.serie.forEach((plot: any) => {
                     if (showPlotValue) {
                         const plotInterval = (interval / plots.length);
                         const text = spawnNS(SvgElement.TEXT);
@@ -744,7 +773,7 @@ export function createCharts() {
                 tooltip.style.opacity = "0";
                 tooltip.style.zIndex = "-1";
 
-                chartSvg.addEventListener(EventTrigger.MOUSEMOVE, (e) => {
+                function moveMouse(e: any) {
                     tooltip.style.top = `${e.clientY + 20}px`;
                     tooltip.style.left = `${e.clientX}px`;
                     tooltip.innerHTML = "";
@@ -787,11 +816,31 @@ export function createCharts() {
                         tooltip.style.opacity = "0";
                         tooltip.style.zIndex = "-1";
                     }
+                }
+
+                const abortMousemove = new AbortController();
+                chartSvg.addEventListener(EventTrigger.MOUSEMOVE, moveMouse, { signal: abortMousemove.signal });
+                Main.state().events.push({
+                    element: chartSvg,
+                    trigger: EventTrigger.MOUSEMOVE,
+                    callback: moveMouse,
+                    aborter: abortMousemove
                 });
-                chartSvg.addEventListener(EventTrigger.MOUSELEAVE, () => {
+
+                function leaveMouse() {
                     tooltip.style.opacity = "0";
                     tooltip.style.zIndex = "-1";
+                }
+
+                const abortMouseleave = new AbortController();
+                chartSvg.addEventListener(EventTrigger.MOUSELEAVE, leaveMouse, { signal: abortMouseleave.signal });
+                Main.state().events.push({
+                    element: chartSvg,
+                    trigger: EventTrigger.MOUSELEAVE,
+                    callback: leaveMouse,
+                    aborter: abortMouseleave
                 });
+
                 document.body.appendChild(tooltip);
             }
 
@@ -874,7 +923,7 @@ export function createCharts() {
                     );
                     foreignObject.appendChild(legendItem);
 
-                    foreignObject.addEventListener(EventTrigger.CLICK, () => {
+                    function clickLegend() {
                         if (segregated.includes(i)) {
                             segregated = segregated.filter((el: number) => el !== i);
                         } else {
@@ -892,6 +941,14 @@ export function createCharts() {
                                 (element as HTMLElement).style.opacity = "1";
                             }
                         });
+                    }
+                    const abortClickLegend = new AbortController();
+                    foreignObject.addEventListener(EventTrigger.CLICK, clickLegend, { signal: abortClickLegend.signal });
+                    Main.state().events.push({
+                        element: foreignObject,
+                        trigger: EventTrigger.CLICK,
+                        callback: clickLegend,
+                        aborter: abortClickLegend
                     });
                     legendSvg.appendChild(foreignObject);
                 });
@@ -1046,7 +1103,7 @@ export function createCharts() {
                 tooltip.style.opacity = "0";
                 tooltip.style.zIndex = "-1";
 
-                chartSvg.addEventListener(EventTrigger.MOUSEMOVE, (e) => {
+                function moveMouse(e: any) {
                     tooltip.style.top = `${e.clientY + 20}px`;
                     tooltip.style.left = `${e.clientX}px`;
                     tooltip.innerHTML = "";
@@ -1089,10 +1146,29 @@ export function createCharts() {
                         tooltip.style.opacity = "0";
                         tooltip.style.zIndex = "-1";
                     }
+                }
+
+                const abortMousemove = new AbortController();
+                chartSvg.addEventListener(EventTrigger.MOUSEMOVE, moveMouse, { signal: abortMousemove.signal });
+                Main.state().events.push({
+                    element: chartSvg,
+                    trigger: EventTrigger.MOUSEMOVE,
+                    callback: moveMouse,
+                    aborter: abortMousemove
                 });
-                chartSvg.addEventListener(EventTrigger.MOUSELEAVE, () => {
+
+                function leaveMouse() {
                     tooltip.style.opacity = "0";
                     tooltip.style.zIndex = "-1";
+                }
+
+                const abortMouseleave = new AbortController();
+                chartSvg.addEventListener(EventTrigger.MOUSELEAVE, leaveMouse, { signal: abortMouseleave.signal });
+                Main.state().events.push({
+                    element: chartSvg,
+                    trigger: EventTrigger.MOUSELEAVE,
+                    callback: leaveMouse,
+                    aborter: abortMouseleave
                 });
                 document.body.appendChild(tooltip);
             }
@@ -1203,7 +1279,7 @@ export function createCharts() {
                     );
                     foreignObject.appendChild(legendItem);
 
-                    foreignObject.addEventListener(EventTrigger.CLICK, () => {
+                    function clickLegend() {
                         if (segregated.includes(i)) {
                             segregated = segregated.filter((el: number) => el !== i);
                         } else {
@@ -1224,6 +1300,15 @@ export function createCharts() {
                                 (element as HTMLElement).style.opacity = "1";
                             }
                         });
+                    }
+
+                    const abortClickLegend = new AbortController();
+                    foreignObject.addEventListener(EventTrigger.CLICK, clickLegend, { signal: abortClickLegend.signal });
+                    Main.state().events.push({
+                        element: foreignObject,
+                        trigger: EventTrigger.CLICK,
+                        callback: clickLegend,
+                        aborter: abortClickLegend
                     });
                     legendSvg.appendChild(foreignObject);
                 });

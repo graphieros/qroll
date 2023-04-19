@@ -5,8 +5,7 @@ import "@/css/index.css";
 
 if (typeof window !== 'undefined') {
     (window as unknown as OurWindow).qroll = Main;
+    Main(ElementId.PARENT, {
+        sectionClass: CssClass.CHILD
+    });
 }
-
-Main(ElementId.PARENT, {
-    sectionClass: CssClass.CHILD
-});
