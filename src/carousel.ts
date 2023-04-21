@@ -1011,7 +1011,7 @@ export function createMainLayout(state: State, parent: HTMLElement) {
     (parent as HTMLElement).classList.add(CssClass.CAROUSEL_VERTICAL);
 
     // TODO: better management of excluded classes
-    const children = Array.from(parent.children).filter(child => !Array.from(child.classList).includes(CssClass.DIALOG));
+    const children = Array.from(parent.children).filter(child => !Array.from(child.classList).includes(CssClass.DIALOG) && !Array.from(child.classList).includes(CssClass.MENU));
 
     state.pageHeight = window.innerHeight;
 
@@ -1374,6 +1374,8 @@ export function createMainLayout(state: State, parent: HTMLElement) {
             return;
         }
 
+        if (state.pauseSliding) return;
+
         state.wheelCount += 1;
         const direction = event.deltaY > 0 ? Direction.DOWN : Direction.UP;
         const isTrackpad = detectTrackPad(event);
@@ -1413,6 +1415,8 @@ export function createMainLayout(state: State, parent: HTMLElement) {
         if (state.wheelCount > 0) {
             return;
         }
+
+        if (state.pauseSliding) return;
 
         state.wheelCount += 1;
 
@@ -1533,6 +1537,7 @@ export function createMainLayout(state: State, parent: HTMLElement) {
     }
 
     function endTouch(event: any) {
+        if (state.pauseSliding) return;
         state.isSliding = false;
         state.eventTouchEnd = event.changedTouches?.[0] || state.eventTouchEnd;
         const hasVerticalScrollBar = event.target.scrollHeight > event.target.clientHeight;

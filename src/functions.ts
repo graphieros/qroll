@@ -164,7 +164,7 @@ export function setTabIndex(element: { scrollHeight: number; clientHeight: numbe
  * @param element - string
  * @returns a dom element
  */
-export function spawn(element: string) {
+export function spawn(element: string): HTMLElement {
     return document.createElement(element);
 }
 
