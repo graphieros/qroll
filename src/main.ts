@@ -1,5 +1,6 @@
 import {
     Options,
+    OurWindow,
     State
 } from "../types";
 
@@ -39,6 +40,7 @@ import {
     updateCharts
 } from "./charts";
 import { createDropdownMenu } from "./dropdown";
+import { createDelayer } from "./loader";
 
 // IDEA: SEO provide url links, change meta tags programatically on slide change
 
@@ -85,7 +87,7 @@ const Main: any = (parentName: string, _options: Options = {}) => {
         eventTouchStart: null as unknown as Touch,
         intervals: [],
         isBrowserNavigation: false,
-        isLoop: Array.from(grabId(ElementId.PARENT).classList).includes(CssClass.LOOP),
+        isLoop: !!grabId(ElementId.PARENT) ? Array.from(grabId(ElementId.PARENT).classList).includes(CssClass.LOOP) : false,
         isRouting: false,
         isSliding: false,
         isSlidingDialog: false,
@@ -122,7 +124,8 @@ const Main: any = (parentName: string, _options: Options = {}) => {
             t12: null,
             t13: null,
             t14: null,
-            t15: null
+            t15: null,
+            t16: null
         }
     };
 
@@ -207,6 +210,7 @@ const Main: any = (parentName: string, _options: Options = {}) => {
         createMainLayout(state, parent);
         createDialogs(state);
         createDropdownMenu();
+        createDelayer();
     }
 
     init();
@@ -268,7 +272,8 @@ const Main: any = (parentName: string, _options: Options = {}) => {
                 t12: null,
                 t13: null,
                 t14: null,
-                t15: null
+                t15: null,
+                t16: null
             }
         };
 
@@ -287,5 +292,14 @@ const Main: any = (parentName: string, _options: Options = {}) => {
     }
 
 }
+
+if (typeof window !== 'undefined') {
+    (window as unknown as OurWindow).qroll = Main;
+
+    // Main(ElementId.PARENT, {
+    //     sectionClass: CssClass.CHILD
+    // });
+}
+
 
 export default Main;

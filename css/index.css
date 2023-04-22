@@ -809,3 +809,24 @@ button.qroll-nav-link {
     padding: 3px 8px;
     width: calc(100% - 16px);
 }
+
+.qroll-loader-backdrop {
+    position: fixed;
+    top:0;
+    left: 0;
+    height: 100vh;
+    height: 100svh;
+    width: 100vw;
+    background: black;
+}
+
+@keyframes qroll-load {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity:0;
+        display:none !important;
+        z-index:-1 !important;
+    }
+}

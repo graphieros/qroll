@@ -233,7 +233,13 @@ export function updateLocation(slideId: string, callback?: () => void) {
 
 export function updateMetaTags(slide: HTMLElement) {
     if (slide.dataset.metaTitle) {
-        document.head.getElementsByTagName(DomElement.TITLE)[0].innerHTML = slide.dataset.metaTitle;
+        if (document.head.getElementsByTagName(DomElement.TITLE)[0]) {
+            document.head.getElementsByTagName(DomElement.TITLE)[0].innerHTML = slide.dataset.metaTitle;
+        } else {
+            const title = spawn(DomElement.TITLE);
+            title.innerHTML = slide.dataset.metaTitle;
+            document.head.appendChild(title);
+        }
     }
     if (slide.dataset.metaDescription) {
         const currentMeta = document.head.querySelector("meta[name=description]");
