@@ -15,6 +15,24 @@
     <div id="qroll-parent" class="qroll-main qroll-loop qroll-tooltip">
 
         <div 
+            class="qroll-menu"
+            data-auto="true"
+            data-position="left"
+            data-css-classes="test-class1 test-class2"
+            data-title="Menu"
+            data-additional-links='[
+                {
+                    "label": "Graphieros",
+                    "href": "https://graphieros.com",
+                    "target": "_blank",
+                    "id": "graphierosLink"
+                }
+            ]'
+        >
+
+        </div>
+
+        <div 
             class="test-child test-blue front-page"  
             data-title="Qroll" 
             data-tooltip-css="font-family:'Satoshi'"
@@ -73,7 +91,7 @@
 
         <div 
             class="test-child test-green qroll-carousel qroll-tooltip qroll-loop" 
-            data-title="This is slide 2"
+            data-title="Horizontal slides"
             data-meta-title="Qroll horizontal"
             data-meta-description="Set up your slides vertically and horizontally"
         >
@@ -281,6 +299,7 @@
             class="test-child test-blue qroll-carousel qroll-tooltip qroll-loop"
             data-meta-title="Qroll chart components"
             data-meta-description="Qroll also provides simple charting tools"
+            data-title="Qroll charts"
         >
             <div data-title="Qroll easy charts">
                 <h2 style="color: white">
@@ -641,22 +660,6 @@
             </div>
         </div>
 
-        <div class="qroll-dialog" data-id="mainMenu" data-title="Menu" data-close-button="true" data-css-classes="test-dialog-menu">
-            <div style="display: flex; align-items:center; justify-content:center;flex-wrap:wrap; gap: 12px">
-                <button class="test-button" onclick="qroll.slideToIndex(1); qroll.closeDialog('mainMenu')">GETTING STARTED</button>
-                <button class="test-button" onclick="qroll.slideToIndex(2); qroll.closeDialog('mainMenu')">HORIZONTAL SLIDES</button>
-                <button class="test-button" onclick="qroll.slideToIndex(4); qroll.closeDialog('mainMenu')">CAROUSEL COMPONENTS</button>
-                <button class="test-button" onclick="qroll.slideToIndex(6); qroll.closeDialog('mainMenu')">INTERFACE</button>
-                <button class="test-button" onclick="qroll.slideToIndex(7); qroll.closeDialog('mainMenu')">DIALOGS</button>
-                <button class="test-button" onclick="qroll.slideToIndex(8); qroll.closeDialog('mainMenu')">CHARTS</button>
-            </div>
-        </div>
-
     </div>
-    <button class="test-menu-button" onclick="qroll.openDialog('mainMenu')">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="white">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-        </svg>          
-    </button>
 </body>
 </html>

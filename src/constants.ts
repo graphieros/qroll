@@ -79,11 +79,21 @@ export namespace CssClass {
     export const CHART_GAUGE = "qroll-chart__gauge";
     export const CHART_TITLE = "qroll-chart__title";
     export const CHART_SUBTITLE = "qroll-chart__subtitle";
+
+    export const MENU = "qroll-menu";
+    export const MENU_BACKDROP = "qroll-main-menu-backdrop";
+    export const MENU_TRIGGER_BUTTON = "qroll-main-menu-trigger-button";
+    export const MENU_BODY = "qroll-main-menu-body";
+    export const MENU_TITLE = "qroll-main-menu-title";
+    export const MENU_ITEM = "qroll-main-menu-item";
+    export const MENU_LINK = "qroll-main-menu-link";
+    export const MENU_ITEM_SELECTED = "qroll-main-menu-item--selected";
 }
 
 export namespace CssDisplay {
     export const NONE = "none";
     export const FLEX = "flex";
+    export const INITIAL = "initial";
 }
 export namespace CssPointer {
     export const DEFAULT = "default";
@@ -131,6 +141,7 @@ export namespace ElementAttribute {
     export const NAME = "name";
     export const HEIGHT = "height";
     export const WIDTH = "width";
+    export const ROLE = "role";
 }
 
 export namespace ElementId {
@@ -157,6 +168,7 @@ export namespace KeyboardCode {
     export const ARROW_UP = "ArrowUp";
     export const ENTER = "Enter";
     export const SPACE = "Space";
+    export const ESCAPE = "Escape";
 }
 
 export namespace NodeName {
@@ -173,6 +185,7 @@ export namespace Svg {
     export const CLOSE = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="white"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>`;
     export const PAUSE = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="white"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" /></svg>`;
     export const PLAY = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="white"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" /></svg>`;
+    export const MENU = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="white"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg> `;
 }
 
 export namespace SvgAttribute {

@@ -698,3 +698,114 @@ button.qroll-nav-link {
 .qroll-chart__donut__center-label {
     fill: grey;
 }
+
+/* DROPDOWNS */
+
+/* main menu */
+
+.qroll-menu,
+.qroll-main-menu-body,
+.qroll-main-menu-trigger-button {
+    z-index: 1001;
+}
+
+.qroll-main-menu-trigger-button {
+    height: 40px;
+    width: 40px;
+    background: transparent;
+    border-radius: 50%;
+    border:none;
+    outline: none;
+    cursor:pointer;
+    display: flex;
+    align-items:center;
+    justify-content: center;
+}
+
+.qroll-main-menu-trigger-button svg path {
+    filter: drop-shadow(0px 0px 2px black);
+}
+
+.qroll-main-menu-trigger-button:focus {
+    outline: 2px solid rgba(0, 0, 0, 0.6);
+}
+
+.qroll-menu--left .qroll-main-menu-trigger-button {
+    position: fixed;
+    top: 6px;
+    left: 6px;
+}
+
+.qroll-menu--left .qroll-main-menu-body {
+    position: fixed;
+    top: 48px;
+    left: 15px;
+}
+
+.qroll-main-menu-body {
+    padding: 12px;
+    background: white;
+    flex-direction: column;
+    gap: 4px;
+    justify-content: flex-start;
+    opacity:0;
+    border-radius: 6px;
+    box-shadow: 0 6px 12px -6px rgba(0,0,0,0.11);
+    overflow-y: auto;
+    max-height: calc(100vh - 100px);
+}
+
+.qroll-menu--left .qroll-main-menu-body {
+    align-items:flex-start;
+    animation: opacify 0.2s ease-in forwards;
+}
+
+@keyframes opacify {
+    0% {
+        opacity:0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.qroll-main-menu-item {
+    width: calc(100% - 16px);
+    padding: 3px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.qroll-main-menu-item--selected {
+    background: #e1e5e8;
+}
+
+.qroll-main-menu-item:hover,
+.qroll-main-menu-item:focus {
+    background: #e1e5e8;
+}
+
+.qroll-main-menu-title {
+    padding: 3px 8px 8px 8px;
+    font-size: 1.2em;
+    font-weight: bold;
+    width: calc(100% - 16px);
+    border-bottom: 1px solid #e1e5e8;
+}
+
+.qroll-main-menu-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    height: 100svh;
+    width: 100vw;
+    background: rgba(0,0,0,0.3);
+    z-index: 1000;
+    animation: opacify 0.2s ease-in;
+}
+
+.qroll-main-menu-link {
+    padding: 3px 8px;
+    width: calc(100% - 16px);
+}

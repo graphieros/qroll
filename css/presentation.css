@@ -536,3 +536,7 @@ small.scroll {
 .qroll-chart__title {
     font-size: 24px;
 }
+
+.qroll-menu {
+    font-family: "Satoshi";
+}

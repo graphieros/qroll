@@ -38,6 +38,7 @@ import {
     createCharts,
     updateCharts
 } from "./charts";
+import { createDropdownMenu } from "./dropdown";
 
 // IDEA: SEO provide url links, change meta tags programatically on slide change
 
@@ -94,6 +95,7 @@ const Main: any = (parentName: string, _options: Options = {}) => {
         pageHeight: (window as Window).innerHeight,
         pageWidth: (window as Window).innerWidth,
         parentClass: CssClass.PARENT,
+        pauseSliding: false,
         timeoutClassTransition: null as unknown as NodeJS.Timeout | number,
         timeoutDestroySlide: null as unknown as NodeJS.Timeout | number,
         timeoutRouter: null as unknown as NodeJS.Timeout | number,
@@ -191,7 +193,7 @@ const Main: any = (parentName: string, _options: Options = {}) => {
 
         parent.classList.add(state.parentClass);
 
-        let children = Array.from(parent.children).filter(child => !Array.from(child.classList).includes("qroll-dialog")) as unknown as HTMLElement[];
+        let children = Array.from(parent.children).filter(child => !Array.from(child.classList).includes("qroll-dialog") && !Array.from(child.classList).includes("qroll-menu")) as unknown as HTMLElement[];
         for (let i = 0; i < children.length; i += 1) {
             const element = children[i];
             element.classList.add(CssClass.CHILD);
@@ -204,6 +206,7 @@ const Main: any = (parentName: string, _options: Options = {}) => {
         createCarouselComponents(state);
         createMainLayout(state, parent);
         createDialogs(state);
+        createDropdownMenu();
     }
 
     init();
@@ -238,6 +241,7 @@ const Main: any = (parentName: string, _options: Options = {}) => {
             pageHeight: (window as Window).innerHeight,
             pageWidth: (window as Window).innerWidth,
             parentClass: CssClass.PARENT,
+            pauseSliding: false,
             timeoutClassTransition: null as unknown as NodeJS.Timeout | number,
             timeoutDestroySlide: null as unknown as NodeJS.Timeout | number,
             timeoutRouter: null as unknown as NodeJS.Timeout | number,

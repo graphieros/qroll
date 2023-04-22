@@ -51,6 +51,7 @@ export type State = {
     pageHeight: number;
     pageWidth: number;
     parentClass: string;
+    pauseSliding: boolean;
     timeoutClassTransition: NodeJS.Timeout | number;
     timeoutDestroySlide: NodeJS.Timeout | number;
     timeoutRouter: NodeJS.Timeout | number;

@@ -466,6 +466,87 @@ refreshCharts();
 
 ```
 
+### Menu
+
+Qroll provides a ready-made menu you can choose to add to your application.
+Just set up an empty div at first child of the main parent element, with the following attributes:
+
+
+```
+<div id="qroll-parent" class="qroll-main qroll-transition-1000 qroll-loop">
+    <div 
+        class="qroll-menu"
+        data-auto="true"
+        data-css-classes="my-menu-class"
+        data-title="My menu"
+    >
+    </div>
+
+    <div data-title="My slide 1">
+        <h1>My slide 1</h1>
+    </div>
+    <div data-title="My slide 2">
+        <h2>My slide 2</h2>
+    </div>
+
+</div>
+
+```
+The data-auto attribute will create menu items based on your main slides, and link to them.
+You can also provide additional links (or only use these), by adding the data-additional-links attribute, and provide an array of links.
+This is also the place where you can link to a specific horizontal slide index (for example: slide 3 at horizontal index 2):
+
+```
+<div id="qroll-parent" class="qroll-main qroll-transition-1000 qroll-loop">
+    <div 
+        class="qroll-menu"
+        data-auto="true"
+        data-css-classes="my-menu-class"
+        data-title="My menu"
+        data-additional-links='[
+            {
+                "label": "My outside link",
+                "href": "https://myoutsidelink.com",
+                "target": "_blank",
+                "id": "myOutsideLink1"
+            },
+            {
+                "label":"My inner link",
+                "slideTo":"3,2",
+                "id": "innerLink1"
+            }
+        ]'
+    >
+    </div>
+
+    <div data-title="My slide 1">
+        <h1>My slide 1</h1>
+    </div>
+    <div data-title="My slide 2">
+        <h2>My slide 2</h2>
+    </div>
+
+</div>
+
+```
+
+As for styling the menu, you can provide your own css classes through the data-css-classes attribute, or target the following classes:
+
+```
+<style>
+
+.qroll-main-menu-backdrop {}
+.qroll-main-menu-body {}
+.qroll-main-menu-item {}
+.qroll-main-menu-item--selected {}
+.qroll-main-menu-link {}
+.qroll-main-menu-title {}
+.qroll-main-menu-trigger-button {}
+
+</style>
+
+```
+
 ### Interface
 
 Qroll exposes a few methods you can control:
