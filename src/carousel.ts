@@ -1140,7 +1140,7 @@ export function createMainLayout(state: State, parent: HTMLElement) {
                     }
                 } else {
                     (child as HTMLElement).setAttribute(ElementAttribute.STYLE, `transform:translateY(0)`);
-                    (child as HTMLElement).style.zIndex = "1";
+                    (child as HTMLElement).style.zIndex = "2";
                 }
             });
 
@@ -1208,7 +1208,7 @@ export function createMainLayout(state: State, parent: HTMLElement) {
                     }
                 } else {
                     (child as HTMLElement).setAttribute(ElementAttribute.STYLE, `transform:translateY(0)`);
-                    (child as HTMLElement).style.zIndex = "1";
+                    (child as HTMLElement).style.zIndex = "2";
                 }
             });
 

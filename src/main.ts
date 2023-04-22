@@ -282,7 +282,7 @@ const Main: any = (parentName: string, _options: Options = {}) => {
         parent.dataset.currentVIndex = '0';
         init();
         setupVerticalSlides(state, parent);
-        const children = Array.from(parent.children).filter(child => !Array.from(child.classList).includes("qroll-dialog")) as unknown as HTMLElement[];
+        const children = Array.from(parent.children).filter(child => !Array.from(child.classList).includes("qroll-dialog") && !Array.from(child.classList).includes("qroll-menu")) as unknown as HTMLElement[];
         updateLocation(children[0].id)
     }
 
