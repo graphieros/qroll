@@ -1398,14 +1398,13 @@ export function createMainLayout(state: State, parent: HTMLElement) {
 
     const abortWheel = new AbortController();
     window.addEventListener(EventTrigger.WHEEL, (event: WheelEvent) => wheel(event), { signal: abortWheel.signal });
-    if (state.events) {
-        state.events.push({
-            element: window,
-            trigger: EventTrigger.WHEEL,
-            callback: wheel,
-            aborter: abortWheel
-        })
-    }
+    state.events.push({
+        element: window,
+        trigger: EventTrigger.WHEEL,
+        callback: wheel,
+        aborter: abortWheel
+    });
+
 
     function keyup(event: any) {
         if (isDialogOpen(state)) {
@@ -1429,7 +1428,7 @@ export function createMainLayout(state: State, parent: HTMLElement) {
 
         const parent = document.getElementsByClassName(CssClass.PARENT)[0];
         const currentSlideIndex = Number((parent as HTMLElement).dataset.currentVIndex);
-        const thisCarousel = parent.children[currentSlideIndex];
+        const thisCarousel = Array.from(parent.children).filter(child => Array.from(child.classList).includes(CssClass.CHILD))[currentSlideIndex];
         const carouselWrapper = thisCarousel.getElementsByClassName(CssClass.CAROUSEL_WRAPPER)[0];
         const buttonRight = thisCarousel.getElementsByClassName(CssClass.NAV_BUTTON_RIGHT)[0];
         const buttonLeft = thisCarousel.getElementsByClassName(CssClass.NAV_BUTTON_LEFT)[0];

@@ -6,7 +6,7 @@ export function createDropdownMenu() {
     const menu = document.getElementsByClassName(CssClass.MENU)[0] as HTMLElement;
     if (!menu) return;
 
-    const isAuto = menu.dataset.deduce === "true";
+    const isAuto = menu.dataset.auto === "true";
     const hasPosition = !!menu.dataset.position;
     const hasUserCssClasses = !!menu.dataset.cssClasses;
     const position = hasPosition ? menu.dataset.position : "left";
@@ -56,13 +56,23 @@ export function createDropdownMenu() {
     }
 
     if (isAuto) {
-        const links = Main.getSlides().map(({ index, title, hasCarousel }: { index: number, title: string, hasCarousel: boolean }) => {
+        const links = Main.getSlides().map(({ element, index, title, hasCarousel }: { element: HTMLElement, index: number, title: string, hasCarousel: boolean }) => {
+            let horizontalSlides = element.getElementsByClassName("qroll-carousel-slide");
+            if (horizontalSlides.length) {
+                horizontalSlides = Array.from(horizontalSlides).map((slide, i) => {
+                    return {
+                        index: i,
+                        title: (slide as HTMLElement).dataset.title || String(i)
+                    }
+                }) as any
+            }
             return {
-                index, title, hasCarousel
+                index, title, hasCarousel, horizontalSlides
             }
         });
+        // console.log(links)
         if (links.length) {
-            links.forEach((link: any) => {
+            links.forEach((link: any, i: any) => {
                 const menuItem = spawn(DomElement.DIV);
                 menuItem.classList.add(CssClass.MENU_ITEM);
                 addTo(menuItem, ElementAttribute.TABINDEX, "0");
@@ -86,7 +96,33 @@ export function createDropdownMenu() {
                     trigger: EventTrigger.KEYUP,
                     callback: () => linkTo(link.index),
                     aborter: linkAborter
-                })
+                });
+
+                // if (link.horizontalSlides.length) {
+                //     menuItem.dataset.sideMenu = "true";
+                //     menuItem.classList.add(`qroll-side-menu-trigger-${i}`);
+                //     const subMenu = spawn(DomElement.DIV);
+                //     subMenu.classList.add("qroll-main-menu-submenu");
+                //     addTo(subMenu, ElementAttribute.ID, `qroll-side-menu-trigger-${i}`);
+                //     subMenu.style.display = CssDisplay.NONE;
+
+                //     link.horizontalSlides.forEach((slide: any) => {
+                //         const subMenuItem = spawn(DomElement.DIV);
+                //         addTo(subMenuItem, ElementAttribute.TABINDEX, "0");
+                //         addTo(subMenuItem, ElementAttribute.ROLE, DomElement.BUTTON);
+                //         subMenuItem.innerHTML = slide.title;
+                //         subMenu.appendChild(subMenuItem);
+                //     });
+
+                //     menuBody.appendChild(subMenu);
+
+                //     function showSideMenu() {
+                //         subMenu.style.display = CssDisplay.FLEX;
+                //     }
+
+                //     menuItem.addEventListener("mouseover", showSideMenu)
+                // }
+
                 menuBody.appendChild(menuItem);
             });
         }
@@ -96,24 +132,60 @@ export function createDropdownMenu() {
     if (hasAdditionalLinks) {
         const additionalLinks = JSON.parse(menu.dataset.additionalLinks as string);
         additionalLinks.forEach((link: any) => {
-            if (!link.href) {
-                throw new Error("A link needs to have at least an href atttribute.");
+            if (!link.href && !link.slideTo) {
+                throw new Error("A link needs to have at least an href atttribute or a slideTo attribute");
             }
-            const a = spawn(DomElement.A);
-            a.classList.add(CssClass.MENU_LINK);
-            addTo(a, "href", link.href);
-            if (link.target) {
-                addTo(a, "target", link.target);
+            if (link.href) {
+                const a = spawn(DomElement.A);
+                a.classList.add(CssClass.MENU_LINK);
+                addTo(a, "href", link.href);
+                if (link.target) {
+                    addTo(a, "target", link.target);
+                }
+                if (link.id) {
+                    addTo(a, "id", link.id);
+                }
+                if (link.label) {
+                    a.innerHTML = link.label;
+                } else {
+                    a.innerHTML = link.href;
+                }
+                menuBody.appendChild(a);
             }
-            if (link.id) {
-                addTo(a, "id", link.id);
+            if (link.slideTo) {
+                const slideLink = spawn(DomElement.DIV);
+                if (link.id) {
+                    addTo(slideLink, "id", link.id);
+                }
+                if (!link.slideTo) {
+                    throw new Error('A slide link must have a slideTo attribute. Example: "slideTo":"3,2"');
+                }
+
+                const slideIndex = link.slideTo.split(",");
+                const slideLinkAborter = new AbortController();
+                if (slideIndex.length === 2) {
+                    slideLink.addEventListener(EventTrigger.CLICK, () => Main.slideToIndex(+slideIndex[0], +slideIndex[1]), { signal: slideLinkAborter.signal });
+                    Main.state().events.push({
+                        element: slideLink,
+                        trigger: EventTrigger.CLICK,
+                        callback: () => Main.slideToIndex(+slideIndex[0], +slideIndex[1]),
+                        aborter: slideLinkAborter
+                    });
+                } else {
+                    slideLink.addEventListener(EventTrigger.CLICK, () => Main.slideToIndex(+slideIndex[0]), { signal: slideLinkAborter.signal });
+                    Main.state().events.push({
+                        element: slideLink,
+                        trigger: EventTrigger.CLICK,
+                        callback: () => Main.slideToIndex(+slideIndex[0]),
+                        aborter: slideLinkAborter
+                    });
+                }
+                slideLink.innerHTML = link.label;
+                slideLink.classList.add(CssClass.MENU_ITEM);
+                addTo(slideLink, ElementAttribute.TABINDEX, "0");
+                addTo(slideLink, ElementAttribute.ROLE, DomElement.BUTTON);
+                menuBody.appendChild(slideLink);
             }
-            if (link.label) {
-                a.innerHTML = link.label;
-            } else {
-                a.innerHTML = link.href;
-            }
-            menuBody.appendChild(a);
         });
     }
 
