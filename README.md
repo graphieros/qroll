@@ -618,3 +618,39 @@ Qroll exposes a few methods you can control:
 </script>
 
 ```
+
+# Integration in main frameworks
+
+## Vue
+
+### Vue 2 (single page application)
+
+- add qroll.js and style.css into the public folder
+- in public/index.html directly include the script tag referring to qroll.js:
+
+```
+<script defer src="qroll.js"></script>
+
+```
+
+- Place the main parent div inside App.vue:
+
+```
+<template>
+  <div id="app">
+    <div id="qroll-parent" class="qroll-main qroll-loop qroll-tooltip">
+      <div>
+        <MyComponent/>
+      </div>
+      <div>
+        <MyOtherComponent/>
+      </div>
+      <div>
+        <MyFinalComponent/>
+      </div>
+    </div>  
+  </div>
+</template>
+
+```
+... and you are good to go :)
