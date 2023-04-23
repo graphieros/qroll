@@ -340,10 +340,16 @@ They work exactly the same, just change the data-type to "line" or "bar", all th
         <div 
             class="qroll-chart"
             data-type="line"
-            data-x-values='{
-                "Serie 1" : [1,1,2,3,5,8,13,21,34,55,89,134],
-                "Serie 2" : [-1,-1,-2,-3,-5,-8,-13,-21,-34,-55,-89,-134]
-            }'
+            data-x-values='[
+                {
+                    "name" : "Blue serie",
+                    "data" : [-50,-32,-2,3,5,8,13,21,34,55,89,100]
+                },
+                {
+                    "name" : "Red serie",
+                    "data" : [1,1,2,3,5,8,13,21,34,55,89,90]
+                }
+            ]'
             data-y-values='["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"]'
             data-legend="true"
             data-tooltip="true"
@@ -389,16 +395,32 @@ They work exactly the same, just change the data-type to "line" or "bar", all th
             data-total="true"
             data-total-label="Total"
             data-tooltip="true"
-            data-x-values='
-                {
-                    "Blue serie" : 10,
-                    "Red serie" : 20,
-                    "Orange serie" : 30,
-                    "Green serie" : 5,
-                    "Purple serie" : 3,
-                    "Indigo serie" : 1
+            data-x-values='[
+                { 
+                    "name" : "Blue serie",
+                    "data" : 10
+                },
+                { 
+                    "name" : "Red serie",
+                    "data" : 20
+                },
+                { 
+                    "name" : "Orange serie",
+                    "data" : 30
+                },
+                { 
+                    "name" : "Green serie",
+                    "data" : 5
+                },
+                { 
+                    "name" : "Purple serie",
+                    "data" : 3
+                },
+                { 
+                    "name" : "Indigo serie",
+                    "data" : 10
                 }
-            '
+            ]'
         >
         </div>
     </div>

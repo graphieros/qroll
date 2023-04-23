@@ -818,6 +818,9 @@ button.qroll-nav-link {
     height: 100svh;
     width: 100vw;
     background: black;
+    display: flex;
+    align-items:center;
+    justify-content: center;
 }
 
 @keyframes qroll-load {
@@ -828,5 +831,23 @@ button.qroll-nav-link {
         opacity:0;
         display:none !important;
         z-index:-1 !important;
+    }
+}
+
+.qroll-loader-spinner {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.qroll-loader-spinner svg {
+    max-height: 64px;
+}
+
+@keyframes qroll-loader-spin {
+    to {
+        transform: rotate(360deg);
     }
 }

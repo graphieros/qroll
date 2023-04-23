@@ -12,7 +12,7 @@
 </head>
 <body>
 
-    <div id="qroll-parent" class="qroll-main qroll-loop qroll-tooltip" data-delay="500">
+    <div id="qroll-parent" class="qroll-main qroll-loop qroll-tooltip" data-delay="1000" data-delay-background="radial-gradient(at top right, #0f0c29, #302b63, rgb(96, 148, 184))">
 
         <div 
             class="qroll-menu"
@@ -329,10 +329,16 @@
                         data-x-grid="true"
                         data-y-axis="true"
                         data-y-grid="true"
-                        data-x-values='{
-                            "Blue serie": [-50,-32,-2,3,5,8,13,21,34,55,89,100],
-                            "Red serie": [1,1,2,3,5,8,13,21,34,55,89,90]
-                        }'
+                        data-x-values='[
+                            {
+                                "name" : "Blue serie",
+                                "data" : [-50,-32,-2,3,5,8,13,21,34,55,89,100]
+                            },
+                            {
+                                "name" : "Red serie",
+                                "data" : [1,1,2,3,5,8,13,21,34,55,89,90]
+                            }
+                        ]'
                         data-y-values='["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"]'
                         style="width: 300px"
                         >
@@ -346,16 +352,33 @@
                         data-total="true"
                         data-total-label="Total"
                         data-tooltip="true"
-                        data-x-values='
-                            {
-                                "Blue serie" : 10,
-                                "Red serie" : 20,
-                                "Orange serie" : 30,
-                                "Green serie" : 5,
-                                "Purple serie" : 3,
-                                "Indigo serie" : 1
+                        data-x-values='[
+                            { 
+                                "name" : "Blue serie",
+                                "data" : 10
+                            },
+                            { 
+                                "name" : "Red serie",
+                                "data" : 20
+                            },
+                            { 
+                                "name" : "Orange serie",
+                                "data" : 30
+                            },
+                            { 
+                                "name" : "Green serie",
+                                "data" : 5
+                            },
+                            { 
+                                "name" : "Purple serie",
+                                "data" : 3
+                            },
+                            { 
+                                "name" : "Indigo serie",
+                                "data" : 10
                             }
-                        '
+
+                        ]'
                     ></div>
                     <div 
                         class="qroll-chart" 
@@ -376,10 +399,16 @@
                         data-x-grid="true"
                         data-y-axis="true"
                         data-y-grid="true"
-                        data-x-values='{
-                            "Blue serie": [-50,-32,-2,3,5,28,13,21,34,55,89,100],
-                            "Red serie": [1,1,2,3,5,8,13,18,32,25,80,90]
-                        }'
+                        data-x-values='[
+                            {
+                                "name" : "Blue serie",
+                                "data" : [-50,-32,-2,3,5,8,13,21,34,55,89,100]
+                            },
+                            {
+                                "name" : "Red serie",
+                                "data" : [1,1,2,3,5,8,13,21,34,55,89,90]
+                            }
+                        ]'
                         data-y-values='["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"]'
                         style="width: 300px"
                         >
@@ -423,10 +452,16 @@
                     data-x-grid="true"
                     data-y-axis="true"
                     data-y-grid="true"
-                    data-x-values='{
-                        "Blue serie": [-50,-32,-2,3,5,8,13,21,34,55,89,100],
-                        "Red serie": [1,1,2,3,5,8,13,21,34,55,89,90]
-                    }'
+                    data-x-values='[
+                            {
+                                "name" : "Blue serie",
+                                "data" : [-50,-32,-2,3,5,8,13,21,34,55,89,100]
+                            },
+                            {
+                                "name" : "Red serie",
+                                "data" : [1,1,2,3,5,8,13,21,34,55,89,90]
+                            }
+                        ]'
                     data-y-values='["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"]'
                     >
                 </div>
@@ -434,43 +469,7 @@
                     <div class="test-chart-code" style="width:100%; font-size: 14px; color:white">
                         <div class="test-chart-code-body">
                             <code>
-                                &lt;div id="<span class="css-light">qroll-parent</span>" class="<span class="css-light">qroll-main qroll-loop qroll-tooltip</span>"&gt;
-                                <br>
-                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;div id="mySlide1" class="my-slide-class"&gt;
-                                <br>
-                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;h1&gt; Bar chart &lt;/h1&gt;
-                                <br>
-                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;div 
-                                <br>
-                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;class="<span class="css-light">qroll-chart</span>"
-                                <br>
-                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="css-light-blue">data-type</span>=<span class="css-orange">"bar"</span>
-                                <br>
-                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="css-light-blue">data-x-values</span>=<span class="css-orange">'{</span>
-                                <br>
-                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="css-orange">"Blue serie":[-50,-32,-2,3,5,8,13,21,34,55,89,100],</span>
-                                <br>
-                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="css-orange">"Red serie":[1,1,2,3,5,8,13,21,34,55,89,90]</span>
-                                <br>
-                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="css-orange">}'</span>
-                                <br>
-                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="css-light-blue">data-y-values</span>=<span class="css-orange">'["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"]'</span>
-                                <br>
-                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="css-light-blue">data-title</span>=<span class="css-orange">"Title"</span>
-                                <br>
-                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="css-light-blue">data-subtitle</span>=<span class="css-orange">"This is a subtitle"</span>
-                                <br>
-                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="css-light-blue">data-legend</span>=<span class="css-orange">"true"</span>
-                                <br>
-                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="css-light-blue">data-tooltip</span>=<span class="css-orange">"true"</span>
-                                <br>
-                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&gt;
-                                <br>
-                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/div&gt;
-                                <br>
-                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;/div&gt;
-                                <br>
-                                &lt;/div&gt;
+                                markup
                             </code>
                         </div>
                     </div>
@@ -497,10 +496,16 @@
                     data-x-grid="true"
                     data-y-axis="true"
                     data-y-grid="true"
-                    data-x-values='{
-                        "Blue serie": [-34,-21,-13,-8,-5,-3,-2,-1,1,2,3,5,8,13,21,34],
-                        "Red serie": [34, 21, 13, 8, 5, 3, 2, 1, -1, -2, -3, -5, -8, -13, -21, -34]
-                    }'
+                    data-x-values='[
+                            {
+                                "name" : "Blue serie",
+                                "data" : [-50,-32,-2,3,5,8,13,21,34,55,89,100]
+                            },
+                            {
+                                "name" : "Red serie",
+                                "data" : [1,1,2,3,5,8,13,21,34,55,89,90]
+                            }
+                        ]'
                     data-y-values='["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC","JAN","FEV","MAR","APR"]'
                     >
                 </div>
@@ -525,16 +530,32 @@
                         data-total="true"
                         data-total-label="Total"
                         data-tooltip="true"
-                        data-x-values='
-                            {
-                                "Blue serie" : 10,
-                                "Red serie" : 20,
-                                "Orange serie" : 30,
-                                "Green serie" : 5,
-                                "Purple serie" : 3,
-                                "Indigo serie" : 1
+                        data-x-values='[
+                            { 
+                                "name" : "Blue serie",
+                                "data" : 10
+                            },
+                            { 
+                                "name" : "Red serie",
+                                "data" : 20
+                            },
+                            { 
+                                "name" : "Orange serie",
+                                "data" : 30
+                            },
+                            { 
+                                "name" : "Green serie",
+                                "data" : 5
+                            },
+                            { 
+                                "name" : "Purple serie",
+                                "data" : 3
+                            },
+                            { 
+                                "name" : "Indigo serie",
+                                "data" : 10
                             }
-                        '
+                        ]'
                     ></div>
 
                     <div class="test-chart-code" style="width:100%; font-size: 14px; color:white">
