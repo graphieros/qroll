@@ -203,12 +203,12 @@ const Main: any = (parentName: string, _options: Options = {}) => {
             element.setAttribute(ElementAttribute.ID, element.id || `slide-v-${i}`);
             element.dataset.index = `${i}`;
             Array.from(element.children).forEach(child => walkTheDOM(child, setTabIndex));
-            createCarousel(state, element);
+            createCarousel(element);
         }
         createCharts();
-        createCarouselComponents(state);
-        createMainLayout(state, parent);
-        createDialogs(state);
+        createCarouselComponents();
+        createMainLayout(parent);
+        createDialogs();
         createDropdownMenu();
         createDelayer();
     }
@@ -286,7 +286,7 @@ const Main: any = (parentName: string, _options: Options = {}) => {
         parent.innerHTML = state.appContent;
         parent.dataset.currentVIndex = '0';
         init();
-        setupVerticalSlides(state, parent);
+        setupVerticalSlides(parent);
         const children = Array.from(parent.children).filter(child => !Array.from(child.classList).includes("qroll-dialog") && !Array.from(child.classList).includes("qroll-menu")) as unknown as HTMLElement[];
         updateLocation(children[0].id)
     }
