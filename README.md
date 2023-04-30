@@ -1,16 +1,15 @@
-# qroll-scroll
+# $\textcolor{#34b393}{\textsf{Qroll}}$
 
-Description...
 
 ```
-npm i qroll-scroll
+npm i qroll
 ```
 ## DOCUMENTATION
-### Wrapper parent
+### Wrapper Parent
 
 The library targets a parent DIV by its id.
 
-Wrap all your content into a parent DIV with the id "qroll-parent" and class "qroll-main"
+Wrap all your content into a parent DIV with the id $\textcolor{#34b393}{\textsf{'qroll-parent'}}$  and class $\textcolor{#6376DD}{\textsf{'qroll-main'}}$
 The slides will correspond to the first level DIV children of the parent.
 The example below will produce 3 slides:
 
@@ -32,13 +31,13 @@ The example below will produce 3 slides:
 
 Add options to the Parent wrapper using css classes:
 - transition duration:
-    > "qroll-transition-[duration]" with possible duration values 300, 400, 500, 600, 700, 800, 1000
+    > $\textcolor{#6376DD}{\textsf{qroll-transition-[duration]}}$ with possible duration values 300, 400, 500, 600, 700, 800, 1000
 
 - show the vertical navigation:
-    > "qroll-nav"
+    > $\textcolor{#6376DD}{\textsf{qroll-nav}}$
 
 - use infinite loop scrolling:
-    > "qroll-loop"
+    > $\textcolor{#6376DD}{\textsf{qroll-loop}}$
 
 
 ```
@@ -61,7 +60,7 @@ Add options to the Parent wrapper using css classes:
 
 The navigation tooltips will try to find the first h1, h2, h3 or h4 element of each slide, to show their text content inside the tooltip. If there are no h1, h2, h3 or h4 element on a slide, the information provided in the tooltip will default to the page index.
 
-You can also customize the content of your tooltips by adding a few data properties to your children divs. In the example below, the first tooltip will use the data-title property, the other tooltips will use the h2 element's content:
+You can also customize the content of your tooltips by adding a few data properties to your children divs. In the example below, the first tooltip will use the $\textcolor{#b36534}{\textsf{data-title}}$ property, the other tooltips will use the h2 element's content:
 
 ```
 <div id="qroll-parent" class="qroll-main qroll-transition-1000 qroll-loop">
@@ -80,7 +79,7 @@ You can also customize the content of your tooltips by adding a few data propert
 
 ```
 
-You can also customize the css of each tooltip, using a data-tooltip-css property:
+You can also customize the css of each tooltip, using a $\textcolor{#b36534}{\textsf{data-tooltip-css}}$ property:
 
 
 ```
@@ -97,6 +96,24 @@ You can also customize the css of each tooltip, using a data-tooltip-css propert
         <h2>My Third slide</h2>
     </div>
 </div>
+```
+
+### Meta tags management
+You can set up meta tags (title and description) for all your main slides (not on horizontal slides), that will be applied on the HTML head when a slide gets into focus, so that each slide be treated as a separate page.
+
+```
+<div id="qroll-parent" class="qroll-main qroll-transition-1000 qroll-loop">
+    <div data-meta-title="Slide 1" data-meta-description="This is a description for Slide 1">
+        <h1>Slide 1</h1>
+    </div>
+    <div data-meta-title="Slide 2" data-meta-description="This is a description for Slide 2">
+        <h2>Slide 2</h2>
+    </div>
+    <div data-meta-title="Slide 3" data-meta-description="This is a description for Slide 3">
+        <h2>Slide 3</h2>
+    </div>
+</div>
+
 ```
 
 ### Carousel
@@ -328,7 +345,7 @@ Qroll provides a set of minimalist charts to complement your slides on the go wi
 Add the "qroll-chart" class to a div inside a slide, and use data attributes for all the options.
 You can include your own set of colors. If not, great default colors will be applied.
 
-The dataset passed into data-x-values and data-y-values uses JSON format.
+The dataset passed into $\textcolor{#b36534}{\textsf{data-x-values}}$ and $\textcolor{#b36534}{\textsf{data-y-values}}$ uses JSON format.
 
 1. Line charts / Bar charts
 They work exactly the same, just change the data-type to "line" or "bar", all the other required data-attributes are identical.
@@ -515,7 +532,7 @@ Just set up an empty div at first child of the main parent element, with the fol
 
 ```
 The data-auto attribute will create menu items based on your main slides, and link to them.
-You can also provide additional links (or only use these), by adding the data-additional-links attribute, and provide an array of links.
+You can also provide additional links (or only use these), by adding the $\textcolor{#b36534}{\textsf{data-additional-links}}$ attribute, and provide an array of links.
 This is also the place where you can link to a specific horizontal slide index (for example: slide 3 at horizontal index 2):
 
 ```
@@ -552,7 +569,7 @@ This is also the place where you can link to a specific horizontal slide index (
 
 ```
 
-As for styling the menu, you can provide your own css classes through the data-css-classes attribute, or target the following classes:
+As for styling the menu, you can provide your own css classes through the $\textcolor{#b36534}{\textsf{data-css-classes}}$ attribute, or target the following classes:
 
 ```
 <style>
