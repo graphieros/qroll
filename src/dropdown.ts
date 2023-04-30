@@ -1,6 +1,7 @@
 import Main from "./main";
 import { CssClass, CssDisplay, DomElement, ElementAttribute, EventTrigger, KeyboardCode, Svg } from "./constants";
 import { addTo, spawn } from "./functions";
+import { Slide } from "../types/index";
 
 export function createDropdownMenu() {
     const menu = document.getElementsByClassName(CssClass.MENU)[0] as HTMLElement;
@@ -56,7 +57,7 @@ export function createDropdownMenu() {
     }
 
     if (isAuto) {
-        const links = Main.getSlides().map(({ element, index, title, hasCarousel }: { element: HTMLElement, index: number, title: string, hasCarousel: boolean }) => {
+        const links = (Main.getSlides() as Slide[]).map(({ element, index, title, hasCarousel }: { element: HTMLElement, index: number, title: string, hasCarousel: boolean }) => {
             let horizontalSlides = element.getElementsByClassName("qroll-carousel-slide");
             if (horizontalSlides.length) {
                 horizontalSlides = Array.from(horizontalSlides).map((slide, i) => {

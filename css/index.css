@@ -809,3 +809,77 @@ button.qroll-nav-link {
     padding: 3px 8px;
     width: calc(100% - 16px);
 }
+
+.qroll-loader-backdrop {
+    position: fixed;
+    top:0;
+    left: 0;
+    height: 100vh;
+    height: 100svh;
+    width: 100vw;
+    background: black;
+    display: flex;
+    align-items:center;
+    justify-content: center;
+}
+
+@keyframes qroll-load {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity:0;
+        display:none !important;
+        z-index:-1 !important;
+    }
+}
+
+.qroll-loader-spinner {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.qroll-loader-spinner svg {
+    max-height: 64px;
+}
+
+@keyframes qroll-loader-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Other UI components */
+
+.qroll-button {
+    border: none;
+    outline: none;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+}
+
+.qroll-button[disabled] {
+    opacity: 0.6;
+    cursor:not-allowed;
+}
+
+.qroll-button--clicked {
+    transform: scale(0.95,0.95);
+    animation: qroll-click 0.2s ease-in-out forwards;
+    box-shadow: 0 6px 12px -6px rgba(0,0,0,0.3);
+}
+
+@keyframes qroll-click {
+    0% {
+        transform: scale(0.9,0,9);
+    }
+    80% {
+        transform: scale(1.03,1.03);
+    }
+    100% {
+        transform: scale(1,1);
+    }
+}

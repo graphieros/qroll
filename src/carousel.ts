@@ -1,14 +1,12 @@
-import { ScrollDirection, State } from "../types";
+import { ScrollDirection } from "../types";
 import { CssClass, CssDisplay, CssUnit, CssVisibility, DataAttribute, Direction, DomElement, ElementAttribute, EventTrigger, KeyboardCode, NodeName, Svg } from "./constants";
 import { detectTrackPad, grabId, walkTheDOM, setTabIndex, spawn, updateLocation, applyEllipsis, createUid, updateMetaTags } from "./functions";
 import { getCurrentSlideIndex } from "./interface";
 import Main from "./main";
 
 /** Set up dialog elements from client DIV elements that must be direct children of the main Parent element
- * 
- * @param state - the global State object
  */
-export function createDialogs(state: State) {
+export function createDialogs() {
     const dialogBeacons = document.getElementsByClassName(CssClass.DIALOG);
 
     Array.from(dialogBeacons).forEach((beacon, i) => {
@@ -30,7 +28,7 @@ export function createDialogs(state: State) {
             closeButton.innerHTML = Svg.CLOSE;
             const abortCloseButton = new AbortController();
             closeButton.addEventListener(EventTrigger.CLICK, () => closeDialog(id), { signal: abortCloseButton.signal });
-            state.events.push({
+            Main.state().events.push({
                 element: closeButton,
                 trigger: EventTrigger.CLICK,
                 callback: () => closeDialog(id),
@@ -59,7 +57,7 @@ export function createDialogs(state: State) {
             }
         }
         beacon.appendChild(dialog);
-        state.modalIds.push(id);
+        Main.state().modalIds.push(id);
     });
 }
 
@@ -111,20 +109,20 @@ export function initDialogCarousels(dialog: HTMLDialogElement) {
         buttonRight.innerHTML = Svg.CHEVRON_RIGHT;
 
         const abortButtonRight = new AbortController();
-        buttonRight.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection({ state: Main.state(), direction: Direction.RIGHT, component: hCarousel as HTMLElement }), { signal: abortButtonRight.signal });
+        buttonRight.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection({ direction: Direction.RIGHT, component: hCarousel as HTMLElement }), { signal: abortButtonRight.signal });
         Main.state().events.push({
             element: buttonRight,
             trigger: EventTrigger.CLICK,
-            callback: () => slideComponentToDirection({ state: Main.state(), direction: Direction.RIGHT, component: hCarousel as HTMLElement }),
+            callback: () => slideComponentToDirection({ direction: Direction.RIGHT, component: hCarousel as HTMLElement }),
             aborter: abortButtonRight
         });
 
         const abortButtonLeft = new AbortController();
-        buttonLeft.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection({ state: Main.state(), direction: Direction.LEFT, component: hCarousel as HTMLElement }), { signal: abortButtonLeft.signal });
+        buttonLeft.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection({ direction: Direction.LEFT, component: hCarousel as HTMLElement }), { signal: abortButtonLeft.signal });
         Main.state().events.push({
             element: buttonLeft,
             trigger: EventTrigger.CLICK,
-            callback: slideComponentToDirection({ state: Main.state(), direction: Direction.LEFT, component: hCarousel as HTMLElement }),
+            callback: slideComponentToDirection({ direction: Direction.LEFT, component: hCarousel as HTMLElement }),
             aborter: abortButtonLeft
         });
 
@@ -153,8 +151,7 @@ export function initDialogCarousels(dialog: HTMLDialogElement) {
                 carousel: hCarousel as HTMLElement,
                 buttonNext: buttonRight,
                 buttonPrevious: buttonLeft,
-                uid,
-                state: Main.state()
+                uid
             });
         }
         const abortPlayPause = new AbortController();
@@ -163,8 +160,7 @@ export function initDialogCarousels(dialog: HTMLDialogElement) {
             buttonPlayPause,
             buttonNext: buttonRight,
             buttonPrevious: buttonLeft,
-            uid,
-            state: Main.state()
+            uid
         }), { signal: abortPlayPause.signal });
 
         Main.state().events.push({
@@ -175,13 +171,12 @@ export function initDialogCarousels(dialog: HTMLDialogElement) {
                 buttonPlayPause,
                 buttonNext: buttonRight,
                 buttonPrevious: buttonLeft,
-                uid,
-                state: Main.state()
+                uid
             }),
             aborter: abortPlayPause
         });
 
-        [buttonLeft, buttonRight, buttonPlayPause].forEach(el => hCarousel.appendChild(el));
+        [buttonLeft, buttonRight, buttonPlayPause].forEach(e => hCarousel.appendChild(e));
     });
 }
 
@@ -212,7 +207,6 @@ export function openDialog(id: string) {
                     (carousel as HTMLElement).dataset.autoSlide = DataAttribute.FALSE;
                     const { buttonPlayPause, buttonNext, buttonPrevious } = getCarouselButtons(carousel as HTMLElement);
                     togglePlayState({
-                        state: Main.state(),
                         carousel,
                         buttonPlayPause,
                         buttonNext,
@@ -237,7 +231,6 @@ export function closeDialog(id: string) {
         if ((carousel as HTMLElement).dataset.autoSlide === DataAttribute.TRUE) {
             const { buttonPlayPause, buttonNext, buttonPrevious } = getCarouselButtons(carousel as HTMLElement);
             togglePlayState({
-                state: Main.state(),
                 carousel,
                 buttonPlayPause,
                 buttonNext,
@@ -254,20 +247,19 @@ export function closeDialog(id: string) {
 
 /** Check if any dialog element is currently open
  * 
- * @param state - global State object
  * @returns true if any dialog is currently open
  */
-export function isDialogOpen(state: State): boolean {
-    const dialogs = state.modalIds.map((id) => {
+export function isDialogOpen(): boolean {
+    const dialogs = Main.state().modalIds.map((id: string) => {
         const dialog = document.getElementById(id) as HTMLDialogElement;
         return dialog.open
     });
     if (dialogs.includes(true)) {
-        state.isSliding = true;
+        Main.state().isSliding = true;
     } else {
-        state.isSliding = false;
+        Main.state().isSliding = false;
     }
-    return state.isSliding;
+    return Main.state().isSliding;
 }
 
 /** Play | Pause manager for auto sliding carousel components
@@ -275,13 +267,12 @@ export function isDialogOpen(state: State): boolean {
  * @param param0 - config object
  */
 export function togglePlayState({
-    state,
     carousel,
     buttonPlayPause,
     buttonNext,
     buttonPrevious,
     uid
-}: { state: State, carousel: any, buttonPlayPause: HTMLElement, buttonNext: HTMLElement, buttonPrevious: HTMLElement, uid: any }) {
+}: { carousel: any, buttonPlayPause: HTMLElement, buttonNext: HTMLElement, buttonPrevious: HTMLElement, uid: any }) {
     const status = carousel.dataset.autoSlide;
     if (status === DataAttribute.TRUE) {
         carousel.dataset.autoSlide = DataAttribute.FALSE;
@@ -290,17 +281,17 @@ export function togglePlayState({
         carousel.dataset.autoSlide = DataAttribute.TRUE;
         buttonPlayPause.innerHTML = Svg.PAUSE;
     }
-    playPause({ carousel, buttonNext, buttonPrevious, uid, state });
+    playPause({ carousel, buttonNext, buttonPrevious, uid });
 }
 
 /** Interval manager for auto sliding carousel components
  * 
  * @param param0 - config object
  */
-export function playPause({ carousel, buttonNext, buttonPrevious, uid, state }: { carousel: HTMLElement, buttonNext: HTMLElement, buttonPrevious: HTMLElement, uid: string, state: State }) {
+export function playPause({ carousel, buttonNext, buttonPrevious, uid }: { carousel: HTMLElement, buttonNext: HTMLElement, buttonPrevious: HTMLElement, uid: string }) {
     const direction = carousel.dataset.direction as ScrollDirection || Direction.RIGHT;
     const duration = Number(carousel.dataset.timer) || 5000;
-    const thisInterval = state.intervals.find(i => i.id === uid);
+    const thisInterval = Main.state().intervals.find((i: { id: string; }) => i.id === uid);
 
     if (carousel.dataset.autoSlide === DataAttribute.FALSE) {
         clearInterval(thisInterval.interval);
@@ -319,16 +310,15 @@ export function playPause({ carousel, buttonNext, buttonPrevious, uid, state }: 
 
 /** Sliding manager for auto sliding carousel components
  * 
- * @param state - global state object
  * @param direction - UP | RIGHT | DOWN | LEFT
  * @param component - auto sliding carousel component
  */
-export function slideComponentToDirection({ state, direction, component }: { state?: State, direction: ScrollDirection, component: HTMLElement }) {
-    if (state && state.isSliding && component.dataset.autoSlide !== DataAttribute.TRUE) {
+export function slideComponentToDirection({ direction, component }: { direction: ScrollDirection, component: HTMLElement }) {
+    if (Main.state() && Main.state().isSliding && component.dataset.autoSlide !== DataAttribute.TRUE) {
         return;
     }
-    if (state && component.dataset.autoSlide !== DataAttribute.TRUE) {
-        state.isSliding = true;
+    if (Main.state() && component.dataset.autoSlide !== DataAttribute.TRUE) {
+        Main.state().isSliding = true;
     }
     const hSlides = component.getElementsByClassName(CssClass.CAROUSEL_HORIZONTAL_SLIDE);
     const vSlides = component.getElementsByClassName(CssClass.CAROUSEL_VERTICAL_SLIDE);
@@ -370,15 +360,13 @@ export function slideComponentToDirection({ state, direction, component }: { sta
             }
 
             component.dataset.carouselIndex = String(nextIndex);
-            if (state) {
-                state.timeouts.t0 = setTimeout(() => {
-                    state.isSliding = false;
-                }, state.transitionDuration);
-
+            if (Main.state()) {
+                Main.state().timeouts.t0 = setTimeout(() => {
+                    Main.state().isSliding = false;
+                }, Main.state().transitionDuration);
             }
         });
     } else if ([Direction.UP, Direction.DOWN].includes(direction)) {
-
         Array.from(vSlides).forEach((slide, i) => {
             (slide as HTMLElement).style.visibility = CssVisibility.HIDDEN;
             if (direction === Direction.DOWN) {
@@ -411,21 +399,19 @@ export function slideComponentToDirection({ state, direction, component }: { sta
                 }
             }
             component.dataset.carouselIndex = String(nextIndex);
-            if (state) {
-                state.timeouts.t1 = setTimeout(() => {
-                    state.isSliding = false;
-                }, state.transitionDuration);
+            if (Main.state()) {
+                Main.state().timeouts.t1 = setTimeout(() => {
+                    Main.state().isSliding = false;
+                }, Main.state().transitionDuration);
             }
-        })
+        });
     }
-
 }
 
 /** Set up carousel components, and auto sliding features
  * 
- * @param state - global state object
  */
-export function createCarouselComponents(state: State) {
+export function createCarouselComponents() {
     const horizontalCarousels = document.getElementsByClassName(CssClass.CAROUSEL_HORIZONTAL_COMPONENT);
     const verticalCarousels = document.getElementsByClassName(CssClass.CAROUSEL_VERTICAL_COMPONENT);
 
@@ -466,20 +452,20 @@ export function createCarouselComponents(state: State) {
         buttonDown.innerHTML = Svg.CHEVRON_DOWN;
 
         const abortButtonTop = new AbortController();
-        buttonTop.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection({ state, direction: Direction.UP, component: vCarousel as HTMLElement }), { signal: abortButtonTop.signal });
-        state.events.push({
+        buttonTop.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection({ direction: Direction.UP, component: vCarousel as HTMLElement }), { signal: abortButtonTop.signal });
+        Main.state().events.push({
             element: buttonTop,
             trigger: EventTrigger.CLICK,
-            callback: () => slideComponentToDirection({ state, direction: Direction.UP, component: vCarousel as HTMLElement }),
+            callback: () => slideComponentToDirection({ direction: Direction.UP, component: vCarousel as HTMLElement }),
             aborter: abortButtonTop
         });
 
         const abortButtonDown = new AbortController();
-        buttonDown.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection({ state, direction: Direction.DOWN, component: vCarousel as HTMLElement }), { signal: abortButtonDown.signal });
-        state.events.push({
+        buttonDown.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection({ direction: Direction.DOWN, component: vCarousel as HTMLElement }), { signal: abortButtonDown.signal });
+        Main.state().events.push({
             element: buttonDown,
             trigger: EventTrigger.CLICK,
-            callback: () => slideComponentToDirection({ state, direction: Direction.DOWN, component: vCarousel as HTMLElement }),
+            callback: () => slideComponentToDirection({ direction: Direction.DOWN, component: vCarousel as HTMLElement }),
             aborter: abortButtonDown
         });
 
@@ -491,7 +477,7 @@ export function createCarouselComponents(state: State) {
         }
 
         const uid = createUid();
-        state.intervals.push({
+        Main.state().intervals.push({
             id: uid,
             interval: null
         });
@@ -501,8 +487,7 @@ export function createCarouselComponents(state: State) {
                 carousel: vCarousel as HTMLElement,
                 buttonNext: buttonDown,
                 buttonPrevious: buttonTop,
-                uid,
-                state
+                uid
             });
         }
 
@@ -512,11 +497,10 @@ export function createCarouselComponents(state: State) {
             buttonPlayPause,
             buttonNext: buttonDown,
             buttonPrevious: buttonTop,
-            uid,
-            state
+            uid
         }), { signal: abortPlayPause.signal });
 
-        state.events.push({
+        Main.state().events.push({
             element: buttonPlayPause,
             trigger: EventTrigger.CLICK,
             callback: () => togglePlayState({
@@ -524,13 +508,12 @@ export function createCarouselComponents(state: State) {
                 buttonPlayPause,
                 buttonNext: buttonDown,
                 buttonPrevious: buttonTop,
-                uid,
-                state
+                uid
             }),
             aborter: abortPlayPause
         });
 
-        [buttonTop, buttonDown, buttonPlayPause].forEach(el => vCarousel.appendChild(el));
+        [buttonTop, buttonDown, buttonPlayPause].forEach(e => vCarousel.appendChild(e));
     });
 
     Array.from(horizontalCarousels).forEach((hCarousel, _i) => {
@@ -567,20 +550,20 @@ export function createCarouselComponents(state: State) {
         buttonRight.innerHTML = Svg.CHEVRON_RIGHT;
 
         const abortButtonRight = new AbortController();
-        buttonRight.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection({ state, direction: Direction.RIGHT, component: hCarousel as HTMLElement }), { signal: abortButtonRight.signal });
-        state.events.push({
+        buttonRight.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection({ direction: Direction.RIGHT, component: hCarousel as HTMLElement }), { signal: abortButtonRight.signal });
+        Main.state().events.push({
             element: buttonRight,
             trigger: EventTrigger.CLICK,
-            callback: () => slideComponentToDirection({ state, direction: Direction.RIGHT, component: hCarousel as HTMLElement }),
+            callback: () => slideComponentToDirection({ direction: Direction.RIGHT, component: hCarousel as HTMLElement }),
             aborter: abortButtonRight
         });
 
         const abortButtonLeft = new AbortController();
-        buttonLeft.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection({ state, direction: Direction.LEFT, component: hCarousel as HTMLElement }), { signal: abortButtonLeft.signal });
-        state.events.push({
+        buttonLeft.addEventListener(EventTrigger.CLICK, () => slideComponentToDirection({ direction: Direction.LEFT, component: hCarousel as HTMLElement }), { signal: abortButtonLeft.signal });
+        Main.state().events.push({
             element: buttonLeft,
             trigger: EventTrigger.CLICK,
-            callback: () => slideComponentToDirection({ state, direction: Direction.LEFT, component: hCarousel as HTMLElement }),
+            callback: () => slideComponentToDirection({ direction: Direction.LEFT, component: hCarousel as HTMLElement }),
             aborter: abortButtonLeft
         });
 
@@ -592,7 +575,7 @@ export function createCarouselComponents(state: State) {
         }
 
         const uid = createUid();
-        state.intervals.push({
+        Main.state().intervals.push({
             id: uid,
             interval: null
         });
@@ -602,8 +585,7 @@ export function createCarouselComponents(state: State) {
                 carousel: hCarousel as HTMLElement,
                 buttonNext: buttonRight,
                 buttonPrevious: buttonLeft,
-                uid,
-                state
+                uid
             });
         }
 
@@ -613,11 +595,10 @@ export function createCarouselComponents(state: State) {
             buttonPlayPause,
             buttonNext: buttonRight,
             buttonPrevious: buttonLeft,
-            uid,
-            state
+            uid
         }), { signal: abortPlayPause.signal });
 
-        state.events.push({
+        Main.state().events.push({
             element: buttonPlayPause,
             trigger: EventTrigger.CLICK,
             callback: () => togglePlayState({
@@ -625,42 +606,40 @@ export function createCarouselComponents(state: State) {
                 buttonPlayPause,
                 buttonNext: buttonRight,
                 buttonPrevious: buttonLeft,
-                uid,
-                state
+                uid
             }),
             aborter: abortPlayPause
         });
 
-        [buttonLeft, buttonRight, buttonPlayPause].forEach(el => hCarousel.appendChild(el));
+        [buttonLeft, buttonRight, buttonPlayPause].forEach(e => hCarousel.appendChild(e));
     })
 }
 
 /** Set up horizontal slides' translateX and visibility propreties based on the current horizontal index
  * 
- * @param state - the main state object
  * @param carousel - A direct child of the main parent Element
  */
-export function setupHorizontalSlides(state: State, carousel: HTMLElement) {
+export function setupHorizontalSlides(carousel: HTMLElement) {
     const parent = carousel.getElementsByClassName(CssClass.CAROUSEL_WRAPPER)[0];
     const slides = Array.from(parent.children).filter(slide => (Array.from(slide.classList).includes(CssClass.CAROUSEL_SLIDE))) as HTMLElement[];
     const currentHIndex = Number((parent as HTMLElement).dataset.carouselIndex);
 
     slides.forEach((slide, i) => {
-        slide.style.width = `${state.pageWidth}px`;
+        slide.style.width = `${Main.state().pageWidth}px`;
         if (i === currentHIndex) {
             slide.style.transform = "translateX(0)";
             slide.style.visibility = CssVisibility.INITIAL;
         } else if (i === (currentHIndex - 1 < 0 ? slides.length - 1 : currentHIndex - 1)) {
-            slide.style.transform = `translateX(-${state.pageWidth}px)`;
+            slide.style.transform = `translateX(-${Main.state().pageWidth}px)`;
         } else if (i === (currentHIndex + 1 > slides.length - 1 ? 0 : currentHIndex + 1)) {
-            slide.style.transform = `translateX(${state.pageWidth}px)`;
+            slide.style.transform = `translateX(${Main.state().pageWidth}px)`;
         } else if (i > currentHIndex) {
-            slide.style.transform = `translateX(${state.pageWidth}px)`;
+            slide.style.transform = `translateX(${Main.state().pageWidth}px)`;
         } else if (i < currentHIndex) {
-            slide.style.transform = `translateX(-${state.pageWidth}px)`;
+            slide.style.transform = `translateX(-${Main.state().pageWidth}px)`;
         }
     });
-    state.timeouts.t2 = setTimeout(() => {
+    Main.state().timeouts.t2 = setTimeout(() => {
         slides.forEach(slide => {
             slide.classList.remove(CssClass.NO_TRANSITION);
         });
@@ -712,10 +691,9 @@ export function updateCarouselNav(carousel: HTMLElement) {
 
 /** Change a slide into a carousel
  * 
- * @param state - The global state object declared in main
  * @param carousel - HTMLElement, must be a direct child of the main Parent element
  */
-export function createCarousel(state: State, carousel: HTMLElement) {
+export function createCarousel(carousel: HTMLElement) {
     if (!carousel) return;
     if (!(Array.from(carousel.classList).includes(CssClass.CAROUSEL))) return;
 
@@ -729,15 +707,15 @@ export function createCarousel(state: State, carousel: HTMLElement) {
     Array.from(carouselSlides).forEach((element, i) => {
         element.classList.add(CssClass.CAROUSEL_SLIDE);
         element.setAttribute(ElementAttribute.ID, element.id || `slide-h-${i}-${carousel.id}`);
-        element.style.width = `${state.pageWidth}${CssUnit.PX}`;
+        element.style.width = `${Main.state().pageWidth}${CssUnit.PX}`;
 
         if (i === 0) {
             element.style.transform = 'translateX(0)';
         } else if (i === slideCount) {
-            element.style.transform = `translateX(-${state.pageWidth}px)`;
+            element.style.transform = `translateX(-${Main.state().pageWidth}px)`;
             element.style.visibility = CssVisibility.HIDDEN;
         } else {
-            element.style.transform = `translateX(${state.pageWidth}px)`;
+            element.style.transform = `translateX(${Main.state().pageWidth}px)`;
             element.style.visibility = CssVisibility.HIDDEN;
         }
 
@@ -787,7 +765,7 @@ export function createCarousel(state: State, carousel: HTMLElement) {
             (tooltip as any).innerHTML = (slide as HTMLElement).dataset.title;
         } else if (slideTitle && slideTitle.textContent) {
             tooltip.setAttribute(ElementAttribute.STYLE, `font-family:${getComputedStyle(slideTitle).fontFamily.split(",")[0]}`);
-            tooltip.innerHTML = applyEllipsis(slideTitle.textContent, state.tooltipEllipsisLimit);
+            tooltip.innerHTML = applyEllipsis(slideTitle.textContent, Main.state().tooltipEllipsisLimit);
         } else {
             tooltip.setAttribute(ElementAttribute.STYLE, `font-family:Helvetica`);
             tooltip.innerHTML = `${i}`;
@@ -815,11 +793,11 @@ export function createCarousel(state: State, carousel: HTMLElement) {
         const currentIndex = Number((carouselWrapper as HTMLElement).dataset.carouselIndex);
         const nextIndex = index;
 
-        if (state.isSliding) return;
-        state.isSliding = true;
+        if (Main.state().isSliding) return;
+        Main.state().isSliding = true;
 
         if (currentIndex === nextIndex) {
-            state.isSliding = false;
+            Main.state().isSliding = false;
             return;
         };
 
@@ -829,17 +807,17 @@ export function createCarousel(state: State, carousel: HTMLElement) {
                 if (i === nextIndex) {
                     (slide as HTMLElement).style.transform = "translateX(0)";
                 } else if (i > nextIndex) {
-                    (slide as HTMLElement).style.transform = `translateX(${state.pageWidth}px)`;
+                    (slide as HTMLElement).style.transform = `translateX(${Main.state().pageWidth}px)`;
                     (slide as HTMLElement).style.visibility = CssVisibility.HIDDEN;
                 } else if (i < nextIndex) {
-                    (slide as HTMLElement).style.transform = `translateX(-${state.pageWidth}px)`;
+                    (slide as HTMLElement).style.transform = `translateX(-${Main.state().pageWidth}px)`;
                     (slide as HTMLElement).style.visibility = CssVisibility.HIDDEN;
                 }
                 else if (i === currentIndex) {
-                    (slide as HTMLElement).style.transform = `translateX(-${state.pageWidth}px)`;
+                    (slide as HTMLElement).style.transform = `translateX(-${Main.state().pageWidth}px)`;
                     (slide as HTMLElement).style.visibility = CssVisibility.HIDDEN;
                 } else if (i === (nextIndex + 1 > slides.length - 1 ? 0 : nextIndex + 1)) {
-                    (slide as HTMLElement).style.transform = `translateX(${state.pageWidth}px)`;
+                    (slide as HTMLElement).style.transform = `translateX(${Main.state().pageWidth}px)`;
                     (slide as HTMLElement).style.visibility = CssVisibility.HIDDEN;
                 }
             });
@@ -849,26 +827,26 @@ export function createCarousel(state: State, carousel: HTMLElement) {
             updateCarouselNav(carousel);
             updateLocation(`${carousel.id}/${nextIndex}`);
 
-            state.timeouts.t3 = setTimeout(() => {
-                state.isSliding = false;
-                state.wheelCount = 0;
-            }, state.transitionDuration);
+            Main.state().timeouts.t3 = setTimeout(() => {
+                Main.state().isSliding = false;
+                Main.state().wheelCount = 0;
+            }, Main.state().transitionDuration);
         } else {
             // slide left
             slides.forEach((slide, i) => {
                 if (i === nextIndex) {
                     (slide as HTMLElement).style.transform = "translateX(0)";
                 } else if (i > nextIndex) {
-                    (slide as HTMLElement).style.transform = `translateX(${state.pageWidth}px)`;
+                    (slide as HTMLElement).style.transform = `translateX(${Main.state().pageWidth}px)`;
                     (slide as HTMLElement).style.visibility = CssVisibility.HIDDEN;
                 } else if (i < nextIndex) {
-                    (slide as HTMLElement).style.transform = `translateX(-${state.pageWidth}px)`;
+                    (slide as HTMLElement).style.transform = `translateX(-${Main.state().pageWidth}px)`;
                     (slide as HTMLElement).style.visibility = CssVisibility.HIDDEN;
                 } else if (i === currentIndex) {
-                    (slide as HTMLElement).style.transform = `translateX(${state.pageWidth}px)`;
+                    (slide as HTMLElement).style.transform = `translateX(${Main.state().pageWidth}px)`;
                     (slide as HTMLElement).style.visibility = CssVisibility.HIDDEN;
                 } else if (i === (nextIndex - 1 < 0 ? slides.length - 1 : nextIndex - 1)) {
-                    (slide as HTMLElement).style.transform = `translateX(-${state.pageWidth}px)`;
+                    (slide as HTMLElement).style.transform = `translateX(-${Main.state().pageWidth}px)`;
                     (slide as HTMLElement).style.visibility = CssVisibility.HIDDEN;
                 }
             });
@@ -878,16 +856,16 @@ export function createCarousel(state: State, carousel: HTMLElement) {
             updateCarouselNav(carousel);
             updateLocation(`${carousel.id}/${nextIndex}`);
 
-            state.timeouts.t4 = setTimeout(() => {
-                state.isSliding = false;
-                state.wheelCount = 0;
-            }, state.transitionDuration);
+            Main.state().timeouts.t4 = setTimeout(() => {
+                Main.state().isSliding = false;
+                Main.state().wheelCount = 0;
+            }, Main.state().transitionDuration);
         }
     }
 
     function slideRight() {
-        if (state.isSliding) return;
-        state.isSliding = true;
+        if (Main.state().isSliding) return;
+        Main.state().isSliding = true;
 
         const currentIndex = Number((carouselWrapper as HTMLElement).dataset.carouselIndex);
         const nextIndex = currentIndex + 1 > slides.length - 1 ? 0 : currentIndex + 1;
@@ -897,11 +875,11 @@ export function createCarousel(state: State, carousel: HTMLElement) {
                 (slide as HTMLElement).style.transform = "translateX(0)";
             }
             if (i === currentIndex) {
-                (slide as HTMLElement).style.transform = `translateX(-${state.pageWidth}px)`;
+                (slide as HTMLElement).style.transform = `translateX(-${Main.state().pageWidth}px)`;
                 (slide as HTMLElement).style.visibility = CssVisibility.HIDDEN;
             }
             if (i === (nextIndex + 1 > slides.length - 1 ? 0 : nextIndex + 1)) {
-                (slide as HTMLElement).style.transform = `translateX(${state.pageWidth}px)`;
+                (slide as HTMLElement).style.transform = `translateX(${Main.state().pageWidth}px)`;
                 (slide as HTMLElement).style.visibility = CssVisibility.HIDDEN;
             }
         });
@@ -911,15 +889,15 @@ export function createCarousel(state: State, carousel: HTMLElement) {
         updateCarouselNav(carousel);
         updateLocation(`${carousel.id}/${nextIndex}`);
 
-        state.timeouts.t5 = setTimeout(() => {
-            state.isSliding = false;
-            state.wheelCount = 0;
-        }, state.transitionDuration)
+        Main.state().timeouts.t5 = setTimeout(() => {
+            Main.state().isSliding = false;
+            Main.state().wheelCount = 0;
+        }, Main.state().transitionDuration)
     }
 
     function slideLeft() {
-        if (state.isSliding) return;
-        state.isSliding = true;
+        if (Main.state().isSliding) return;
+        Main.state().isSliding = true;
 
         const currentIndex = Number((carouselWrapper as HTMLElement).dataset.carouselIndex);
         const nextIndex = currentIndex - 1 < 0 ? slides.length - 1 : currentIndex - 1;
@@ -929,11 +907,11 @@ export function createCarousel(state: State, carousel: HTMLElement) {
                 (slide as HTMLElement).style.transform = "translateX(0)";
             }
             if (i === currentIndex) {
-                (slide as HTMLElement).style.transform = `translateX(${state.pageWidth}px)`;
+                (slide as HTMLElement).style.transform = `translateX(${Main.state().pageWidth}px)`;
                 (slide as HTMLElement).style.visibility = CssVisibility.HIDDEN;
             }
             if (i === (nextIndex - 1 < 0 ? slides.length - 1 : nextIndex - 1)) {
-                (slide as HTMLElement).style.transform = `translateX(-${state.pageWidth}px)`;
+                (slide as HTMLElement).style.transform = `translateX(-${Main.state().pageWidth}px)`;
                 (slide as HTMLElement).style.visibility = CssVisibility.HIDDEN;
             }
         });
@@ -943,15 +921,15 @@ export function createCarousel(state: State, carousel: HTMLElement) {
         updateCarouselNav(carousel);
         updateLocation(`${carousel.id}/${nextIndex}`);
 
-        state.timeouts.t6 = setTimeout(() => {
-            state.isSliding = false;
-            state.wheelCount = 0;
-        }, state.transitionDuration)
+        Main.state().timeouts.t6 = setTimeout(() => {
+            Main.state().isSliding = false;
+            Main.state().wheelCount = 0;
+        }, Main.state().transitionDuration)
     }
 
     const abortButtonRight = new AbortController();
     buttonRight.addEventListener(EventTrigger.CLICK, slideRight, { signal: abortButtonRight.signal });
-    state.events.push({
+    Main.state().events.push({
         element: buttonRight,
         trigger: EventTrigger.CLICK,
         callback: slideRight,
@@ -959,25 +937,21 @@ export function createCarousel(state: State, carousel: HTMLElement) {
     });
     const abortButtonLeft = new AbortController();
     buttonLeft.addEventListener(EventTrigger.CLICK, slideLeft, { signal: abortButtonLeft.signal });
-    state.events.push({
+    Main.state().events.push({
         element: buttonLeft,
         trigger: EventTrigger.CLICK,
         callback: slideLeft,
         aborter: abortButtonLeft
     });
 
-    carousel.appendChild(buttonRight);
-    carousel.appendChild(buttonLeft);
-    carousel.appendChild(nav);
-
+    [buttonRight, buttonLeft, nav].forEach(e => carousel.appendChild(e));
 }
 
 /** Set up slides' translateY & zIndex properties based on the current vertical index 
  * 
- * @param state - main state object
  * @param parent - The main parent element
  */
-export function setupVerticalSlides(state: State, parent: HTMLElement) {
+export function setupVerticalSlides(parent: HTMLElement) {
     const children = Array.from(parent.children).filter(child => Array.from(child.classList).includes(CssClass.SLIDE));
 
     const isLastSlide = getCurrentSlideIndex() === children.length - 1;
@@ -989,11 +963,11 @@ export function setupVerticalSlides(state: State, parent: HTMLElement) {
             (child as HTMLElement).style.zIndex = "1";
         } else {
             if (isLastSlide && i === 0) {
-                (child as HTMLElement).setAttribute(ElementAttribute.STYLE, `transform:translateY(${state.pageHeight}px)`);
+                (child as HTMLElement).setAttribute(ElementAttribute.STYLE, `transform:translateY(${Main.state().pageHeight}px)`);
             } else if (isFirstSlide && i === children.length - 1) {
-                (child as HTMLElement).setAttribute(ElementAttribute.STYLE, `transform:translateY(-${state.pageHeight}px)`);
+                (child as HTMLElement).setAttribute(ElementAttribute.STYLE, `transform:translateY(-${Main.state().pageHeight}px)`);
             } else {
-                (child as HTMLElement).setAttribute(ElementAttribute.STYLE, `transform:translateY(${i < Number((parent as HTMLElement).dataset.currentVIndex) ? "-" : ""}${state.pageHeight}px)`);
+                (child as HTMLElement).setAttribute(ElementAttribute.STYLE, `transform:translateY(${i < Number((parent as HTMLElement).dataset.currentVIndex) ? "-" : ""}${Main.state().pageHeight}px)`);
             }
             (child as HTMLElement).style.zIndex = "0";
             (child as HTMLElement).style.visibility = CssVisibility.HIDDEN;
@@ -1003,17 +977,16 @@ export function setupVerticalSlides(state: State, parent: HTMLElement) {
 
 /** Generate slide layout and event listeners
  * 
- * @param state - main state object
  * @param parent - The main parent element
  */
-export function createMainLayout(state: State, parent: HTMLElement) {
+export function createMainLayout(parent: HTMLElement) {
     (parent as HTMLElement).dataset.currentVIndex = "0";
     (parent as HTMLElement).classList.add(CssClass.CAROUSEL_VERTICAL);
 
     // TODO: better management of excluded classes
     const children = Array.from(parent.children).filter(child => !Array.from(child.classList).includes(CssClass.DIALOG) && !Array.from(child.classList).includes(CssClass.MENU));
 
-    state.pageHeight = window.innerHeight;
+    Main.state().pageHeight = window.innerHeight;
 
     Array.from(children).forEach((child, i) => {
         (child as HTMLElement).dataset.vIndex = `${i}`;
@@ -1055,13 +1028,13 @@ export function createMainLayout(state: State, parent: HTMLElement) {
             isOverflowPrevious = targetIndex - 1 < 0;
         }
 
-        if (!state.isLoop && isWheel) {
+        if (!Main.state().isLoop && isWheel) {
             if (currentVIndex === 0 && isOverflowNext) {
-                state.isSliding = false;
+                Main.state().isSliding = false;
                 return;
             }
             if (currentVIndex === slides.length - 1 && isOverflowPrevious) {
-                state.isSliding = false;
+                Main.state().isSliding = false;
                 return;
             }
         }
@@ -1070,7 +1043,7 @@ export function createMainLayout(state: State, parent: HTMLElement) {
             differenceToTarget = currentVIndex - targetIndex;
 
             if (differenceToTarget === 0) {
-                state.isSliding = false;
+                Main.state().isSliding = false;
                 return;
             };
             targetDirection = differenceToTarget > 0 ? Direction.DOWN : Direction.UP;
@@ -1122,13 +1095,12 @@ export function createMainLayout(state: State, parent: HTMLElement) {
                 Array.from(theseHorizontalCarouselComponents).forEach(el => (el as HTMLElement).style.opacity = `1`);
             }
 
-
             Array.from(children).filter(child => Array.from(child.classList).includes(CssClass.SLIDE)).forEach((child, i) => {
                 if (i !== currentVIndex) {
                     if (nextIndex === 0) {
-                        (child as HTMLElement).setAttribute(ElementAttribute.STYLE, `transform:translateY(-${state.pageHeight}px)`);
+                        (child as HTMLElement).setAttribute(ElementAttribute.STYLE, `transform:translateY(-${Main.state().pageHeight}px)`);
                     } else {
-                        (child as HTMLElement).setAttribute(ElementAttribute.STYLE, `transform:translateY(${i < nextIndex ? "-" : ""}${state.pageHeight}px)`);
+                        (child as HTMLElement).setAttribute(ElementAttribute.STYLE, `transform:translateY(${i < nextIndex ? "-" : ""}${Main.state().pageHeight}px)`);
                     }
                     (child as HTMLElement).style.visibility = CssVisibility.HIDDEN;
                     (child as HTMLElement).style.zIndex = "-1";
@@ -1146,7 +1118,7 @@ export function createMainLayout(state: State, parent: HTMLElement) {
 
             (currentSlide as HTMLElement).style.visibility = CssVisibility.HIDDEN;
             (nextSlide as HTMLElement).style.visibility = CssVisibility.INITIAL;
-            (currentSlide as HTMLElement).style.transform = `translateY(${state.pageHeight}px)`;
+            (currentSlide as HTMLElement).style.transform = `translateY(${Main.state().pageHeight}px)`;
             (nextSlide as HTMLElement).style.transform = "translateY(0)";
             (parent as HTMLElement).dataset.currentVIndex = `${nextIndex}`;
 
@@ -1160,15 +1132,15 @@ export function createMainLayout(state: State, parent: HTMLElement) {
             updateNav();
             updateCarouselNav(nextSlide as HTMLElement);
 
-            state.timeouts.t7 = setTimeout(() => {
-                state.isRouting = true;
+            Main.state().timeouts.t7 = setTimeout(() => {
+                Main.state().isRouting = true;
                 if (!skipHistory) {
                     updateMetaTags(nextSlide as HTMLElement);
                     updateLocation(id, clearRoutingTimeout);
-                    state.wheelCount = 0;
+                    Main.state().wheelCount = 0;
                 }
-                state.isSliding = false;
-            }, state.transitionDuration);
+                Main.state().isSliding = false;
+            }, Main.state().transitionDuration);
         }
 
         if (direction === Direction.DOWN) {
@@ -1195,9 +1167,9 @@ export function createMainLayout(state: State, parent: HTMLElement) {
             Array.from(children).filter(child => Array.from(child.classList).includes(CssClass.SLIDE)).forEach((child, i) => {
                 if (i !== currentVIndex) {
                     if (nextIndex === slides.length - 1) {
-                        (child as HTMLElement).setAttribute(ElementAttribute.STYLE, `transform:translateY(${state.pageHeight}px)`);
+                        (child as HTMLElement).setAttribute(ElementAttribute.STYLE, `transform:translateY(${Main.state().pageHeight}px)`);
                     } else {
-                        (child as HTMLElement).setAttribute(ElementAttribute.STYLE, `transform:translateY(${i < nextIndex ? "-" : ""}${state.pageHeight}px)`);
+                        (child as HTMLElement).setAttribute(ElementAttribute.STYLE, `transform:translateY(${i < nextIndex ? "-" : ""}${Main.state().pageHeight}px)`);
                     }
                     (child as HTMLElement).style.visibility = CssVisibility.HIDDEN;
                     (child as HTMLElement).style.zIndex = "-1";
@@ -1214,7 +1186,7 @@ export function createMainLayout(state: State, parent: HTMLElement) {
 
             (currentSlide as HTMLElement).style.visibility = CssVisibility.HIDDEN;
             (nextSlide as HTMLElement).style.visibility = CssVisibility.INITIAL;
-            (currentSlide as HTMLElement).style.transform = `translateY(-${state.pageHeight}px)`;
+            (currentSlide as HTMLElement).style.transform = `translateY(-${Main.state().pageHeight}px)`;
             (nextSlide as HTMLElement).style.transform = "translateY(0)";
             (parent as HTMLElement).dataset.currentVIndex = `${nextIndex}`;
 
@@ -1228,15 +1200,15 @@ export function createMainLayout(state: State, parent: HTMLElement) {
             updateNav();
             updateCarouselNav(nextSlide as HTMLElement);
 
-            state.timeouts.t8 = setTimeout(() => {
+            Main.state().timeouts.t8 = setTimeout(() => {
                 if (!skipHistory) {
-                    state.isRouting = true;
+                    Main.state().isRouting = true;
                     updateMetaTags(nextSlide as HTMLElement);
                     updateLocation(id, clearRoutingTimeout);
-                    state.wheelCount = 0;
+                    Main.state().wheelCount = 0;
                 }
-                state.isSliding = false;
-            }, state.transitionDuration);
+                Main.state().isSliding = false;
+            }, Main.state().transitionDuration);
         }
     }
 
@@ -1251,8 +1223,8 @@ export function createMainLayout(state: State, parent: HTMLElement) {
         (link as HTMLElement).dataset.index = `${i}`;
         const abortLink = new AbortController();
         link.addEventListener(EventTrigger.CLICK, () => {
-            if (state.isSliding) return;
-            state.isSliding = true;
+            if (Main.state().isSliding) return;
+            Main.state().isSliding = true;
             slideTo({
                 direction: undefined,
                 targetIndex: i
@@ -1262,8 +1234,8 @@ export function createMainLayout(state: State, parent: HTMLElement) {
             element: link,
             trigger: EventTrigger.CLICK,
             callback: () => {
-                if (state.isSliding) return;
-                state.isSliding = true;
+                if (Main.state().isSliding) return;
+                Main.state().isSliding = true;
                 slideTo({
                     direction: undefined,
                     targetIndex: i
@@ -1282,7 +1254,7 @@ export function createMainLayout(state: State, parent: HTMLElement) {
             tooltip.setAttribute(ElementAttribute.STYLE, `font-family:Helvetica`);
         } else if (slideTitle && slideTitle.textContent) {
             tooltip.setAttribute(ElementAttribute.STYLE, `font-family:${getComputedStyle(slideTitle).fontFamily.split(",")[0]}`);
-            tooltip.innerHTML = applyEllipsis(slideTitle.textContent, state.tooltipEllipsisLimit);
+            tooltip.innerHTML = applyEllipsis(slideTitle.textContent, Main.state().tooltipEllipsisLimit);
         } else {
             tooltip.setAttribute(ElementAttribute.STYLE, `font-family:Helvetica`);
             tooltip.innerHTML = `${i}`
@@ -1308,7 +1280,7 @@ export function createMainLayout(state: State, parent: HTMLElement) {
             }
         });
 
-        if (!state.isLoop) {
+        if (!Main.state().isLoop) {
             if (Number((parent as HTMLElement).dataset.currentVIndex) === 0) {
                 (document.getElementsByClassName(CssClass.NAV_BUTTON_TOP)[0] as HTMLElement).style.display = CssDisplay.NONE;
             } else {
@@ -1329,17 +1301,17 @@ export function createMainLayout(state: State, parent: HTMLElement) {
     // EVENTS
     const abortButtonTop = new AbortController();
     buttonTop.addEventListener(EventTrigger.CLICK, () => {
-        if (state.isSliding) return;
-        state.isSliding = true;
+        if (Main.state().isSliding) return;
+        Main.state().isSliding = true;
         slideTo({ direction: Direction.UP })
     }, { signal: abortButtonTop.signal });
-    if (state.events) {
-        state.events.push({
+    if (Main.state().events) {
+        Main.state().events.push({
             element: buttonTop,
             trigger: EventTrigger.CLICK,
             callback: () => {
-                if (state.isSliding) return;
-                state.isSliding = true;
+                if (Main.state().isSliding) return;
+                Main.state().isSliding = true;
                 slideTo({ direction: Direction.UP })
             },
             aborter: abortButtonTop
@@ -1348,17 +1320,17 @@ export function createMainLayout(state: State, parent: HTMLElement) {
 
     const abortButtonBottom = new AbortController();
     buttonBottom.addEventListener(EventTrigger.CLICK, () => {
-        if (state.isSliding) return;
-        state.isSliding = true;
+        if (Main.state().isSliding) return;
+        Main.state().isSliding = true;
         slideTo({ direction: Direction.DOWN })
     }, { signal: abortButtonBottom.signal });
-    if (state.events) {
-        state.events.push({
+    if (Main.state().events) {
+        Main.state().events.push({
             element: buttonBottom,
             trigger: EventTrigger.CLICK,
             callback: () => {
-                if (state.isSliding) return;
-                state.isSliding = true;
+                if (Main.state().isSliding) return;
+                Main.state().isSliding = true;
                 slideTo({ direction: Direction.DOWN })
             },
             aborter: abortButtonBottom
@@ -1366,22 +1338,22 @@ export function createMainLayout(state: State, parent: HTMLElement) {
     }
 
     function wheel(event: any) {
-        if (isDialogOpen(state)) {
+        if (isDialogOpen()) {
             return;
         }
 
-        if (state.wheelCount > 0) {
+        if (Main.state().wheelCount > 0) {
             return;
         }
 
-        if (state.pauseSliding) return;
+        if (Main.state().pauseSliding) return;
 
-        state.wheelCount += 1;
+        Main.state().wheelCount += 1;
         const direction = event.deltaY > 0 ? Direction.DOWN : Direction.UP;
         const isTrackpad = detectTrackPad(event);
 
-        if (state.isSliding || isTrackpad || !event.deltaY) return;
-        state.isSliding = true;
+        if (Main.state().isSliding || isTrackpad || !event.deltaY) return;
+        Main.state().isSliding = true;
 
         if (direction === Direction.DOWN) {
             slideTo({ isWheel: true, targetIndex: Number((parent as HTMLElement).dataset.currentVIndex) + 1 > slides.length - 1 ? 0 : Number((parent as HTMLElement).dataset.currentVIndex) + 1 });
@@ -1390,34 +1362,33 @@ export function createMainLayout(state: State, parent: HTMLElement) {
             slideTo({ isWheel: true, targetIndex: Number((parent as HTMLElement).dataset.currentVIndex) - 1 < 0 ? slides.length - 1 : Number((parent as HTMLElement).dataset.currentVIndex) - 1 });
         }
 
-        state.timeouts.t9 = setTimeout(() => {
-            state.isSliding = false;
-            state.wheelCount = 0;
-        }, state.transitionDuration);
+        Main.state().timeouts.t9 = setTimeout(() => {
+            Main.state().isSliding = false;
+            Main.state().wheelCount = 0;
+        }, Main.state().transitionDuration);
     }
 
     const abortWheel = new AbortController();
     window.addEventListener(EventTrigger.WHEEL, (event: WheelEvent) => wheel(event), { signal: abortWheel.signal });
-    state.events.push({
+    Main.state().events.push({
         element: window,
         trigger: EventTrigger.WHEEL,
         callback: wheel,
         aborter: abortWheel
     });
 
-
     function keyup(event: any) {
-        if (isDialogOpen(state)) {
+        if (isDialogOpen()) {
             return;
         }
 
-        if (state.wheelCount > 0) {
+        if (Main.state().wheelCount > 0) {
             return;
         }
 
-        if (state.pauseSliding) return;
+        if (Main.state().pauseSliding) return;
 
-        state.wheelCount += 1;
+        Main.state().wheelCount += 1;
 
         const keyCode = event.code;
         const target = event.target as HTMLElement;
@@ -1442,17 +1413,17 @@ export function createMainLayout(state: State, parent: HTMLElement) {
 
                     if (!Array.from((thisCarousel as HTMLElement).classList).includes(CssClass.LOOP)) {
                         if ([carouselSlides.length - 1].includes(currentIndex)) {
-                            state.isSliding = false;
-                            state.wheelCount = 0;
+                            Main.state().isSliding = false;
+                            Main.state().wheelCount = 0;
                             return;
                         }
                     }
                     (buttonRight as HTMLElement).click();
 
-                    state.timeouts.t10 = setTimeout(() => {
-                        state.isSliding = false;
-                        state.wheelCount = 0;
-                    }, state.transitionDuration);
+                    Main.state().timeouts.t10 = setTimeout(() => {
+                        Main.state().isSliding = false;
+                        Main.state().wheelCount = 0;
+                    }, Main.state().transitionDuration);
                     return;
                 }
                 if (keyCode === KeyboardCode.ARROW_LEFT) {
@@ -1460,37 +1431,36 @@ export function createMainLayout(state: State, parent: HTMLElement) {
 
                     if (!Array.from((thisCarousel as HTMLElement).classList).includes(CssClass.LOOP)) {
                         if ([0].includes(currentIndex)) {
-                            state.isSliding = false;
-                            state.wheelCount = 0;
+                            Main.state().isSliding = false;
+                            Main.state().wheelCount = 0;
                             return;
                         }
                     }
 
                     (buttonLeft as HTMLElement).click();
 
-                    state.timeouts.t11 = setTimeout(() => {
-                        state.isSliding = false;
-                        state.wheelCount = 0;
-                    }, state.transitionDuration);
+                    Main.state().timeouts.t11 = setTimeout(() => {
+                        Main.state().isSliding = false;
+                        Main.state().wheelCount = 0;
+                    }, Main.state().transitionDuration);
                     return;
                 }
             }
         }
 
+        if (Main.state().isSliding) return;
+        Main.state().isSliding = true;
 
-        if (state.isSliding) return;
-        state.isSliding = true;
-
-        const isntLoopAndIsLastSlide = !state.isLoop && Number((parent as HTMLElement).dataset.currentVIndex) === slides.length - 1;
-        const isntLoopAndFirstSlide = !state.isLoop && Number((parent as HTMLElement).dataset.currentVIndex) === 0;
+        const isntLoopAndIsLastSlide = !Main.state().isLoop && Number((parent as HTMLElement).dataset.currentVIndex) === slides.length - 1;
+        const isntLoopAndFirstSlide = !Main.state().isLoop && Number((parent as HTMLElement).dataset.currentVIndex) === 0;
 
         switch (true) {
             case [KeyboardCode.ARROW_DOWN, KeyboardCode.SPACE].includes(keyCode) && isntLoopAndIsLastSlide:
-                state.isSliding = false;
+                Main.state().isSliding = false;
                 break;
 
             case [KeyboardCode.ARROW_UP].includes(keyCode) && isntLoopAndFirstSlide:
-                state.isSliding = false;
+                Main.state().isSliding = false;
                 break;
 
             case [KeyboardCode.ARROW_DOWN, KeyboardCode.SPACE].includes(keyCode):
@@ -1502,16 +1472,16 @@ export function createMainLayout(state: State, parent: HTMLElement) {
                 break;
 
             default:
-                state.isSliding = false;
-                state.wheelCount = 0;
+                Main.state().isSliding = false;
+                Main.state().wheelCount = 0;
                 return;
         }
     }
 
     const abortKeyup = new AbortController();
     document.addEventListener(EventTrigger.KEYUP, (event: KeyboardEvent) => keyup(event), { signal: abortKeyup.signal });
-    if (state.events) {
-        state.events.push({
+    if (Main.state().events) {
+        Main.state().events.push({
             element: document,
             trigger: EventTrigger.KEYUP,
             callback: keyup,
@@ -1520,14 +1490,14 @@ export function createMainLayout(state: State, parent: HTMLElement) {
     }
 
     function startTouch(event: any) {
-        state.isSliding = true;
-        state.eventTouchStart = event.changedTouches?.[0] || state.eventTouchStart;
+        Main.state().isSliding = true;
+        Main.state().eventTouchStart = event.changedTouches?.[0] || Main.state().eventTouchStart;
     }
     const abortTouchstart = new AbortController();
     document.addEventListener(EventTrigger.TOUCHSTART, (event: TouchEvent) => startTouch(event), { signal: abortTouchstart.signal });
 
-    if (state.events) {
-        state.events.push({
+    if (Main.state().events) {
+        Main.state().events.push({
             element: document,
             trigger: EventTrigger.TOUCHSTART,
             callback: startTouch,
@@ -1536,28 +1506,27 @@ export function createMainLayout(state: State, parent: HTMLElement) {
     }
 
     function endTouch(event: any) {
-        if (state.pauseSliding) return;
-        state.isSliding = false;
-        state.eventTouchEnd = event.changedTouches?.[0] || state.eventTouchEnd;
+        if (Main.state().pauseSliding) return;
+        Main.state().isSliding = false;
+        Main.state().eventTouchEnd = event.changedTouches?.[0] || Main.state().eventTouchEnd;
         const hasVerticalScrollBar = event.target.scrollHeight > event.target.clientHeight;
 
-        if (isDialogOpen(state)) {
+        if (isDialogOpen()) {
             return;
         }
 
         // exclusion cases
         const isScrollableIsland = !Array.from(event.target.classList).includes(CssClass.CHILD) && hasVerticalScrollBar;
         if ([isScrollableIsland].includes(true)) return;
-        if (state.isSliding) {
-
-            state.timeouts.t12 = setTimeout(() => {
-                state.isSliding = false;
+        if (Main.state().isSliding) {
+            Main.state().timeouts.t12 = setTimeout(() => {
+                Main.state().isSliding = false;
             });
         };
 
-        if (!state.isSliding) {
-            const deltaTouchY = (state.eventTouchStart.clientY - state.eventTouchEnd?.clientY) ?? 0;
-            const deltaTouchX = (state.eventTouchStart.clientX - state.eventTouchEnd?.clientX) ?? 0;
+        if (!Main.state().isSliding) {
+            const deltaTouchY = (Main.state().eventTouchStart.clientY - Main.state().eventTouchEnd?.clientY) ?? 0;
+            const deltaTouchX = (Main.state().eventTouchStart.clientX - Main.state().eventTouchEnd?.clientX) ?? 0;
             if (Math.abs(deltaTouchY) < 5 || Math.abs(deltaTouchX) < 5) return;
 
             if (Math.abs(deltaTouchX) > Math.abs(deltaTouchY)) {
@@ -1570,15 +1539,15 @@ export function createMainLayout(state: State, parent: HTMLElement) {
                 const carouselSlides = Array.from(carouselWrapper.children).filter(el => Array.from(el.classList).includes(CssClass.CAROUSEL_SLIDE));
                 if (deltaTouchX > 0) {
                     // right
-                    if (state.isSliding) return;
-                    state.isSliding = true;
+                    if (Main.state().isSliding) return;
+                    Main.state().isSliding = true;
                     const currentIndex = Number((carouselWrapper as HTMLElement).dataset.carouselIndex);
                     const nextIndex = currentIndex + 1 > carouselSlides.length - 1 ? 0 : currentIndex + 1;
 
                     if (!Array.from((thisCarousel as HTMLElement).classList).includes(CssClass.LOOP)) {
                         if ([carouselSlides.length - 1].includes(currentIndex)) {
-                            state.isSliding = false;
-                            state.wheelCount = 0;
+                            Main.state().isSliding = false;
+                            Main.state().wheelCount = 0;
                             return;
                         }
                     }
@@ -1588,11 +1557,11 @@ export function createMainLayout(state: State, parent: HTMLElement) {
                             (slide as HTMLElement).style.transform = "translateX(0)";
                         }
                         if (i === currentIndex) {
-                            (slide as HTMLElement).style.transform = `translateX(-${state.pageWidth}px)`;
+                            (slide as HTMLElement).style.transform = `translateX(-${Main.state().pageWidth}px)`;
                             (slide as HTMLElement).style.visibility = CssVisibility.HIDDEN;
                         }
                         if (i === (nextIndex + 1 > carouselSlides.length - 1 ? 0 : nextIndex + 1)) {
-                            (slide as HTMLElement).style.transform = `translateX(${state.pageWidth}px)`;
+                            (slide as HTMLElement).style.transform = `translateX(${Main.state().pageWidth}px)`;
                             (slide as HTMLElement).style.visibility = CssVisibility.HIDDEN;
                         }
                     });
@@ -1602,22 +1571,22 @@ export function createMainLayout(state: State, parent: HTMLElement) {
                     updateCarouselNav(thisCarousel as HTMLElement);
                     updateLocation(`${thisCarousel.id}/${nextIndex}`);
 
-                    state.timeouts.t13 = setTimeout(() => {
-                        state.isSliding = false;
-                        state.wheelCount = 0;
-                    }, state.transitionDuration);
+                    Main.state().timeouts.t13 = setTimeout(() => {
+                        Main.state().isSliding = false;
+                        Main.state().wheelCount = 0;
+                    }, Main.state().transitionDuration);
                 } else {
                     // left
-                    if (state.isSliding) return;
-                    state.isSliding = true;
+                    if (Main.state().isSliding) return;
+                    Main.state().isSliding = true;
 
                     const currentIndex = Number((carouselWrapper as HTMLElement).dataset.carouselIndex);
                     const nextIndex = currentIndex - 1 < 0 ? carouselSlides.length - 1 : currentIndex - 1;
 
                     if (!Array.from((thisCarousel as HTMLElement).classList).includes(CssClass.LOOP)) {
                         if ([0].includes(currentIndex)) {
-                            state.isSliding = false;
-                            state.wheelCount = 0;
+                            Main.state().isSliding = false;
+                            Main.state().wheelCount = 0;
                             return;
                         }
                     }
@@ -1627,11 +1596,11 @@ export function createMainLayout(state: State, parent: HTMLElement) {
                             (slide as HTMLElement).style.transform = "translateX(0)";
                         }
                         if (i === currentIndex) {
-                            (slide as HTMLElement).style.transform = `translateX(${state.pageWidth}px)`;
+                            (slide as HTMLElement).style.transform = `translateX(${Main.state().pageWidth}px)`;
                             (slide as HTMLElement).style.visibility = CssVisibility.HIDDEN;
                         }
                         if (i === (nextIndex - 1 < 0 ? carouselSlides.length - 1 : nextIndex - 1)) {
-                            (slide as HTMLElement).style.transform = `translateX(-${state.pageWidth}px)`;
+                            (slide as HTMLElement).style.transform = `translateX(-${Main.state().pageWidth}px)`;
                             (slide as HTMLElement).style.visibility = CssVisibility.HIDDEN;
                         }
                     });
@@ -1641,16 +1610,16 @@ export function createMainLayout(state: State, parent: HTMLElement) {
                     updateCarouselNav(thisCarousel as HTMLElement);
                     updateLocation(`${thisCarousel.id}/${nextIndex}`);
 
-                    state.timeouts.t14 = setTimeout(() => {
-                        state.isSliding = false;
-                        state.wheelCount = 0;
-                    }, state.transitionDuration);
+                    Main.state().timeouts.t14 = setTimeout(() => {
+                        Main.state().isSliding = false;
+                        Main.state().wheelCount = 0;
+                    }, Main.state().transitionDuration);
                 }
             } else {
                 const direction = deltaTouchY > 0 ? Direction.DOWN : Direction.UP;
                 const parent = document.getElementsByClassName(CssClass.PARENT)[0];
                 const currentSlideIndex = Number((parent as HTMLElement).dataset.currentVIndex);
-                if (!state.isLoop) {
+                if (!Main.state().isLoop) {
                     if (direction === Direction.UP) {
                         slideTo({ isWheel: true, targetIndex: currentSlideIndex - 1 })
                     } else {
@@ -1665,8 +1634,8 @@ export function createMainLayout(state: State, parent: HTMLElement) {
 
     const abortTouchend = new AbortController();
     document.addEventListener(EventTrigger.TOUCHEND, (event: any) => endTouch(event), { signal: abortTouchend.signal });
-    if (state.events) {
-        state.events.push({
+    if (Main.state().events) {
+        Main.state().events.push({
             element: document,
             trigger: EventTrigger.TOUCHEND,
             callback: endTouch,
@@ -1675,17 +1644,17 @@ export function createMainLayout(state: State, parent: HTMLElement) {
     }
 
     function resize() {
-        state.pageHeight = window.innerHeight;
-        state.pageWidth = window.innerWidth;
-        setupVerticalSlides(state, parent);
+        Main.state().pageHeight = window.innerHeight;
+        Main.state().pageWidth = window.innerWidth;
+        setupVerticalSlides(parent);
         const carousels = document.getElementsByClassName(CssClass.CAROUSEL);
-        Array.from(carousels).forEach(carousel => setupHorizontalSlides(state, (carousel as HTMLElement)))
+        Array.from(carousels).forEach(carousel => setupHorizontalSlides((carousel as HTMLElement)))
     }
 
     const abortResize = new AbortController();
     window.addEventListener(EventTrigger.RESIZE, resize, { signal: abortResize.signal });
-    if (state.events) {
-        state.events.push({
+    if (Main.state().events) {
+        Main.state().events.push({
             element: window,
             trigger: EventTrigger.RESIZE,
             callback: resize,
@@ -1726,27 +1695,26 @@ export function createMainLayout(state: State, parent: HTMLElement) {
         Array.from(children).filter(child => (Array.from(child.classList).includes(CssClass.SLIDE))).forEach((child) => {
             child.classList.add(CssClass.NO_TRANSITION);
         });
-        setupVerticalSlides(state, parent);
+        setupVerticalSlides(parent);
         updateNav();
         restoreCarousel();
         updateCarouselNav(grabId(currentSlideId));
         updateMetaTags(grabId(currentSlideId) as HTMLElement);
 
-        state.timeouts.t15 = setTimeout(() => {
+        Main.state().timeouts.t15 = setTimeout(() => {
             Array.from(children).filter(child => (Array.from(child.classList).includes(CssClass.SLIDE))).forEach((child) => {
                 child.classList.remove(CssClass.NO_TRANSITION);
             });
-        }, state.transitionDuration);
+        }, Main.state().transitionDuration);
     }
 
     function clearRoutingTimeout() {
-        clearTimeout(state.timeoutRouter)
-        state.timeoutRouter = setTimeout(() => {
-            state.isRouting = false;
-            state.isSliding = false;
-            state.wheelCount = 0;
+        clearTimeout(Main.state().timeoutRouter)
+        Main.state().timeoutRouter = setTimeout(() => {
+            Main.state().isRouting = false;
+            Main.state().isSliding = false;
+            Main.state().wheelCount = 0;
         }, 10); // RA likes 10 because it's a "proper" digit
-
     }
 
     function restoreCarousel() {
@@ -1761,13 +1729,13 @@ export function createMainLayout(state: State, parent: HTMLElement) {
             carouselSlides.forEach((slide) => {
                 (slide as HTMLElement).classList.add(CssClass.NO_TRANSITION);
             });
-            setupHorizontalSlides(state, grabId(currentSlideId));
+            setupHorizontalSlides(grabId(currentSlideId));
         }
     }
 
     function hashChange() {
-        if (state.isRouting) return;
-        state.isRouting = true;
+        if (Main.state().isRouting) return;
+        Main.state().isRouting = true;
         const currentSlideId = getCurrentSlideId().replace("#", "");
         const targetIndex = Number(grabId(currentSlideId).dataset.index);
         slideTo({ targetIndex, skipHistory: true });
@@ -1779,8 +1747,8 @@ export function createMainLayout(state: State, parent: HTMLElement) {
 
     const abortHashchange = new AbortController();
     window.addEventListener(EventTrigger.HASHCHANGE, hashChange, { signal: abortHashchange.signal });
-    if (state.events) {
-        state.events.push({
+    if (Main.state().events) {
+        Main.state().events.push({
             element: window,
             trigger: EventTrigger.HASHCHANGE,
             callback: hashChange,
@@ -1788,9 +1756,7 @@ export function createMainLayout(state: State, parent: HTMLElement) {
         });
     }
 
-    parent.appendChild(nav);
-    parent.appendChild(buttonTop);
-    parent.appendChild(buttonBottom);
+    [nav, buttonTop, buttonBottom].forEach(e => parent.appendChild(e));
 }
 
 const carousel = {

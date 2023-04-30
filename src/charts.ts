@@ -51,7 +51,18 @@ export function createCharts() {
 
             const uid = createUid();
 
-            const xValues = JSON.parse((child as HTMLElement).dataset.xValues as any);
+            const source = JSON.parse((child as HTMLElement).dataset.xValues as any);
+
+            let xValues: any;
+            if (source.length) {
+                xValues = [...source].reduce((acc: any, curr: { name: string | number; data: any; }) => {
+                    acc[curr.name] = curr.data;
+                    return acc;
+                }, {})
+            } else {
+                throw new Error(`xValues cannot be empty. Please provide a JSON with the data type [ { "name" : "serie", "data" : [0,1,2] } ]"`)
+            }
+
             const yValues = JSON.parse((child as HTMLElement).dataset.yValues as any);
             let maxValue = Math.max(...Object.values(xValues).flatMap(serie => Math.max(...serie as any)));
             let minValue = Math.min(...Object.values(xValues).flatMap(serie => Math.min(...serie as any)));
@@ -538,7 +549,18 @@ export function createCharts() {
             userInputs.forEach((input: string | undefined) => checkDirtyInputs(input));
             const uid = createUid();
 
-            const xValues = JSON.parse((child as HTMLElement).dataset.xValues as any);
+            const source = JSON.parse((child as HTMLElement).dataset.xValues as any);
+
+            let xValues: any;
+            if (source.length) {
+                xValues = [...source].reduce((acc: any, curr: { name: string | number; data: any; }) => {
+                    acc[curr.name] = curr.data;
+                    return acc;
+                }, {})
+            } else {
+                throw new Error(`xValues cannot be empty. Please provide a JSON with the data type [ { "name" : "serie", "data" : [0,1,2] } ]"`)
+            }
+
             const yValues = JSON.parse((child as HTMLElement).dataset.yValues as any);
             let maxValue = Math.max(...Object.values(xValues).flatMap(serie => Math.max(...serie as any)));
             let minValue = Math.min(...Object.values(xValues).flatMap(serie => Math.min(...serie as any)));
@@ -1017,7 +1039,18 @@ export function createCharts() {
                 colors = defaultColors;
             }
 
-            const xValues = JSON.parse((child as HTMLElement).dataset.xValues as string);
+            const source = JSON.parse((child as HTMLElement).dataset.xValues as any);
+
+            let xValues: any;
+            if (source.length) {
+                xValues = [...source].reduce((acc: any, curr: { name: string | number; data: any; }) => {
+                    acc[curr.name] = curr.data;
+                    return acc;
+                }, {})
+            } else {
+                throw new Error(`xValues cannot be empty. Please provide a JSON with the data type [ { "name" : "serie1", "data" : 20 }, { "name" : "serie2", "data" : 10 } ]"`)
+            }
+
             const xTotal = Object.values(xValues).reduce((a, b) => Number(a) + Number(b), 0) as number;
 
             const dataset = Object.keys(xValues).map((key, i) => {

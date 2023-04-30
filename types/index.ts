@@ -1,6 +1,28 @@
 export interface OurWindow extends Window {
-    qroll: (name: string, options: Options) => void,
+    qroll: MainFunction;
 }
+
+export interface MainFunction {
+    (parentName: string, options: Options): () => void;
+    getCurrentSlideIndex: () => number;
+    getSlides: () => Slide[] | string;
+    slideDown: (index: number) => void;
+    slideUp: (index: number) => void;
+    slideToIndex: (index: number, slide?: number) => void;
+    openDialog: (id: string) => void;
+    closeDialog: (id: string) => void;
+    updateCharts: () => void;
+    state: () => State;
+    refresh: () => void,
+}
+
+export interface Slide {
+    element: HTMLElement,
+    index: number,
+    title: string,
+    hasCarousel: boolean,
+}
+
 export interface Config {
     parentName: "string",
     options: Options
