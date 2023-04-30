@@ -12,7 +12,7 @@
 </head>
 <body>
 
-    <div id="qroll-parent" class="qroll-main qroll-loop qroll-tooltip" data-delay="1000" data-delay-background="radial-gradient(at top right, #0f0c29, #302b63, rgb(96, 148, 184))">
+    <div id="qroll-parent" class="qroll-main qroll-loop qroll-tooltip" data-nuxt="false" data-delay="1000" data-delay-background="radial-gradient(at top right, #0f0c29, #302b63, rgb(96, 148, 184))">
 
         <div 
             class="qroll-menu"
@@ -614,7 +614,28 @@
                     </div>
                 </div>
             </div>
-        </div>  
+        </div>
+        
+        <div 
+            class="test-child test-blue"
+            data-meta-title="Qroll UI atoms"
+            data-meta-description="Qroll offers a range of read-made styles for your UI atomic components"
+            data-title="UI atoms"
+        >
+
+            <button class="qroll-button bg-transparent outline-1-#FFFFFF radius-6 h-1.2 text-#FFF my-1 px-1.5 py-0.5">CLICK</button>
+            <button class="qroll-button rounded bg-transparent outline-1-#FFFFFF h-1.2 text-#FFF my-1 px-1.2 py-0.5">CLICK</button>
+
+            <input class="qroll-input radius-4 px-1 bg-#FFFFFF12 outline-1-#FFF text-#FFF my-1">
+
+            <textarea class="qroll-input pa-0.5 radius-4 bg-#FFFFFF12 outline-1-#FFF text-#FFF my-1"></textarea>
+
+            <select class="qroll-input pa-0.3 radius-4 outline-1-#FFF bg-transparent text-#FFF my-1">
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+            </select>
+        </div>
 
         <!-- DIALOGS -->
         <div class="qroll-dialog" data-id="basicDialog" data-title="Basic dialog" data-close-button="true" data-css-classes="test-dialog">

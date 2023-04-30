@@ -5,6 +5,10 @@ import Main from "./main";
 export function createDelayer() {
     const parent = document.getElementById("qroll-parent") as HTMLElement;
     if (!parent || !parent.dataset.delay) return;
+    const alreadyHasLoader = parent.getElementsByClassName(CssClass.LOADER_SPINNER).length;
+
+    if (alreadyHasLoader) return;
+
     const hasBackground = !!parent.dataset.delayBackground;
     const delay = Number(parent.dataset.delay);
 

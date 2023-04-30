@@ -1,6 +1,7 @@
 import {
     Options,
     OurWindow,
+    MainFunction,
     State
 } from "../types";
 
@@ -41,14 +42,12 @@ import {
 } from "./charts";
 import { createDropdownMenu } from "./dropdown";
 import { createDelayer } from "./loader";
+import { createButtons, createInputs } from "./form";
 
-// IDEA: SEO provide url links, change meta tags programatically on slide change
-
-// TODO loading page (how to detect isLoading ? => state.isLoading)
 // TODO: find a way to include css
 
-// TODO: type Main
-const Main: any = (parentName: string, _options: Options = {}) => {
+// TODO: interface Main issue
+const Main: MainFunction = (parentName: string = "qroll-parent", _options: Options = {}) => {
     Main.getCurrentSlideIndex = getCurrentSlideIndex;
     Main.getSlides = getSlides;
     Main.slideDown = slideDown;
@@ -57,21 +56,6 @@ const Main: any = (parentName: string, _options: Options = {}) => {
     Main.openDialog = openDialog;
     Main.closeDialog = closeDialog;
     Main.updateCharts = updateCharts;
-    // TODO: add Main.restart
-
-    // const cssLink = document.createElement("link");
-    // cssLink.rel = "stylesheet";
-    // cssLink.type = "text/css";
-    // if ((import.meta as any).env.VITE_TARGET === 'production') {
-    //     cssLink.href = "./styles.css"
-    // } else {
-    //     cssLink.href = "./css/index.css" // dev only
-    // }
-    // console.log((import.meta as any).env)
-    // document.head.appendChild(cssLink);
-
-
-    // TODO: onload, scan all elements' to check if any data attribute includes a script tag
 
     //------------------------------------------------------------------------//
     //\/\/\/\/\/\/\/\/\/\/\/\/|                       |\/\/\/\/\/\/\/\/\/\/\/\//
@@ -196,6 +180,7 @@ const Main: any = (parentName: string, _options: Options = {}) => {
 
         parent.classList.add(state.parentClass);
 
+        // TODO: find a way to loop through a list of excluded class lists
         let children = Array.from(parent.children).filter(child => !Array.from(child.classList).includes("qroll-dialog") && !Array.from(child.classList).includes("qroll-menu")) as unknown as HTMLElement[];
         for (let i = 0; i < children.length; i += 1) {
             const element = children[i];
@@ -205,12 +190,16 @@ const Main: any = (parentName: string, _options: Options = {}) => {
             Array.from(element.children).forEach(child => walkTheDOM(child, setTabIndex));
             createCarousel(element);
         }
+        createDelayer();
         createCharts();
         createCarouselComponents();
         createMainLayout(parent);
+        setupVerticalSlides(parent);
         createDialogs();
         createDropdownMenu();
-        createDelayer();
+        // Basic UI items (should be loaded optionally)
+        createButtons();
+        createInputs();
     }
 
     init();
@@ -295,11 +284,6 @@ const Main: any = (parentName: string, _options: Options = {}) => {
 
 if (typeof window !== 'undefined') {
     (window as unknown as OurWindow).qroll = Main;
-
-    // Main(ElementId.PARENT, {
-    //     sectionClass: CssClass.CHILD
-    // });
 }
-
 
 export default Main;

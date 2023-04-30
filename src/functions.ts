@@ -1,4 +1,4 @@
-import { DomElement, ElementAttribute } from "./constants";
+import { DomElement, ElementAttribute, Regex } from "./constants";
 
 /** Shorthand for element.setAttribute
  * 
@@ -190,6 +190,14 @@ export function swapArrayPositions(arr: any, from: number, to: number) {
     return arr;
 }
 
+export function toggleNoTransition({ element, isOn }: { element: HTMLElement, isOn: boolean }) {
+    if (isOn) {
+        element.classList.add("qroll-no-transition");
+    } else {
+        element.classList.remove("qroll-no-transition");
+    }
+}
+
 /** Apply css transform translateX to a carousel slide
  * 
  * @param carousel - HTMLElement direct children of the main Parent element
@@ -268,6 +276,29 @@ export function walkTheDOM(node: any, func: any) {
     }
 }
 
+export function findClassNameSuffix({ element, regex, fallback, returnAll = false }: { element: HTMLElement, regex: RegExp, fallback: string | number, returnAll?: boolean }) {
+    for (let i = 0; i < element.classList.length; i += 1) {
+        const className = element.classList[i];
+        const match = regex.exec(className);
+        if (fallback === "white") {
+        }
+        if (match) {
+            if (returnAll) {
+                return match[0]
+            }
+            return match[1];
+        }
+    }
+    return fallback;
+}
+
+export function findOutline(element: HTMLElement) {
+    const regex = Regex.OUTLINE;
+    const fallback = 'none';
+    const outlineClass = findClassNameSuffix({ element, regex, fallback, returnAll: true }) as string;
+    const outline = outlineClass === 'none' ? outlineClass : outlineClass.replace(regex, '$1px solid $2');
+    return outline;
+}
 
 
 const alpra = {
@@ -275,7 +306,9 @@ const alpra = {
     applyEllipsis,
     createUid,
     detectTrackPad,
+    findClassNameSuffix,
     findClosestAncestorByClassName,
+    findOutline,
     getCssColor,
     getNavColorFromParentClasses,
     grabId,
@@ -288,6 +321,7 @@ const alpra = {
     spawn,
     spawnNS,
     swapArrayPositions,
+    toggleNoTransition,
     translateX,
     translateY,
     updateCssClasses,

@@ -236,3 +236,29 @@ export namespace Chart {
     export const DONUT = "donut";
     export const GAUGE = "gauge";
 }
+
+export namespace Regex {
+    export const RADIUS = /radius-(\d+)/;
+
+    export const PADDING_ALL = /pa-(\d+(?:\.\d+)?)/;
+    export const PADDING_BOTTOM = /pb-(\d+(?:\.\d+)?)/;
+    export const PADDING_LEFT = /pl-(\d+(?:\.\d+)?)/;
+    export const PADDING_RIGHT = /pr-(\d+(?:\.\d+)?)/;
+    export const PADDING_TOP = /pt-(\d+(?:\.\d+)?)/;
+    export const PADDING_X = /px-(\d+(?:\.\d+)?)/;
+    export const PADDING_Y = /py-(\d+(?:\.\d+)?)/;
+
+    export const MARGIN_ALL = /ma-(\d+(?:\.\d+)?)/;
+    export const MARGIN_BOTTOM = /mb-(\d+(?:\.\d+)?)/;
+    export const MARGIN_LEFT = /ml-(\d+(?:\.\d+)?)/;
+    export const MARGIN_RIGHT = /mr-(\d+(?:\.\d+)?)/;
+    export const MARGIN_TOP = /mt-(\d+(?:\.\d+)?)/;
+    export const MARGIN_X = /mx-(\d+(?:\.\d+)?)/;
+    export const MARGIN_Y = /my-(\d+(?:\.\d+)?)/;
+
+    export const HEIGHT = /h-(\d+(?:\.\d+)?)/;
+    export const BACKGROUND = /bg-(.+)/;
+    export const FONT_FAMILY = /fam-(.+)/;
+    export const OUTLINE = /^outline-(\d+)-(#(?:[\da-fA-F]{3}){1,2}|#(?:[\da-fA-F]{4}){1,2}|rgba?\([\d\s,\.]+\)|hsla?\([\d\s%,\.]+\)|\w+)$/;
+    export const TEXT_COLOR = /text-([a-zA-Z]+|#[a-fA-F0-9]{3,8}|rgb\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*\)|rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*[\d\.]+\s*\)|hsl\(\s*\d+\s*,\s*\d+%?\s*,\s*\d+%?\s*\)|hsla\(\s*\d+\s*,\s*\d+%?\s*,\s*\d+%?\s*,\s*[\d\.]+\s*\)|[a-z]+)/;
+}

@@ -1,10 +1,11 @@
+import { Slide } from "../types";
 import { CssClass } from "./constants";
 
 /** Exposed interface. Get all the descendants of the qroll-main element.
  * 
  * @returns an array of slides
  */
-export function getSlides() {
+export function getSlides(): Slide[] | string {
     const slides = document.getElementsByClassName(CssClass.CHILD);
     const nav = document.getElementsByClassName(CssClass.NAV_VERTICAL)[0].getElementsByClassName(CssClass.TOOLTIP_LEFT);
     if (slides.length) {
@@ -14,7 +15,7 @@ export function getSlides() {
                 index: i,
                 title: nav[i] ? nav[i].innerHTML : '',
                 hasCarousel: Array.from(slide.classList).includes(CssClass.CAROUSEL)
-            }
+            } as Slide
         });
     }
     return "There are no slides.";
