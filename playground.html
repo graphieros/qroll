@@ -257,23 +257,33 @@
             </p>
             <div class="test-button-wrapper" style="max-width:60ch; margin:0 auto; display:flex; align-items:center;justify-content:center;flex-wrap:wrap;gap:24px; padding: 24px">
                 <div style="display:flex; gap: 12px; flex-direction:column; align-items:center;justify-content:center">
-                    <button class="test-button" onclick="qroll.slideDown()">Slide down</button>
+                    <button class="qroll-button bg-transparent text-white border-1-white py-0.5 px-1 h-0.9 radius-4" onclick="qroll.slideDown()">
+                       SLIDE DOWN
+                    </button>
                     <code style="font-size:14px; color: white">qroll.slideDown()</code>
                 </div>
                 <div style="display:flex; gap: 12px; flex-direction:column; align-items:center;justify-content:center">
-                    <button class="test-button" onclick="qroll.slideUp()">Slide up</button>
+                    <button class="qroll-button bg-transparent text-white border-1-white py-0.5 px-1 h-0.9 radius-4" onclick="qroll.slideUp()">
+                        SLIDE UP
+                     </button>
                     <code style="font-size:14px; color: white">qroll.slideUp()</code>
                 </div>
                 <div style="display:flex; gap: 12px; flex-direction:column; align-items:center;justify-content:center">
-                    <button class="test-button" onclick="qroll.slideToIndex(1)">Slide to page 2</button>
+                    <button class="qroll-button bg-transparent text-white border-1-white py-0.5 px-1 h-0.9 radius-4" onclick="qroll.slideToIndex(1)">
+                        SLIDE TO PAGE 2
+                     </button>
                     <code style="font-size:14px; color: white">qroll.slideToIndex(1)</code>
                 </div>
                 <div style="display:flex; gap: 12px; flex-direction:column; align-items:center;justify-content:center">
-                    <button class="test-button" onclick="qroll.slideToIndex(2,2)">Slide to page 3/3</button>
+                    <button class="qroll-button bg-transparent text-white border-1-white py-0.5 px-1 h-0.9 radius-4" onclick="qroll.slideToIndex(2,2)">
+                        SLIDE TO PAGE 3/3
+                     </button>
                     <code style="font-size:14px; color: white">qroll.slideToIndex(2,2)</code>
                 </div>
                 <div style="display: flex; gap: 12px; flex-direction:column; align-items:center;justify-content: center">
-                    <button data-caption="Use this method to refresh the code, in case you have loaded content from a server after the first load." class="test-button-warning" onclick="qroll.refresh()">Refresh</button>
+                    <button data-caption="Use this method to refresh the code, in case you have loaded content from a server after the first load."  class="test-button-warning qroll-button bg-orange border-1-white text-black py-0.5 px-1 h-0.9 radius-4" onclick="qroll.refresh()">
+                        REFRESH
+                     </button>
                     <code style="font-size:14px; color: white">qroll.refresh()</code>
                 </div>
             </div>
@@ -286,11 +296,11 @@
         >
             <h2 style="color:white">Easy dialog</h2>
             <div style="display: flex; align-items:center;justify-content:center;gap:12px">
-                <button class="test-button" onclick="qroll.openDialog('basicDialog')">
-                    Open basic dialog
+                <button class="qroll-button bg-transparent text-white border-1-white py-0.5 px-1 h-0.9 radius-4" onclick="qroll.openDialog('basicDialog')">
+                    OPEN BASIC DIALOG
                 </button>
-                <button class="test-button" onclick="qroll.openDialog('carouselDialog')">
-                    Open dialog with carousel
+                <button class="qroll-button bg-transparent text-white border-1-white py-0.5 px-1 h-0.9 radius-4" onclick="qroll.openDialog('carouselDialog')">
+                    OPEN DIALOG WITH CAROUSEL
                 </button>
             </div>
         </div>
@@ -623,14 +633,14 @@
             data-title="UI atoms"
         >
 
-            <button class="qroll-button bg-transparent outline-1-#FFFFFF radius-6 h-1.2 text-#FFF my-1 px-1.5 py-0.5">CLICK</button>
-            <button class="qroll-button rounded bg-transparent outline-1-#FFFFFF h-1.2 text-#FFF my-1 px-1.2 py-0.5">CLICK</button>
+            <button class="qroll-button bg-transparent border-1-#FFFFFF radius-6 h-1.2 text-#FFF my-1 px-1.5 py-0.5">CLICK</button>
+            <button class="qroll-button rounded bg-transparent border-1-#FFFFFF h-1.2 text-#FFF my-1 px-1.2 py-0.5">CLICK</button>
 
-            <input class="qroll-input radius-4 px-1 bg-#FFFFFF12 outline-1-#FFF text-#FFF my-1">
+            <input class="qroll-input radius-4 px-1 bg-#FFFFFF12 border-1-#FFF text-#FFF my-1">
 
-            <textarea class="qroll-input pa-0.5 radius-4 bg-#FFFFFF12 outline-1-#FFF text-#FFF my-1"></textarea>
+            <textarea class="qroll-input pa-0.5 radius-4 bg-#FFFFFF12 border-1-#FFF text-#FFF my-1"></textarea>
 
-            <select class="qroll-input pa-0.3 radius-4 outline-1-#FFF bg-transparent text-#FFF my-1">
+            <select class="qroll-input pa-0.3 radius-4 border-1-#FFF bg-transparent text-#FFF my-1">
                 <option>1</option>
                 <option>2</option>
                 <option>3</option>

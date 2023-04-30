@@ -866,6 +866,14 @@ button.qroll-nav-link {
     cursor:not-allowed;
 }
 
+.qroll-button:hover {
+    box-shadow: 0 6px 12px -6px rgba(0,0,0,0.3);
+}
+
+.qroll-button:focus {
+    outline: 5px solid rgba(0, 0, 0, 0.322);
+}
+
 .qroll-button--clicked {
     transform: scale(0.95,0.95);
     animation: qroll-click 0.2s ease-in-out forwards;

@@ -259,6 +259,6 @@ export namespace Regex {
     export const HEIGHT = /h-(\d+(?:\.\d+)?)/;
     export const BACKGROUND = /bg-(.+)/;
     export const FONT_FAMILY = /fam-(.+)/;
-    export const OUTLINE = /^outline-(\d+)-(#(?:[\da-fA-F]{3}){1,2}|#(?:[\da-fA-F]{4}){1,2}|rgba?\([\d\s,\.]+\)|hsla?\([\d\s%,\.]+\)|\w+)$/;
+    export const BORDER = /^border-(\d+)-(#(?:[\da-fA-F]{3}){1,2}|#(?:[\da-fA-F]{4}){1,2}|rgba?\([\d\s,\.]+\)|hsla?\([\d\s%,\.]+\)|\w+)$/;
     export const TEXT_COLOR = /text-([a-zA-Z]+|#[a-fA-F0-9]{3,8}|rgb\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*\)|rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*[\d\.]+\s*\)|hsl\(\s*\d+\s*,\s*\d+%?\s*,\s*\d+%?\s*\)|hsla\(\s*\d+\s*,\s*\d+%?\s*,\s*\d+%?\s*,\s*[\d\.]+\s*\)|[a-z]+)/;
 }

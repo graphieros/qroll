@@ -1,5 +1,5 @@
 import { EventTrigger, Regex } from "./constants";
-import { findClassNameSuffix, findOutline } from "./functions";
+import { findClassNameSuffix, findBorder } from "./functions";
 import Main from "./main";
 
 type Attribute = {
@@ -131,7 +131,7 @@ export function applyStyles(element: HTMLElement) {
 
     const isRounded = Array.from(element.classList).includes("rounded");
 
-    const outline = findOutline(element);
+    const border = findBorder(element);
 
     const attributes = [
         { key: "background", value: background },
@@ -148,7 +148,7 @@ export function applyStyles(element: HTMLElement) {
         { key: "margin-right", value: `${marginX}em` },
         { key: "margin-top", value: `${marginTop}em` },
         { key: "margin-top", value: `${marginY}em` },
-        { key: "outline", value: outline },
+        { key: "border", value: border },
         { key: "padding", value: `${paddingAll}em` },
         { key: "padding-bottom", value: `${paddingBottom}em` },
         { key: "padding-bottom", value: `${paddingY}em` },

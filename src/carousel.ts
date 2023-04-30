@@ -1339,6 +1339,8 @@ export function createMainLayout(parent: HTMLElement) {
 
     function wheel(event: any) {
         if (isDialogOpen()) {
+            Main.state().isSliding = false;
+            Main.state().wheelCount = 0;
             return;
         }
 
@@ -1346,13 +1348,21 @@ export function createMainLayout(parent: HTMLElement) {
             return;
         }
 
-        if (Main.state().pauseSliding) return;
+        if (Main.state().pauseSliding) {
+            Main.state().isSliding = false;
+            Main.state().wheelCount = 0;
+            return;
+        };
 
         Main.state().wheelCount += 1;
         const direction = event.deltaY > 0 ? Direction.DOWN : Direction.UP;
         const isTrackpad = detectTrackPad(event);
 
-        if (Main.state().isSliding || isTrackpad || !event.deltaY) return;
+        if (Main.state().isSliding || isTrackpad || !event.deltaY) {
+            Main.state().isSliding = false;
+            Main.state().wheelCount = 0;
+            return;
+        };
         Main.state().isSliding = true;
 
         if (direction === Direction.DOWN) {
@@ -1512,12 +1522,16 @@ export function createMainLayout(parent: HTMLElement) {
         const hasVerticalScrollBar = event.target.scrollHeight > event.target.clientHeight;
 
         if (isDialogOpen()) {
+            Main.state().isSliding = false;
             return;
         }
 
         // exclusion cases
         const isScrollableIsland = !Array.from(event.target.classList).includes(CssClass.CHILD) && hasVerticalScrollBar;
-        if ([isScrollableIsland].includes(true)) return;
+        if ([isScrollableIsland].includes(true)) {
+            Main.state().isSliding = false;
+            return;
+        };
         if (Main.state().isSliding) {
             Main.state().timeouts.t12 = setTimeout(() => {
                 Main.state().isSliding = false;

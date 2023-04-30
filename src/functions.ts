@@ -292,8 +292,8 @@ export function findClassNameSuffix({ element, regex, fallback, returnAll = fals
     return fallback;
 }
 
-export function findOutline(element: HTMLElement) {
-    const regex = Regex.OUTLINE;
+export function findBorder(element: HTMLElement) {
+    const regex = Regex.BORDER;
     const fallback = 'none';
     const outlineClass = findClassNameSuffix({ element, regex, fallback, returnAll: true }) as string;
     const outline = outlineClass === 'none' ? outlineClass : outlineClass.replace(regex, '$1px solid $2');
@@ -308,7 +308,7 @@ const alpra = {
     detectTrackPad,
     findClassNameSuffix,
     findClosestAncestorByClassName,
-    findOutline,
+    findBorder,
     getCssColor,
     getNavColorFromParentClasses,
     grabId,

@@ -278,7 +278,6 @@ const Main: any = (parentName: string = "qroll-parent", _options: Options = {}) 
         const children = Array.from(parent.children).filter(child => !Array.from(child.classList).includes("qroll-dialog") && !Array.from(child.classList).includes("qroll-menu")) as unknown as HTMLElement[];
         updateLocation(children[0].id)
     }
-
 }
 
 if (typeof window !== 'undefined') {
