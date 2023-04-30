@@ -1,7 +1,6 @@
 import {
     Options,
     OurWindow,
-    MainFunction,
     State
 } from "../types";
 
@@ -47,7 +46,7 @@ import { createButtons, createInputs } from "./form";
 // TODO: find a way to include css
 
 // TODO: interface Main issue
-const Main: MainFunction = (parentName: string = "qroll-parent", _options: Options = {}) => {
+const Main: any = (parentName: string = "qroll-parent", _options: Options = {}) => {
     Main.getCurrentSlideIndex = getCurrentSlideIndex;
     Main.getSlides = getSlides;
     Main.slideDown = slideDown;

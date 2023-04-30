@@ -569,6 +569,62 @@ As for styling the menu, you can provide your own css classes through the data-c
 
 ```
 
+### Basic UI Elements
+
+#### Buttons, inputs, textareas & selects
+A range of ready made css classes allows you to style your buttons & basic form elements directly in your HTML.
+
+```
+
+<button 
+    class="
+        qroll-button
+        bg-transparent
+        outline-1-#FFF
+        text-#FFF
+        radius-6
+        h-1.2
+        my-1
+        px-1.5
+        py-0.5
+    "
+>
+    CLICK
+</button>
+
+<!-- Exact same styles can be applied on inputs, textareas, selects -->
+
+<input 
+    type="text" 
+    class="
+        qroll-input
+        radius-4
+        px-1
+        bg-#FFFFFF12
+        outline-1-#FFF
+        text-#FFF
+        my-1
+    "
+>
+
+```
+
+Here is a list of available classes for these items:
+
+| Class | Description | Examples |
+| ----- | ----------- | -------- |
+| bg  | Background: add any color type after the dash | bg-white, bg-#FFF |
+| text | Text color: add any color type after the dash | text-white, text-#FFF |
+| radius | add a number after the dash. Corresponds to px | radius-6 |
+| rounded | sets border radius to ideal rounded shape | rounded |
+| outline | provide a number and a color | outline-1-#FFF |
+| h | Height: provide a number, corresponds to em | h-1, h-0.5 |
+| ma | Margin all : provide a number, corresponds to em | ma-1, ma-0.2 |
+| mx, my, mt, mr, mb, ml | Specified margin, provide a number, corresponds to em | mx-1, my-0.2, mt-3, mr-2, mb-0.5, ml-2 |
+| pa | Padding all: provide a number, corresponds to em | pa-1, pa-0.5 |
+| px, py, pt, pr, pb, pl | Specified padding, provide a number, corresponds to em | px-1, py-0.2, pt-3, pe-2, pb-0.5, pl-2 |
+
+
 ### Interface
 
 Qroll exposes a few methods you can control:
@@ -676,3 +732,55 @@ Qroll exposes a few methods you can control:
 
 ```
 ... and you are good to go :)
+
+## Nuxt 3
+
+Add qroll's style.css into the assets/css folder
+Add qroll scripts into the public folder (both qroll.umd.cjs and qroll.umd.cjs.map) 
+
+- nuxt.config.ts
+
+```
+export default defineNuxtConfig({
+    app: {
+        head: {
+            script: [
+                {
+                    src: /qroll.umd.cjs,
+                    body: true,
+                    defer: true,
+                    crossorigin: ""
+                }
+            ]
+        }
+    },
+    css: ['@assets/css/style.css']
+})
+
+```
+
+- Place the main parent div inside your index.vue file. Don't forget to add data-delay (ms) and data-nuxt attributes.
+data-delay will show a spinner while the script is running to put your slides into shape, whild data-nuxt="true" will make sure the script runs after the HTML is displayed.
+
+```
+
+<script setup lang="ts">
+// your code here
+// if you need to refresh qroll after a page hydration, you can call window.qroll.refresh(), but no need to do that on the first load.
+</script>
+
+<template>
+    <div id="qroll-parent" class="qroll-main qroll-loop qroll-tooltip" data-delay="1000" data-nuxt="true">
+         <div>
+            <MyComponent/>
+        </div>
+        <div>
+            <MyOtherComponent/>
+        </div>
+        <div>
+            <MyFinalComponent/>
+        </div>
+    </div>
+</template>
+
+```
