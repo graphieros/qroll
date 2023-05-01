@@ -1488,6 +1488,7 @@ export function createCharts() {
             const gTicks = spawnNS(SvgElement.G);
             for (let i = 0; i < max - min; i += 2) {
                 const tickLeft = spawnNS(SvgElement.LINE);
+                tickLeft.classList.add("qroll-chart-gauge-tick");
                 const ratio = i / (max - min);
                 addTo(tickLeft, SvgAttribute.X1, svgWidth / 2 - barWidth / 2);
                 addTo(tickLeft, SvgAttribute.X2, svgWidth / 2 - (barWidth / 2 + 5));
@@ -1499,6 +1500,7 @@ export function createCharts() {
                 addTo(tickLeft, SvgAttribute.STROKE_LINEJOIN, "round");
 
                 const tickRight = spawnNS(SvgElement.LINE);
+                tickRight.classList.add("qroll-chart-gauge-tick");
                 addTo(tickRight, SvgAttribute.X1, svgWidth / 2 + barWidth / 2);
                 addTo(tickRight, SvgAttribute.X2, svgWidth / 2 + (barWidth / 2 + 5));
                 addTo(tickRight, SvgAttribute.Y1, padding.top + (svgHeight - padding.top - padding.bottom) * ratio);
@@ -1510,6 +1512,7 @@ export function createCharts() {
 
                 if (i % 10 === 0) {
                     const tick5Left = spawnNS(SvgElement.LINE);
+                    tick5Left.classList.add("qroll-chart-gauge-tick");
                     addTo(tick5Left, SvgAttribute.X1, svgWidth / 2 - barWidth / 2);
                     addTo(tick5Left, SvgAttribute.X2, svgWidth / 2 - (barWidth / 2 + 10));
                     addTo(tick5Left, SvgAttribute.Y1, padding.top + (svgHeight - padding.top - padding.bottom) * ratio);
@@ -1520,6 +1523,7 @@ export function createCharts() {
                     addTo(tick5Left, SvgAttribute.STROKE_LINEJOIN, "round");
 
                     const tick5Right = spawnNS(SvgElement.LINE);
+                    tick5Right.classList.add("qroll-chart-gauge-tick");
                     addTo(tick5Right, SvgAttribute.X1, svgWidth / 2 + barWidth / 2);
                     addTo(tick5Right, SvgAttribute.X2, svgWidth / 2 + (barWidth / 2 + 10));
                     addTo(tick5Right, SvgAttribute.Y1, padding.top + (svgHeight - padding.top - padding.bottom) * ratio);
@@ -1568,7 +1572,8 @@ export function createCharts() {
                 y: svgHeight - padding.bottom - barHeight + 8.5,
                 x: svgWidth / 2 - (barWidth / 2 + 30),
                 fontSize: 24,
-                position: "end"
+                position: "end",
+                cssClasses: ['qroll-chart-gauge-value-label']
             }));
 
             // TICK LABELS
@@ -1578,7 +1583,8 @@ export function createCharts() {
                 y: padding.top + 6,
                 fontSize: 18,
                 color: "grey",
-                position: "left"
+                position: "left",
+                cssClasses: ['qroll-chart-gauge-tick-label']
             }));
 
             gChart.appendChild(createText({
@@ -1587,7 +1593,8 @@ export function createCharts() {
                 y: svgHeight - padding.bottom,
                 fontSize: 18,
                 color: "grey",
-                position: "left"
+                position: "left",
+                cssClasses: ['qroll-chart-gauge-tick-label']
             }));
 
             [

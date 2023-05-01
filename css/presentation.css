@@ -554,3 +554,40 @@ small.scroll {
         margin: 0 auto;
     }
 }
+
+#mars-image {
+    position: absolute;
+    object-fit:cover;
+    height: 100%;
+    width: 100%;
+}
+
+#mars-gauge svg {
+    background: rgba(255, 255, 255, 0.46);
+    border-radius: 3px;
+}
+
+#mars-gauge .qroll-chart__subtitle {
+    fill:white;
+}
+
+.qroll-chart-gauge-tick-label {
+    fill: white;
+}
+
+.test-chart-code-body{
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items:center;
+    justify-content:center;
+    height: 100%;
+    z-index: 0;
+}
+
+.test-gauge-title {
+    font-size: 1.6em;
+    color: rgb(255, 102, 0);
+    width:100%;
+    text-align:center;
+}
