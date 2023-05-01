@@ -779,6 +779,10 @@ export default defineNuxtConfig({
 - Place the main parent div inside your index.vue file. Don't forget to add data-delay (ms) and data-nuxt attributes.
 data-delay will show a spinner while the script is running to put your slides into shape, whild data-nuxt="true" will make sure the script runs after the HTML is displayed.
 
+- There are 2 types of loader icons you can use:
+1. "spin" (rotating arrows, default icon)
+2. "dots" (alterning animated dots), use $\textcolor{#b36534}{\textsf{data-loading-icon="dots"}}$ 
+
 ```
 
 <script setup lang="ts">
@@ -787,7 +791,7 @@ data-delay will show a spinner while the script is running to put your slides in
 </script>
 
 <template>
-    <div id="qroll-parent" class="qroll-main qroll-loop qroll-tooltip" data-delay="1000" data-nuxt="true">
+    <div id="qroll-parent" class="qroll-main qroll-loop qroll-tooltip" data-delay="1000" data-nuxt="true" data-loader-icon="dots">
          <div>
             <MyComponent/>
         </div>

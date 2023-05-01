@@ -401,7 +401,7 @@ small.scroll {
 }
 
 .test-button {
-    background: radial-gradient(at bottom left, rgb(114, 201, 235), rgb(116, 204, 170), rgb(210, 245, 210));
+    background: radial-gradient(at bottom left, rgb(114, 201, 235), #74ccaa, rgb(210, 245, 210));
     box-shadow: 0 3px 8px rgba(0,0,0,0.6);
     font-weight:bold;
     padding: 8px 16px;
@@ -543,4 +543,14 @@ small.scroll {
 
 .qroll-menu {
     font-family: "Satoshi";
+}
+
+@media screen and (max-width:769px) {
+    h2 {
+        font-size: 0.6em;
+    }
+    p {
+        max-width: 300px !important;
+        margin: 0 auto;
+    }
 }

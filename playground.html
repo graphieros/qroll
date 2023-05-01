@@ -12,7 +12,7 @@
 </head>
 <body>
 
-    <div id="qroll-parent" class="qroll-main qroll-tooltip" data-nuxt="false" data-delay="1000" data-delay-background="radial-gradient(at top right, #0f0c29, #302b63, rgb(96, 148, 184))">
+    <div id="qroll-parent" class="qroll-main qroll-tooltip" data-nuxt="false" data-delay="1000" data-loader-icon="dots" data-delay-background="radial-gradient(at top right, #0f0c29, #302b63, rgb(96, 148, 184))">
 
         <div 
             class="qroll-menu"
@@ -167,7 +167,7 @@
             <h2 style="color: #e7e6f3">Carousel components</h2>
             <div class="qroll-carousel-component-horizontal" data-auto-slide="true" data-timer="5000">
                 <div class="test-blue-reversed" style="color:white; height: 250px;padding:24px">
-                    <p style="font-size: 16px; max-width: 50ch;">
+                    <p style="font-size: 16px;">
                         Qroll allows you to create carousel components. Anywhere inside a slide, just drop a css class on a div and voilà.
                     </p>
                 </div>
@@ -257,25 +257,25 @@
             </p>
             <div class="test-button-wrapper" style="max-width:60ch; margin:0 auto; display:flex; align-items:center;justify-content:center;flex-wrap:wrap;gap:24px; padding: 24px">
                 <div style="display:flex; gap: 12px; flex-direction:column; align-items:center;justify-content:center">
-                    <button class="qroll-button bg-transparent text-white border-1-white py-0.5 px-1 h-0.9 radius-4" onclick="qroll.slideDown()">
+                    <button class="qroll-button bg-#42f5bc3A text-white border-1-white py-0.5 px-1 h-0.9 radius-4" onclick="qroll.slideDown()">
                        SLIDE DOWN
                     </button>
                     <code style="font-size:14px; color: white">qroll.slideDown()</code>
                 </div>
                 <div style="display:flex; gap: 12px; flex-direction:column; align-items:center;justify-content:center">
-                    <button class="qroll-button bg-transparent text-white border-1-white py-0.5 px-1 h-0.9 radius-4" onclick="qroll.slideUp()">
+                    <button class="qroll-button bg-#42f5bc3A text-white border-1-white py-0.5 px-1 h-0.9 radius-4" onclick="qroll.slideUp()">
                         SLIDE UP
                      </button>
                     <code style="font-size:14px; color: white">qroll.slideUp()</code>
                 </div>
                 <div style="display:flex; gap: 12px; flex-direction:column; align-items:center;justify-content:center">
-                    <button class="qroll-button bg-transparent text-white border-1-white py-0.5 px-1 h-0.9 radius-4" onclick="qroll.slideToIndex(1)">
+                    <button class="qroll-button bg-#42f5bc3A text-white border-1-white py-0.5 px-1 h-0.9 radius-4" onclick="qroll.slideToIndex(1)">
                         SLIDE TO PAGE 2
                      </button>
                     <code style="font-size:14px; color: white">qroll.slideToIndex(1)</code>
                 </div>
                 <div style="display:flex; gap: 12px; flex-direction:column; align-items:center;justify-content:center">
-                    <button class="qroll-button bg-transparent text-white border-1-white py-0.5 px-1 h-0.9 radius-4" onclick="qroll.slideToIndex(2,2)">
+                    <button class="qroll-button bg-#42f5bc3A text-white border-1-white py-0.5 px-1 h-0.9 radius-4" onclick="qroll.slideToIndex(2,2)">
                         SLIDE TO PAGE 3/3
                      </button>
                     <code style="font-size:14px; color: white">qroll.slideToIndex(2,2)</code>
@@ -297,10 +297,19 @@
             <h2 style="color:white">Easy dialog</h2>
             <div style="display: flex; align-items:center;justify-content:center;gap:12px">
                 <button class="qroll-button bg-transparent text-white border-1-white py-0.5 px-1 h-0.9 radius-4" onclick="qroll.openDialog('basicDialog')">
-                    OPEN BASIC DIALOG
+                    <div style="display:flex; flex-direction:row; gap:6px; align-items:center; justify-content: center;">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" height="20">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 3.75H6A2.25 2.25 0 003.75 6v1.5M16.5 3.75H18A2.25 2.25 0 0120.25 6v1.5m0 9V18A2.25 2.25 0 0118 20.25h-1.5m-9 0H6A2.25 2.25 0 013.75 18v-1.5M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                        <span>OPEN BASIC DIALOG</span>
+                    </div>
                 </button>
-                <button class="qroll-button bg-transparent text-white border-1-white py-0.5 px-1 h-0.9 radius-4" onclick="qroll.openDialog('carouselDialog')">
-                    OPEN DIALOG WITH CAROUSEL
+                <button class="qroll-button bg-#42f5bc3A text-white border-1-white py-0.5 px-1 h-0.9 radius-4" onclick="qroll.openDialog('carouselDialog')">
+                    
+                        <div style="display:flex; flex-direction: row; gap: 6px; align-items: center; justify-content: center;">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="20" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8.688c0-.864.933-1.405 1.683-.977l7.108 4.062a1.125 1.125 0 010 1.953l-7.108 4.062A1.125 1.125 0 013 16.81V8.688zM12.75 8.688c0-.864.933-1.405 1.683-.977l7.108 4.062a1.125 1.125 0 010 1.953l-7.108 4.062a1.125 1.125 0 01-1.683-.977V8.688z" /></svg>
+                            <span>OPEN DIALOG WITH CAROUSEL</span>
+                        </div>
                 </button>
             </div>
         </div>
@@ -681,7 +690,9 @@
                 
                 <br>
                 <div style="width: 100%; display: flex; align-items:center;justify-content:center">
-                    <button class="test-button" onclick="qroll.closeDialog('basicDialog')">CLOSE</button>
+                    <button class="qroll-button text-black border-1-black radius-6 py-0.5 px-1 h-0.9" onclick="qroll.closeDialog('basicDialog')">
+                        CLOSE
+                    </button>
                 </div>
             </div>
         </div>
@@ -708,7 +719,9 @@
             </div>
             <br>
             <div style="width: 100%; display: flex; align-items:center;justify-content:center">
-                <button class="test-button" onclick="qroll.closeDialog('carouselDialog')">CLOSE</button>
+                <button class="qroll-button text-black border-1-black radius-6 py-0.5 px-1 h-0.9" onclick="qroll.closeDialog('carouselDialog')">
+                    CLOSE
+                </button>
             </div>
         </div>
 
