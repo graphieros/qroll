@@ -591,3 +591,22 @@ small.scroll {
     width:100%;
     text-align:center;
 }
+
+#uiButtonDialog,
+#uiButtonDialogRounded,
+#uiButtonDialogFab {
+    height: 340px;
+    max-width: 340px;
+}
+
+#uiButtonDialog {
+    background: radial-gradient(at bottom left, rgb(114, 201, 235), #74ccaa, rgb(210, 245, 210));
+}
+
+#uiButtonDialogRounded {
+    background: radial-gradient(at bottom left, rgb(235, 162, 114), rgb(204, 198, 116), rgb(245, 210, 210));
+}
+
+#uiButtonDialogFab {
+    background: radial-gradient(at bottom right, rgb(238, 198, 198), rgb(123, 131, 207));
+}

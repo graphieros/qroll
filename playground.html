@@ -636,24 +636,43 @@
         </div>
         
         <div 
-            class="test-child test-blue"
+            class="test-child test-blue qroll-carousel qroll-tooltip qroll-loop"
             data-meta-title="Qroll UI atoms"
             data-meta-description="Qroll offers a range of read-made styles for your UI atomic components"
             data-title="UI atoms"
         >
+            <div data-title="Buttons">
+                <h2 style="color:white">Buttons</h2>
+                <p style="color:white; text-align:center; font-size:16px">Qroll provides css classes to style basic UI components, such as buttons and inputs.</p>
+                <div style="display: flex; align-items:center;justify-content:center; gap:24px">
+                    <button onclick="qroll.openDialog('uiButtonDialog')" class="qroll-button bg-transparent border-1-#FFFFFF radius-6 h-1.2 text-#FFF my-1 px-1.5 py-0.5">CLICK</button>
+                    <button onclick="qroll.openDialog('uiButtonDialogRounded')" class="qroll-button rounded bg-transparent border-1-#FFFFFF h-1.2 text-#FFF my-1 px-1.2 py-0.5">CLICK</button>
+                    <button onclick="qroll.openDialog('uiButtonDialogFab')" class="qroll-button rounded bg-transparent border-1-#FFFFFF h-1.2 text-#FFF my-1 px-0.55 py-0.5">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24" style="margin-bottom:-5px" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" >
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0M3.124 7.5A8.969 8.969 0 015.292 3m13.416 0a8.969 8.969 0 012.168 4.5" />
+                          </svg>
+                          
+                    </button>
+                    
+                </div>
+            </div>
 
-            <button class="qroll-button bg-transparent border-1-#FFFFFF radius-6 h-1.2 text-#FFF my-1 px-1.5 py-0.5">CLICK</button>
-            <button class="qroll-button rounded bg-transparent border-1-#FFFFFF h-1.2 text-#FFF my-1 px-1.2 py-0.5">CLICK</button>
+            <div data-title="Form elements">
+                <h2 style="color:white">Inputs</h2>
+                <p style="color:white; text-align:center; font-size:16px">Qroll provides css classes to style basic UI components, such as buttons and inputs.</p>
+                <div style="display: flex; align-items:center;justify-content:center; gap:24px">
+                    <input class="qroll-input radius-4 px-1 bg-#FFFFFF12 border-1-#FFF text-#FFF my-1">
+        
+                    <textarea class="qroll-input pa-0.5 radius-4 bg-#FFFFFF12 border-1-#FFF text-#FFF my-1"></textarea>
+        
+                    <select class="qroll-input pa-0.3 radius-4 border-1-#FFF bg-transparent text-#FFF my-1">
+                        <option>1</option>
+                        <option>2</option>
+                        <option>3</option>
+                    </select>
+                </div>
+            </div>
 
-            <input class="qroll-input radius-4 px-1 bg-#FFFFFF12 border-1-#FFF text-#FFF my-1">
-
-            <textarea class="qroll-input pa-0.5 radius-4 bg-#FFFFFF12 border-1-#FFF text-#FFF my-1"></textarea>
-
-            <select class="qroll-input pa-0.3 radius-4 border-1-#FFF bg-transparent text-#FFF my-1">
-                <option>1</option>
-                <option>2</option>
-                <option>3</option>
-            </select>
         </div>
 
         <!-- DIALOGS -->
@@ -725,6 +744,80 @@
             </div>
         </div>
 
+        <div 
+            class="qroll-dialog"
+            data-id="uiButtonDialog"
+            data-title="Qroll button"
+            data-close-button="true"
+            data-css-classes="test-dialog-2"
+        >
+            <div style="padding: 12px; padding-left:24px; border-radius: 6px; background: radial-gradient(at top left, rgba(0,0,0,0.6), rgba(0,0,0,0.8));color:white">
+                <code>
+                    &lt;button
+                    <br>&nbsp;&nbsp;class="
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;qroll-button
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;bg-transparent
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;radius-6
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;h-1.2
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;px-1.5
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;py-0.5
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;border-1-#FFFFFF
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;text-#FFFFFF"
+                    <br>&nbsp;&nbsp;&gt; CLICK <br>
+                    &lt;/button&gt;
+                </code>
+            </div>
+        </div>
+
+        <div 
+            class="qroll-dialog"
+            data-id="uiButtonDialogRounded"
+            data-title="Qroll rounded button"
+            data-close-button="true"
+            data-css-classes="test-dialog-2"
+        >
+            <div style="padding: 12px; padding-left:24px; border-radius: 6px; background: radial-gradient(at top left, rgba(0,0,0,0.6), rgba(0,0,0,0.8));color:white">
+                <code>
+                    &lt;button
+                    <br>&nbsp;&nbsp;class="
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;qroll-button
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;rounded
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;bg-transparent
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;h-1.2
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;px-1.2
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;py-0.5
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;border-1-#FFFFFF
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;text-#FFFFFF"
+                    <br>&nbsp;&nbsp;&gt; CLICK <br>
+                    &lt;/button&gt;
+                </code>
+            </div>
+        </div>
+
+        <div 
+            class="qroll-dialog"
+            data-id="uiButtonDialogFab"
+            data-title="Qroll fab button"
+            data-close-button="true"
+            data-css-classes="test-dialog-2"
+        >
+            <div style="padding: 12px; padding-left:24px; border-radius: 6px; background: radial-gradient(at top left, rgba(0,0,0,0.6), rgba(0,0,0,0.8));color:white">
+                <code>
+                    &lt;button
+                    <br>&nbsp;&nbsp;class="
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;qroll-button
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;rounded
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;bg-transparent
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;h-1.2
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;px-0.55
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;py-0.5
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;border-1-#FFFFFF
+                    <br>&nbsp;&nbsp;&nbsp;&nbsp;text-#FFFFFF"
+                    <br>&nbsp;&nbsp;&gt; [your icon here] <br>
+                    &lt;/button&gt;
+                </code>
+            </div>
+        </div>
     </div>
 </body>
 </html>
