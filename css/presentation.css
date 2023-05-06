@@ -29,11 +29,12 @@ h1 {
     color:rgb(177, 229, 238);
 }
 .test-title-light {
-    background: radial-gradient(at top, rgb(177, 229, 238), rgb(83, 172, 110));
+
+    /* background: radial-gradient(at top, rgb(177, 229, 238), rgb(83, 172, 110));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-size: 200%;
-    animation: background-pan 3s linear infinite;
+    animation: background-pan 3s linear infinite; */
 }
 
 h2.test-title-dark {
