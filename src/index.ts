@@ -12,8 +12,8 @@ if (typeof window !== 'undefined') {
         let attempts = 0;
         const interval = setInterval(() => {
             attempts += 1;
-            if (!!ourWindow.qroll && ourWindow.qroll.refresh) {
-                ourWindow.qroll.refresh();
+            if (!!ourWindow.qroll && ourWindow.qroll.restart) {
+                ourWindow.qroll.restart();
                 clearInterval(interval);
             }
             if (attempts > 1000) {

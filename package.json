@@ -1,16 +1,33 @@
 {
   "name": "qroll",
-  "version": "1.0.0",
+  "version": "0.0.3",
+  "private": false,
+  "description": "A friendly full page scroll UI library",
+  "author": "Alec Lloyd Probert",
+  "licence": "MIT",
   "type": "module",
   "main": "./dist/qroll.umd.cjs",
   "module": "./dist/qroll.js",
   "types": "./dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/graphieros/qroll"
+  },
   "exports": {
     ".": {
       "import": "./dist/qroll.js",
       "export": "./dist/qroll.umd.cjs"
     }
   },
+  "keywords": [
+    "UI library",
+    "full page",
+    "scroll",
+    "scroll library",
+    "slider",
+    "slides",
+    "slide library"
+  ],
   "files": [
     "dist"
   ],

@@ -8,6 +8,7 @@ import {
     CssClass,
     ElementAttribute,
     ElementId,
+    EventTrigger,
 } from "./constants";
 
 import {
@@ -65,6 +66,10 @@ const Main: any = (parentName: string = "qroll-parent", _options: Options = {}) 
     //------------------------------------------------------------------------//
 
     let state: State = {
+        clickPosition: {
+            x: 0,
+            y: 0,
+        },
         cssClassTransition: "",
         currentCarousel: null,
         currentNoLoopSlide: 1,
@@ -205,6 +210,11 @@ const Main: any = (parentName: string = "qroll-parent", _options: Options = {}) 
 
     init();
 
+    document.addEventListener(EventTrigger.CLICK, (e) => {
+        state.clickPosition.x = e.clientX;
+        state.clickPosition.y = e.clientY;
+    });
+
     Main.refresh = () => {
         Object.keys(state.timeouts).forEach(key => {
             clearTimeout(state.timeouts[key]);
@@ -219,7 +229,6 @@ const Main: any = (parentName: string = "qroll-parent", _options: Options = {}) 
     }
 
     Main.restart = () => {
-        Main(ElementId.PARENT);
         Object.keys(state.timeouts).forEach(key => {
             clearTimeout(state.timeouts[key]);
         });
@@ -231,6 +240,10 @@ const Main: any = (parentName: string = "qroll-parent", _options: Options = {}) 
         });
 
         state = {
+            clickPosition: {
+                x: 0,
+                y: 0
+            },
             cssClassTransition: "",
             currentCarousel: null,
             currentNoLoopSlide: 1,

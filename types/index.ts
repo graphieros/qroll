@@ -14,6 +14,7 @@ export interface MainFunction {
     updateCharts: () => void;
     state: () => State;
     refresh: () => void,
+    restart: () => void;
 }
 
 export interface Slide {
@@ -56,7 +57,13 @@ export type EventTriggerListener = {
     method: (event: any) => void;
 }
 
+export interface Coordinates {
+    x: number;
+    y: number;
+}
+
 export type State = {
+    clickPosition: Coordinates;
     cssClassTransition: string;
     currentCarousel: HTMLDivElement | null;
     currentNoLoopSlide: number;

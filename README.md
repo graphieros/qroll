@@ -1,4 +1,4 @@
-# $\textcolor{#34b393}{\textsf{Qroll}}$
+# Qroll
 
 
 ```
@@ -9,7 +9,7 @@ npm i qroll
 
 The library targets a parent DIV by its id.
 
-Wrap all your content into a parent DIV with the id $\textcolor{#34b393}{\textsf{'qroll-parent'}}$  and class $\textcolor{#6376DD}{\textsf{'qroll-main'}}$
+Wrap all your content into a parent DIV with the id 'qroll-parent'  and class 'qroll-main'
 The slides will correspond to the first level DIV children of the parent.
 The example below will produce 3 slides:
 
@@ -31,13 +31,13 @@ The example below will produce 3 slides:
 
 Add options to the Parent wrapper using css classes:
 - transition duration:
-    > $\textcolor{#6376DD}{\textsf{qroll-transition-[duration]}}$ with possible duration values 300, 400, 500, 600, 700, 800, 1000
+    > qroll-transition-[duration] with possible duration values 300, 400, 500, 600, 700, 800, 1000
 
 - show the vertical navigation:
-    > $\textcolor{#6376DD}{\textsf{qroll-nav}}$
+    > qroll-nav
 
 - use infinite loop scrolling:
-    > $\textcolor{#6376DD}{\textsf{qroll-loop}}$
+    > qroll-loop
 
 
 ```
@@ -60,7 +60,7 @@ Add options to the Parent wrapper using css classes:
 
 The navigation tooltips will try to find the first h1, h2, h3 or h4 element of each slide, to show their text content inside the tooltip. If there are no h1, h2, h3 or h4 element on a slide, the information provided in the tooltip will default to the page index.
 
-You can also customize the content of your tooltips by adding a few data properties to your children divs. In the example below, the first tooltip will use the $\textcolor{#b36534}{\textsf{data-title}}$ property, the other tooltips will use the h2 element's content:
+You can also customize the content of your tooltips by adding a few data properties to your children divs. In the example below, the first tooltip will use the data-title property, the other tooltips will use the h2 element's content:
 
 ```
 <div id="qroll-parent" class="qroll-main qroll-transition-1000 qroll-loop">
@@ -79,7 +79,7 @@ You can also customize the content of your tooltips by adding a few data propert
 
 ```
 
-You can also customize the css of each tooltip, using a $\textcolor{#b36534}{\textsf{data-tooltip-css}}$ property:
+You can also customize the css of each tooltip, using a data-tooltip-css property:
 
 
 ```
@@ -345,7 +345,7 @@ Qroll provides a set of minimalist charts to complement your slides on the go wi
 Add the "qroll-chart" class to a div inside a slide, and use data attributes for all the options.
 You can include your own set of colors. If not, great default colors will be applied.
 
-The dataset passed into $\textcolor{#b36534}{\textsf{data-x-values}}$ and $\textcolor{#b36534}{\textsf{data-y-values}}$ uses JSON format.
+The dataset passed into data-x-values and data-y-values uses JSON format.
 
 1. Line charts / Bar charts
 They work exactly the same, just change the data-type to "line" or "bar", all the other required data-attributes are identical.
@@ -532,7 +532,7 @@ Just set up an empty div at first child of the main parent element, with the fol
 
 ```
 The data-auto attribute will create menu items based on your main slides, and link to them.
-You can also provide additional links (or only use these), by adding the $\textcolor{#b36534}{\textsf{data-additional-links}}$ attribute, and provide an array of links.
+You can also provide additional links (or only use these), by adding the data-additional-links attribute, and provide an array of links.
 This is also the place where you can link to a specific horizontal slide index (for example: slide 3 at horizontal index 2):
 
 ```
@@ -569,7 +569,7 @@ This is also the place where you can link to a specific horizontal slide index (
 
 ```
 
-As for styling the menu, you can provide your own css classes through the $\textcolor{#b36534}{\textsf{data-css-classes}}$ attribute, or target the following classes:
+As for styling the menu, you can provide your own css classes through the data-css-classes attribute, or target the following classes:
 
 ```
 <style>
@@ -755,7 +755,7 @@ Qroll exposes a few methods you can control:
 Add qroll's style.css into the assets/css folder
 Add qroll scripts into the public folder (both qroll.umd.cjs and qroll.umd.cjs.map) 
 
-- nuxt.config.ts
+- nuxt.config.ts: if there is only one page in your application.
 
 ```
 export default defineNuxtConfig({
@@ -776,18 +776,20 @@ export default defineNuxtConfig({
 
 ```
 
+- Or directly in the head of your vue file, if your application contains several routes. Add the script to every head of every vue file using the library.
+
 - Place the main parent div inside your index.vue file. Don't forget to add data-delay (ms) and data-nuxt attributes.
 data-delay will show a spinner while the script is running to put your slides into shape, whild data-nuxt="true" will make sure the script runs after the HTML is displayed.
 
 - There are 2 types of loader icons you can use:
 1. "spin" (rotating arrows, default icon)
-2. "dots" (alterning animated dots), use $\textcolor{#b36534}{\textsf{data-loading-icon="dots"}}$ 
+2. "dots" (alterning animated dots), use data-loading-icon="dots"
 
 ```
 
 <script setup lang="ts">
 // your code here
-// if you need to refresh qroll after a page hydration, you can call window.qroll.refresh(), but no need to do that on the first load.
+// if you need to restart qroll after a page hydration, you can call window.qroll.restart(), but no need to do that on the first load.
 </script>
 
 <template>
@@ -805,3 +807,6 @@ data-delay will show a spinner while the script is running to put your slides in
 </template>
 
 ```
+
+## Other scripts tampering with class names
+- Some other libraries you may use could tamper with class names. You can be extra safe by adding the class "qroll-slide" to all direct children of the "qroll-parent" div.
