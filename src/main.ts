@@ -45,6 +45,8 @@ import { createButtons, createInputs } from "./form";
 
 // TODO: find a way to include css
 
+// TODO: remove flex to .qroll-slide
+
 // TODO: interface Main issue
 const Main: any = (parentName: string = "qroll-parent", _options: Options = {}) => {
     Main.getCurrentSlideIndex = getCurrentSlideIndex;
@@ -204,7 +206,20 @@ const Main: any = (parentName: string = "qroll-parent", _options: Options = {}) 
     init();
 
     Main.refresh = () => {
+        Object.keys(state.timeouts).forEach(key => {
+            clearTimeout(state.timeouts[key]);
+        });
+        state.events.forEach((event: any) => {
+            event.element.removeEventListener(event.trigger, event.callback, true);
+            if (event.aborter) {
+                event.aborter.abort();
+            }
+        });
+        Main(ElementId.PARENT);
+    }
 
+    Main.restart = () => {
+        Main(ElementId.PARENT);
         Object.keys(state.timeouts).forEach(key => {
             clearTimeout(state.timeouts[key]);
         });
